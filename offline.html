@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+   <link rel="icon" alt="Logo" href="/logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>You're Offline • Comfort Continues</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #0a1a2f, #020b18);
+      color: #e6f0ff;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .scene {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      opacity: 0;
+      animation: sceneFade 24s infinite;
+    }
+
+    .scene:nth-child(1) { animation-delay: 0s; }
+    .scene:nth-child(2) { animation-delay: 6s; }
+    .scene:nth-child(3) { animation-delay: 12s; }
+    .scene:nth-child(4) { animation-delay: 18s; }
+
+    @keyframes sceneFade {
+      0% { opacity: 0; transform: translateY(20px); }
+      5% { opacity: 1; transform: translateY(0); }
+      25% { opacity: 1; }
+      30% { opacity: 0; transform: translateY(-20px); }
+      100% { opacity: 0; }
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+
+    p {
+      max-width: 340px;
+      text-align: center;
+      opacity: 0.85;
+      line-height: 1.6;
+    }
+
+    /* Student Illustration */
+    .student {
+      width: 140px;
+      height: 180px;
+      margin-bottom: 1.2rem;
+      position: relative;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .head {
+      width: 50px;
+      height: 50px;
+      background: #d9e6ff;
+      border-radius: 50%;
+      margin: auto;
+    }
+
+    .body {
+      width: 70px;
+      height: 90px;
+      background: #1f6cff;
+      border-radius: 14px;
+      margin: 6px auto 0;
+    }
+
+    .phone {
+      width: 24px;
+      height: 40px;
+      background: #020b18;
+      border: 2px solid #66a3ff;
+      border-radius: 6px;
+      position: absolute;
+      right: -10px;
+      top: 80px;
+      animation: glow 1.8s infinite alternate;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes glow {
+      from { box-shadow: 0 0 5px #66a3ff; }
+      to { box-shadow: 0 0 16px #66a3ff; }
+    }
+
+    /* Lecture room */
+    .board {
+      width: 220px;
+      height: 120px;
+      background: #0d2a52;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(102,163,255,0.25);
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .board::after {
+      content: "Lecture in progress…";
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    /* Package */
+    .box {
+      width: 90px;
+      height: 90px;
+      background: linear-gradient(135deg, #1f6cff, #66a3ff);
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      animation: pop 2s infinite;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+
+    /* Footer */
+    .offline-tag {
+      position: absolute;
+      bottom: 24px;
+      font-size: 0.85rem;
+      opacity: 0.6;
+    }
+
+    
+    .retry {
+      margin-top: 1.2rem;
+      padding: 12px 22px;
+      border-radius: 30px;
+      border: none;
+      background: linear-gradient(135deg, #1f6cff, #66a3ff);
+      color: white;
+      font-size: 0.95rem;
+      cursor: pointer;
+      box-shadow: 0 0 18px rgba(102,163,255,0.4);
+      animation: pulse 2s infinite;
+    }
+
+    .retry:hover {
+      transform: scale(1.05);
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 10px rgba(102,163,255,0.4); }
+      50% { box-shadow: 0 0 22px rgba(102,163,255,0.7); }
+      100% { box-shadow: 0 0 10px rgba(102,163,255,0.4); }
+    }
+
+    .characters {
+      display: flex;
+      gap: 22px;
+      margin-bottom: 1rem;
+    }
+
+    .rider, .vendor {
+      width: 60px;
+      height: 90px;
+      border-radius: 14px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .rider {
+      background: linear-gradient(135deg, #0dcaf0, #1f6cff);
+    }
+
+    .vendor {
+      background: linear-gradient(135deg, #ffc107, #ff9800);
+    }
+
+    .student.small {
+      width: 60px;
+      height: 90px;
+      background: #d9e6ff;
+      border-radius: 14px;
+    }
+
+</style>
+</head>
+<body>
+<script>
+  const scenes = document.querySelectorAll('.scene');
+  let current = 0;
+
+  function showScene(index) {
+    scenes.forEach((s, i) => {
+      s.style.opacity = i === index ? '1' : '0';
+      s.style.pointerEvents = i === index ? 'auto' : 'none';
+    });
+  }
+
+  function playStory() {
+    showScene(current);
+    current = (current + 1) % scenes.length;
+  }
+
+  setInterval(playStory, 6000);
+
+  // Cinematic parallax motion
+  document.addEventListener('mousemove', e => {
+    const x = (e.clientX / window.innerWidth - 0.5) * 10;
+    const y = (e.clientY / window.innerHeight - 0.5) * 10;
+    document.body.style.backgroundPosition = `${50 + x}% ${50 + y}%`;
+  });
+
+  // Auto-retry when connection comes back
+  window.addEventListener('online', () => {
+    location.reload();
+  });
+</script>
+
+  <!-- Scene 1 -->
+  <div class="scene">
+    <div class="student">
+      <div class="head"></div>
+      <div class="body"></div>
+      <div class="phone"></div>
+    </div>
+    <h1>Comfort starts anywhere</h1>
+    <p>A student relaxes in their room, ordering confidently with just a tap.</p>
+  </div>
+
+  <!-- Scene 2 -->
+  <div class="scene">
+    <div class="board"></div>
+    <h1>No stress, even in class</h1>
+    <p>During lectures, comfort stays uninterrupted. Your needs are already handled.</p>
+  </div>
+
+  <!-- Scene 3 -->
+  <div class="scene">
+    <div class="box"></div>
+    <h1>We’ve got you covered</h1>
+    <p>Your order is prepared with care, speed, and reliability.</p>
+  </div>
+
+  <!-- Scene 4 -->
+  <div class="scene">
+    <div class="characters">
+      <div class="student small"></div>
+      <div class="rider"></div>
+      <div class="vendor"></div>
+    </div>
+    <h1>Confidence in comfort</h1>
+    <p>Even offline, our promise stays the same. Relax — we’ll reconnect soon.</p>
+    <button class="retry" onclick="location.reload()">Check connection & try again</button>
+  </div>
+
+  <div class="offline-tag">You are currently offline</div>
+
+</body>
+</html>

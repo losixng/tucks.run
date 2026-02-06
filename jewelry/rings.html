@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>market - Rings</title>
+
+  <!-- Paystack inline script (must be loaded BEFORE the module) -->
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+
+  <style>
+    /* ---------- (Your CSS: kept and slightly extended) ---------- */
+    body {
+      padding-bottom: 80px; /* space for nav */
+    }
+    /* Menu Toggle Checkbox */
+#menuToggle {
+  display: none;
+}
+
+/* Hamburger */
+.menu-icon {
+  width: 30px;
+  height: 24px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.4s ease;
+}
+.menu-icon span {
+  position: absolute;
+  height: 3px;
+  width: 100%;
+  background: white;
+  border-radius: 3px;
+  transition: all 0.4s ease;
+}
+.menu-icon span:nth-child(1) { top: 0; }
+.menu-icon span:nth-child(2) { top: 10px; }
+.menu-icon span:nth-child(3) { top: 20px; }
+
+/* Animate to X */
+#menuToggle:checked + label .menu-icon span:nth-child(1) {
+  transform: rotate(45deg);
+  top: 10px;
+}
+#menuToggle:checked + label .menu-icon span:nth-child(2) {
+  opacity: 0;
+}
+#menuToggle:checked + label .menu-icon span:nth-child(3) {
+  transform: rotate(-45deg);
+  top: 10px;
+}
+
+/* Dropdown Menu */
+nav {
+  position: fixed;
+  top: 65px;
+  right: 15px;
+  width: 180px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border-radius: 15px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  padding: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-15px);
+  transition: all 0.3s ease;
+}
+
+/* Show when checked */
+#menuToggle:checked ~ nav {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* Menu links */
+nav a {
+  display: block;
+  padding: 10px;
+  text-decoration: none;
+  color: #ff6b6b;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: background 0.3s ease, transform 0.2s;
+}
+nav a:hover {
+  background: rgba(255,107,107,0.15);
+  transform: translateX(4px);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  nav {
+    width: 70%;
+    right: 15%;
+  }
+}
+
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 500px;
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      border-radius: 40px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 10px 0;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease-in-out;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: #555;
+      font-size: 0.8rem;
+      transition: all 0.3s;
+    }
+
+    .nav-item i {
+      font-size: 1.4rem;
+      margin-bottom: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      color: #ff5e57;
+    }
+
+    .nav-item:hover i, .nav-item.active i {
+      transform: scale(1.2);
+    }
+
+    @media (max-width: 600px) {
+      .bottom-nav {
+        width: 95%;
+        bottom: 15px;
+      }
+    }
+
+    :root{
+      --accent:#ff6a00;
+      --muted:#666;
+      --bg:  linear-gradient(60deg,#F2C464 0%, #C6F4D6 100%);
+      --card-shadow: 0 10px 36px rgba(10,10,10,0.08);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial; background:var(--bg); color:#111}
+    header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;gap:12px}
+    header .brand{font-weight:800}
+    .auth-box{display:flex;gap:8px;align-items:center}
+    .btn{padding:8px 12px;border-radius:10px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-weight:700}
+    .btn.ghost{background:#fff;color:#111;border:1px solid rgba(0,0,0,0.06)}
+    main{padding:16px}
+
+    /* categories + filters */
+    .category{margin:18px 0}
+    .cat-head{display:flex;justify-content:space-between;align-items:center}
+    .filters{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .filters button{padding:8px 10px;border-radius:8px;border:1px solid #eee;background:#fff;cursor:pointer;transition:all .12s}
+    .filters button.active{background:var(--accent);color:#fff;transform:translateY(-3px)}
+
+    /* grid */
+    .product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:12px}
+    .card{
+      height:300px;border-radius:12px;background-size:cover;background-position:center;position:relative;
+      display:flex;align-items:flex-end;box-shadow:var(--card-shadow);overflow:hidden;cursor:pointer;transition:transform .18s,box-shadow .18s;
+    }
+    .card:hover{transform:translateY(-8px);box-shadow:0 24px 60px rgba(0,0,0,0.12)}
+    .card-overlay{width:100%;padding:12px;background:linear-gradient(180deg,rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 100%);color:#fff}
+    .card-title{font-size:16px;color:var(--accent);margin:0}
+    .card-desc{font-size:13px;margin:6px 0;color:rgba(255,255,255,0.9)}
+    .card-price{font-weight:800}
+
+    .sold-out{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);color:#fff;font-weight:800;font-size:18px}
+
+    /* lightbox */
+    .lightbox{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:1200;padding:12px}
+    .lightbox.show{display:flex}
+    .lb{width:100%;max-width:1000px;background:#fff;border-radius:12px;display:grid;grid-template-columns:1fr 420px;gap:12px;padding:12px;overflow:auto}
+    .lb-left{padding:8px}
+    .lb-main{height:420px;border-radius:10px;background:#f6f6f6;background-position:center;background-size:cover;display:flex;align-items:center;justify-content:center}
+    .lb-thumbs{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+    .thumb{width:64px;height:64px;border-radius:8px;background-size:cover;background-position:center;border:2px solid transparent;cursor:pointer}
+    .thumb.active{border-color:var(--accent)}
+    .lb-right{padding:8px}
+    .lb-title{font-size:20px;margin:0}
+    .lb-desc{color:var(--muted)}
+    .lb-price{color:var(--accent);font-weight:800;font-size:18px;margin:8px 0}
+    .lb-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .close-x{position:absolute;right:8px;top:8px;background:transparent;border:none;font-size:26px;color:#fff;cursor:pointer}
+
+    /* modal buy/custom */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:1300;padding:12px}
+    .modal.show{display:flex}
+    .modal-card{width:100%;max-width:720px;background:#fff;border-radius:12px;padding:16px;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
+    .modal-grid{display:grid;grid-template-columns:1fr 340px;gap:12px}
+    .form-row{margin-bottom:8px;display:flex;flex-direction:column}
+    label{font-size:13px;color:var(--muted);margin-bottom:6px}
+    input,select,textarea{padding:10px;border-radius:8px;border:1px solid #eee}
+    .totals{background:#fafafa;padding:12px;border-radius:8px;margin-top:8px}
+    .totals div{display:flex;justify-content:space-between;padding:6px 0}
+    .modal-foot{display:flex;justify-content:flex-end;gap:10px;margin-top:12px}
+
+    /* make modal-card content scrollable on mobile */
+    .modal-card { max-height: 92vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
+    /* confirmation */
+    .confirm-card{padding:18px;border-radius:10px;background:#eafaf1;color:#064d2a;font-weight:700}
+
+    /* small screens */
+    @media (max-width:980px){
+      .lb{grid-template-columns:1fr;max-height:92vh}
+      .modal-grid{grid-template-columns:1fr}
+      .card{height:220px}
+      .lb-main{height:320px}
+    }
+    /* Hero Section Styling */
+.hero {
+  background: linear-gradient(135deg,yellow, rgb(217, 0, 255));
+  color: #fff;
+  text-align: center;
+  padding: 6rem 1rem;
+  border-radius: 0 0 2rem 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle overlay effect */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.15), transparent 60%),
+              radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1), transparent 60%);
+}
+
+.hero-content {
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.hero-subtitle {
+  font-size: 1.125rem;
+  font-weight: 400;
+  margin-bottom: 2rem;
+  color: #f3f3f3;
+}
+
+.hero-btn {
+  display: inline-block;
+  background: #fff;
+  color: #2575fc;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+.hero-btn:hover {
+  background: #f3f3f3;
+  transform: translateY(-2px);
+}
+.attire-advert {
+  background: linear-gradient(135deg, yellow, rgb(217, 0, 255));
+  border-radius: 1.5rem;
+  border-radius: 1.5rem;
+  height: 35vh;
+  max-height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  color: #fff;
+  text-align: center;
+  margin: 2rem auto;
+  overflow: hidden;
+}
+
+.advert-content {
+  max-width: 700px;
+}
+
+.advert-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  line-height: 1.2;
+}
+
+.advert-text {
+  font-size: 1rem;
+  margin-bottom: 1.25rem;
+  color: #f9f9f9;
+}
+
+.advert-btn {
+  display: inline-block;
+  background: #fff;
+  color: #ff7e5f;
+  padding: 0.65rem 1.5rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.advert-btn:hover {
+  background: #f9f9f9;
+  transform: translateY(-2px);
+}
+ /* Menu toggle */
+.menu-icon {
+  width: 30px;
+  height: 24px;
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.menu-icon span {
+  height: 3px;
+  background: white;
+  border-radius: 3px;
+  transition: all 0.4s ease;
+}
+
+/* Transform to X */
+#menuToggle:checked + label.menu-icon span:nth-child(1) {
+  transform: rotate(45deg) translateY(10px);
+}
+#menuToggle:checked + label.menu-icon span:nth-child(2) {
+  opacity: 0;
+}
+#menuToggle:checked + label.menu-icon span:nth-child(3) {
+  transform: rotate(-45deg) translateY(-10px);
+}
+
+/* Dropdown Menu */
+.menu-dropdown {
+  position: fixed;
+  top: 65px;
+  right: 15px;
+  width: 180px;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  padding: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-15px);
+  transition: all 0.3s ease;
+}
+
+/* Show dropdown when checked */
+#menuToggle:checked ~ .menu-dropdown {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* Links */
+.menu-dropdown a {
+  display: block;
+  padding: 10px;
+  color: #ff6b6b;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.menu-dropdown a:hover {
+  background: rgba(255,107,107,0.15);
+  transform: translateX(4px);
+}
+
+  </style>
+</head>
+<body>
+  <!-- Floating Bottom Navigation -->
+  <div  class="bottom-nav">
+    <a href="/home.html" class="nav-item active">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </a>
+
+    <a href="/fits.html" class="nav-item">
+      <i class="fa-solid fa-shirt"></i>
+      <span>Fits</span>
+    </a>
+
+    <a href="/giftoria.html" class="nav-item">
+      <i class="fa-solid fa-gift"></i>
+      <span>Giftoria</span>
+    </a>
+
+    <a href="/profile.html" class="nav-item">
+      <i class="fa-solid fa-user"></i>
+      <span>Profile</span>
+    </a>
+  </div>
+  <header style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,#ff6b6b,#ff8e53);padding:10px 15px;position:sticky;top:0;z-index:999;box-shadow:0 3px 15px rgba(0,0,0,0.1);">
+  <div class="logo" style="font-size:1.6rem;font-weight:700;color:white;text-shadow:0 0 8px rgba(255,255,255,0.5);letter-spacing:1px;">market</div>
+  <div class="search-container" style="display:flex;align-items:center;flex:1;margin:0 10px;position:relative;">
+    <input type="text" id="searchInput" placeholder="Search products..." style="width:100%;padding:10px 40px 10px 15px;border-radius:25px;border:none;outline:none;background:rgba(255,255,255,0.2);color:white;font-size:1rem;transition:all 0.3s;"/>
+    <button id="searchBtn" style="position:absolute;right:10px;background:transparent;border:none;color:white;font-size:1.2rem;cursor:pointer;">🔍</button>
+    <div id="suggestionBox" style="position:absolute;top:100%;width:100%;background:orangered;border-radius:8px;box-shadow:0 4px 15px rgba(0,0,0,0.1);max-height:250px;overflow-y:auto;display:none;z-index:1000;"></div>
+  </div>
+  <input type="checkbox" id="menuToggle">
+  <label for="menuToggle">
+    <div class="menu-icon">
+      <span></span><span></span><span></span>
+    </div>
+  </label>
+
+  <nav>
+    <a href="/auctions.html">Auctions</a>
+    <a href="/profile/help.html">Help</a>
+    <a href="/fits.html">Fits</a>
+    <a href="/giftoria.html">Giftoria</a>
+    <a href="profile/cart.html">Cart</a>
+    <a href="/profile/partner.html">Partner With Us</a>
+  </nav>
+</header>
+<div id="tips" style="background:#fff2ee;color:#ff5a5a;text-align:center;padding:10px 15px;font-weight:500;animation:fadeIn 1s ease;">Welcome to Market!</div>
+
+
+<!-- Floating Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="/home.html" class="nav-item active">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </a>
+
+    <a href="/fits.html" class="nav-item">
+      <i class="fa-solid fa-shirt"></i>
+      <span>Fits</span>
+    </a>
+
+    <a href="/giftoria.html" class="nav-item">
+      <i class="fa-solid fa-gift"></i>
+      <span>Giftoria</span>
+    </a>
+
+    <a href="/profile.html" class="nav-item">
+      <i class="fa-solid fa-user"></i>
+      <span>Profile</span>
+    </a>
+  </nav>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-content">
+    <h1 class="hero-title">Timeless Rings for Every Occasion 💍</h1>
+    <p class="hero-subtitle">
+       From engagement rings to everyday wear, our collection offers  
+      elegance, beauty, and meaning. Celebrate love and milestones  
+      with rings crafted to last forever.
+    </p>
+  </div>
+</section>
+
+<section class="attire-advert">
+  <div class="advert-content">
+    <h2 class="advert-title">Join Us at RCCG 🙏</h2>
+    <p class="advert-text">
+      Experience uplifting worship, inspiring messages, and a community  
+      of faith and love. At the Redeemed Christian Church of God,  
+      you’ll find purpose, connection, and hope.
+    </p>
+    <a target="_blank"  href="https://rccg.org" class="advert-btn">Learn More</a>
+  </div>
+</section>
+
+<main>
+  <!-- Matching -->
+  <section class="category">
+    <div class="cat-head"><h2>Matching</h2></div>
+    <div id="matchingFilters" class="filters"></div>
+    <div id="matchingProducts" class="product-grid"></div>
+  </section>
+
+
+
+  
+</main>
+
+<!-- Lightbox -->
+<div id="lightbox" class="lightbox" aria-hidden="true">
+  <div class="lb">
+    <div class="lb-left">
+      <div id="lbMain" class="lb-main">Image</div>
+      <div id="lbThumbs" class="lb-thumbs"></div>
+    </div>
+    <div class="lb-right">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <h3 id="lbName" class="lb-title">Product</h3>
+        <button id="lbClose" class="btn ghost">Close</button>
+      </div>
+      <p id="lbDesc" class="lb-desc"></p>
+      <div id="lbPrice" class="lb-price"></div>
+      <div id="lbStock" class="lb-stock"></div>
+      <div class="lb-actions">
+        <button id="lbBuy" class="btn">Buy Now</button>
+        <button id="lbAdd" class="btn ghost">Add to Cart</button>
+        <button id="lbShare" class="btn ghost">Share</button>
+       
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Buy Modal -->
+<div id="buyModal" class="modal" aria-hidden="true">
+  <div class="modal-card">
+    <h3 style="margin-top:0">Complete Purchase</h3>
+    <div class="modal-grid">
+      <div>
+        <div class="form-row"><label for="buyerName">Full name</label><input id="buyerName" placeholder="Jane Doe"></div>
+        <div class="form-row"><label for="buyerPhone">Phone</label><input id="buyerPhone" placeholder="+2348012345678"></div>
+        <div class="form-row"><label for="buyerEmail">Email</label><input id="buyerEmail" placeholder="you@example.com"></div>
+        <div class="form-row"><label for="buyerAddress">Shipping address</label><textarea id="buyerAddress" rows="3" placeholder="Street, City, LGA, State"></textarea></div>
+        <div class="form-row"><label for="buyerShipping">Shipping option</label>
+          <select id="buyerShipping">
+            <option value="NURTW">NURTW — ₦3,000(varies)</option>
+            <option value="GIG">GIG LOGISTICS — ₦5,000</option>
+          </select>
+        </div>
+        <div class="note" style="margin-top:8px">Transaction fee: ₦100 (fixed).
+          <br ><strong style="color: red;">The above shipping fee is an estimated amount that is subject to change with proper notifications.</strong> 
+          <br>The order takes an estimated time of 1 to 7 working days before delivery depending on your location.
+          <br> By continuing with this purchase you agree to our <a href="/profile/terms.html"> terms and conditions</a>.
+      </div>
+
+      <div>
+        <div style="display:flex;gap:12px;align-items:center">
+          <div id="bmThumb" style="width:96px;height:96px;border-radius:8px;background:#f2f2f2;background-size:cover;background-position:center"></div>
+          <div>
+            <div id="bmTitle" style="font-weight:800"></div>
+            <div id="bmPrice" style="color:var(--accent);font-weight:800;margin-top:6px"></div>
+          </div>
+        </div>
+
+        <div class="totals" style="margin-top:12px">
+          <div><span>Product</span><span id="sumProduct">₦0</span></div>
+          <div><span>Shipping</span><span id="sumShipping">₦0</span></div>
+          <div><span>Transaction</span><span id="sumTxn">₦100</span></div>
+          <div style="border-top:1px dashed #eee;padding-top:8px;font-weight:800"><span>Total</span><span id="sumTotal">₦0</span></div>
+        </div>
+
+        <div class="modal-foot" style="margin-top:12px">
+          <button id="payNow" class="btn">Pay Now</button>
+          <button id="cancelBuy" class="btn ghost">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Customize Modal -->
+<div id="customModal" class="modal" aria-hidden="true">
+  <div class="modal-card">
+    <h3 style="margin-top:0">Customize Request</h3>
+    <div class="form-row"><label for="cName">Name</label><input id="cName"></div>
+    <div class="form-row"><label for="cPhone">Phone</label><input id="cPhone"></div>
+    <div class="form-row"><label for="cEmail">Email</label><input id="cEmail"></div>
+    <div class="form-row"><label for="cDetails">Measurements / Notes</label><textarea id="cDetails" rows="4" placeholder="Specify measurements, fabric preference, color..."></textarea></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
+      <button id="sendCustomize" class="btn">Send Request</button>
+      <button id="cancelCustomize" class="btn ghost">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="confirmModal" class="modal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="confirm-card" id="confirmContent">Thanks — payment successful.</div>
+    <div style="display:flex;justify-content:flex-end;margin-top:10px">
+      <button id="closeConfirm" class="btn">Close</button>
+    </div>
+  </div>
+</div>
+
+
+ <script type="module" src="/script.js"></script>
+<script type="module" src="rings.js"></script>
+</body>
+</html>

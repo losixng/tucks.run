@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"name": "tucks again",
+			"path": "."
+		},
+		{
+			"name": "department",
+			"path": "../../Documents/tucks/tucks/department"
+		}
+	],
+	"settings": {
+		"liveServer.settings.port": 5501,
+		"liveServer.settings.multiRootWorkspaceName": "tucks again"
+	}
+}

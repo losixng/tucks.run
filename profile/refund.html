@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Market - Refund Request</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 0;
+    }
+    /* Menu Toggle Checkbox */
+#menuToggle {
+  display: none;
+}
+
+/* Hamburger */
+.menu-icon {
+  width: 30px;
+  height: 24px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.4s ease;
+}
+.menu-icon span {
+  position: absolute;
+  height: 3px;
+  width: 100%;
+  background: white;
+  border-radius: 3px;
+  transition: all 0.4s ease;
+}
+.menu-icon span:nth-child(1) { top: 0; }
+.menu-icon span:nth-child(2) { top: 10px; }
+.menu-icon span:nth-child(3) { top: 20px; }
+
+/* Animate to X */
+#menuToggle:checked + label .menu-icon span:nth-child(1) {
+  transform: rotate(45deg);
+  top: 10px;
+}
+#menuToggle:checked + label .menu-icon span:nth-child(2) {
+  opacity: 0;
+}
+#menuToggle:checked + label .menu-icon span:nth-child(3) {
+  transform: rotate(-45deg);
+  top: 10px;
+}
+
+/* Dropdown Menu */
+nav {
+  position: fixed;
+  top: 65px;
+  right: 15px;
+  width: 180px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border-radius: 15px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  padding: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-15px);
+  transition: all 0.3s ease;
+}
+
+/* Show when checked */
+#menuToggle:checked ~ nav {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* Menu links */
+nav a {
+  display: block;
+  padding: 10px;
+  text-decoration: none;
+  color: #ff6b6b;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: background 0.3s ease, transform 0.2s;
+}
+nav a:hover {
+  background: rgba(255,107,107,0.15);
+  transform: translateX(4px);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  nav {
+    width: 70%;
+    right: 15%;
+  }
+}
+
+    body {
+      padding-bottom: 80px; /* space for nav */
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 500px;
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      border-radius: 40px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 10px 0;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease-in-out;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: #555;
+      font-size: 0.8rem;
+      transition: all 0.3s;
+    }
+
+    .nav-item i {
+      font-size: 1.4rem;
+      margin-bottom: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      color: #ff5e57;
+    }
+
+    .nav-item:hover i, .nav-item.active i {
+      transform: scale(1.2);
+    }
+
+    @media (max-width: 600px) {
+      .bottom-nav {
+        width: 95%;
+        bottom: 15px;
+      }
+    }
+
+    .refund-container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    .form-row {
+      margin-bottom: 15px;
+    }
+    .form-row label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .form-row input, .form-row textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    .submit-btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      background: orange;
+      color: #fff;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .submit-btn:hover {
+      background: orangered;
+    }
+     /* Menu toggle */
+.menu-icon {
+  width: 30px;
+  height: 24px;
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.menu-icon span {
+  height: 3px;
+  background: white;
+  border-radius: 3px;
+  transition: all 0.4s ease;
+}
+
+/* Transform to X */
+#menuToggle:checked + label.menu-icon span:nth-child(1) {
+  transform: rotate(45deg) translateY(10px);
+}
+#menuToggle:checked + label.menu-icon span:nth-child(2) {
+  opacity: 0;
+}
+#menuToggle:checked + label.menu-icon span:nth-child(3) {
+  transform: rotate(-45deg) translateY(-10px);
+}
+
+/* Dropdown Menu */
+.menu-dropdown {
+  position: fixed;
+  top: 65px;
+  right: 15px;
+  width: 180px;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  padding: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-15px);
+  transition: all 0.3s ease;
+}
+
+/* Show dropdown when checked */
+#menuToggle:checked ~ .menu-dropdown {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* Links */
+.menu-dropdown a {
+  display: block;
+  padding: 10px;
+  color: #ff6b6b;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.menu-dropdown a:hover {
+  background: rgba(255,107,107,0.15);
+  transform: translateX(4px);
+}
+
+  </style>
+</head>
+<body>
+  <!-- Floating Bottom Navigation -->
+  <div  class="bottom-nav">
+    <a href="/home.html" class="nav-item active">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </a>
+
+    <a href="/fits.html" class="nav-item">
+      <i class="fa-solid fa-shirt"></i>
+      <span>Fits</span>
+    </a>
+
+    <a href="/giftoria.html" class="nav-item">
+      <i class="fa-solid fa-gift"></i>
+      <span>Giftoria</span>
+    </a>
+
+    <a href="/profile.html" class="nav-item">
+      <i class="fa-solid fa-user"></i>
+      <span>Profile</span>
+    </a>
+  </div>
+  <header style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,#ff6b6b,#ff8e53);padding:10px 15px;position:sticky;top:0;z-index:999;box-shadow:0 3px 15px rgba(0,0,0,0.1);">
+  <div class="logo" style="font-size:1.6rem;font-weight:700;color:white;text-shadow:0 0 8px rgba(255,255,255,0.5);letter-spacing:1px;">market</div>
+  <div class="search-container" style="display:flex;align-items:center;flex:1;margin:0 10px;position:relative;">
+    <input type="text" id="searchInput" placeholder="Search products..." style="width:100%;padding:10px 40px 10px 15px;border-radius:25px;border:none;outline:none;background:rgba(255,255,255,0.2);color:white;font-size:1rem;transition:all 0.3s;"/>
+    <button id="searchBtn" style="position:absolute;right:10px;background:transparent;border:none;color:white;font-size:1.2rem;cursor:pointer;">🔍</button>
+    <div id="suggestionBox" style="position:absolute;top:100%;width:100%;background:orangered;border-radius:8px;box-shadow:0 4px 15px rgba(0,0,0,0.1);max-height:250px;overflow-y:auto;display:none;z-index:1000;"></div>
+  </div>
+  <input type="checkbox" id="menuToggle">
+  <label for="menuToggle">
+    <div class="menu-icon">
+      <span></span><span></span><span></span>
+    </div>
+  </label>
+
+  <nav>
+    <a href="/auctions.html">Auctions</a>
+    <a href="/profile/help.html">Help</a>
+    <a href="/fits.html">Fits</a>
+    <a href="/giftoria.html">Giftoria</a>
+    <a href="profile/cart.html">Cart</a>
+    <a href="/profile/partner.html">Partner With Us</a>
+  </nav>
+</header>
+<div id="tips" style="background:#fff2ee;color:#ff5a5a;text-align:center;padding:10px 15px;font-weight:500;animation:fadeIn 1s ease;">Welcome to Market!</div>
+
+  <!-- Floating Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="/home.html" class="nav-item active">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </a>
+
+    <a href="/fits.html" class="nav-item">
+      <i class="fa-solid fa-shirt"></i>
+      <span>Fits</span>
+    </a>
+
+    <a href="/giftoria.html" class="nav-item">
+      <i class="fa-solid fa-gift"></i>
+      <span>Giftoria</span>
+    </a>
+
+    <a href="/profile.html" class="nav-item">
+      <i class="fa-solid fa-user"></i>
+      <span>Profile</span>
+    </a>
+  </nav>
+
+  <div class="refund-container">
+    <h2 style="color: orangered;">Refund Request</h2>
+    <form id="refundForm">
+      <div class="form-row">
+        <label for="refNumber">Order Reference Number <span style="color:red">*</span></label>
+        <input id="refNumber" type="text" required placeholder="Enter your order reference number from your receipt">
+      </div>
+
+      <div class="form-row">
+        <label for="customerName">Full Name <span style="color:red">*</span></label>
+        <input id="customerName" type="text" required placeholder="Enter your full name">
+      </div>
+
+      <div class="form-row">
+        <label for="phone">Phone Number <span style="color:red">*</span></label>
+        <input id="phone" type="tel" required placeholder="Enter your phone number">
+      </div>
+
+      <div class="form-row">
+        <label for="email">Email <span style="color:red">*</span></label>
+        <input id="email" type="email" required placeholder="Enter your email address">
+      </div>
+
+      <div class="form-row">
+        <label for="address">Address to Receive Refund <span style="color:red">*</span></label>
+        <textarea id="address" rows="3" required placeholder="Enter your full address"></textarea>
+      </div>
+
+      <div class="form-row">
+        <label for="refundReason">Reason for Refund (optional)</label>
+        <textarea id="refundReason" rows="4" placeholder="Briefly explain why you need a refund"></textarea>
+      </div>
+
+      <div class="form-row">
+        <label for="refundImage">Upload Receipt / Product Image <span style="color:red">*</span></label>
+        <input id="refundImage" type="file" accept="image/*" required>
+      </div>
+      <div style="padding-bottom: 15px;">
+      <code style="color: red;">Your refund will be processed within 7 working days</code>
+      <br><strong> Click <a href="/profile/terms.html" style="text-decoration: underline;">here</a> to learn about our refund terms.</strong>
+      </div>
+
+      <button type="submit" class="submit-btn">Submit Refund Request</button>
+    </form>
+  </div>
+ <script type="module" src="/script.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+    // Firebase config (replace with yours)
+    const firebaseConfig = {
+     apiKey: "AIzaSyDzwnmGgEcN63RcCHSNU6p_xXKxmeqzF6k" ,
+    authDomain: "losixmarket.firebaseapp.com",
+    projectId: "losixmarket" ,
+    storageBucket: "losixmarket.firebasestorage.app",
+    messagingSenderId: "301860246689",
+    appId:"1:301860246689:web:aabf0ab9af41081a91cce0",
+    measurementId: "G-ZPVVZ8GNP0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    document.getElementById("refundForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const refNumber = document.getElementById("refNumber").value.trim();
+      const customerName = document.getElementById("customerName").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const address = document.getElementById("address").value.trim();
+      const refundReason = document.getElementById("refundReason").value.trim();
+      const refundImage = document.getElementById("refundImage").files[0];
+
+      if (!refNumber || !refundImage || !phone || !email || !address || !customerName) {
+        alert("❌ Please fill in all required fields and upload an image.");
+        return;
+      }
+
+      try {
+        // Upload image to Firebase Storage
+        const imgRef = ref(storage, `refunds/${Date.now()}_${refundImage.name}`);
+        await uploadBytes(imgRef, refundImage);
+        const imgURL = await getDownloadURL(imgRef);
+
+        // Save refund request to Firestore
+        await addDoc(collection(db, "refunds"), {
+          refNumber,
+          customerName,
+          phone,
+          email,
+          address,
+          refundReason,
+          imageURL: imgURL,
+          createdAt: serverTimestamp(),
+          status: "Pending"
+        });
+
+        alert("✅ Refund request submitted successfully! We will contact you soon.");
+        document.getElementById("refundForm").reset();
+      } catch (err) {
+        console.error(err);
+        alert("❌ Something went wrong. Please try again.");
+      }
+    });
+  </script>
+</body>
+</html>

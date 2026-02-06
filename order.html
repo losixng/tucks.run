@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" alt="Logo" href="/tucks/logo.png">
+  <title>Tucks User Dashboard</title>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- GSAP for animations -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+  <style>
+    body { margin:0; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:linear-gradient(60deg,rgb(0, 204, 255) 0%, rgb(128, 128, 128) 100%); overflow-x:hidden; }
+    .header { padding:20px; background:linear-gradient(90deg,#ff6b6b,#ff8e53); color:white; text-align:center; font-size:28px; font-weight:bold; letter-spacing:1px; position:relative; }
+    .customer-level { position:absolute; right:20px; top:50%; transform:translateY(-50%); padding:10px 15px; border-radius:50px; background:linear-gradient(45deg,#facc15,#f472b6); color:white; font-weight:bold; box-shadow:0 4px 15px rgba(0,0,0,0.2); animation:glow 2s infinite alternate; cursor:pointer; transition:0.3s; }
+    .customer-level:hover { transform:translateY(-50%) scale(1.2) rotate(5deg); }
+    @keyframes glow { from { box-shadow:0 0 10px #facc15; } to { box-shadow:0 0 25px #f472b6; } }
+    .container { padding:20px; max-width:1200px; margin:auto; }
+    .card { background:rgba(255,255,255,0.95); padding:20px; border-radius:25px; box-shadow:0px 6px 20px rgba(0,0,0,0.15); margin-bottom:25px; transition:0.4s; cursor:pointer; }
+    .card:hover { transform:translateY(-10px) rotateX(5deg) rotateY(3deg); box-shadow:0px 12px 30px rgba(0,0,0,0.35); }
+    .stats-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:20px; text-align:center; margin-bottom:20px; }
+    .stat-box { background:linear-gradient(120deg,#4f46e5,#3b82f6); color:white; padding:20px; border-radius:20px; font-size:20px; font-weight:bold; position:relative; overflow:hidden; transition:0.3s; }
+    .stat-box:hover { transform:scale(1.1) rotateZ(5deg); box-shadow:0 10px 25px rgba(0,0,0,0.35); }
+    .orders-list { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:20px; }
+    .order-box { background:#fff; padding:15px; border-radius:20px; box-shadow:0 6px 18px rgba(0,0,0,0.1); cursor:pointer; transition:0.3s; position:relative; overflow:hidden; }
+    .order-box:hover { transform:scale(1.08) rotateZ(-2deg); box-shadow:0 14px 35px rgba(0,0,0,0.3); }
+    .chat-box { height:250px; overflow-y:auto; border-radius:15px; padding:15px; background:#eef3ff; margin-top:15px; }
+    .chat-message { background:linear-gradient(135deg,#4f46e5,#3b82f6); color:white; padding:10px; border-radius:15px; margin-bottom:10px; box-shadow:0 2px 8px rgba(0,0,0,0.2); position:relative; opacity:0; }
+    .chat-message.user { background:linear-gradient(135deg,#f472b6,#facc15); align-self:flex-end; }
+    .no-chat-input { background:#ffeded; padding:12px; text-align:center; color:#c70000; border-radius:15px; margin-top:10px; font-size:14px; font-weight:bold; }
+    canvas { max-height:300px; }
+
+    /* Animated Encouragement Characters */
+    .encouragement { display:flex; justify-content:center; align-items:center; margin-top:50px; flex-direction:column; }
+    .encouragement img { width:80px; height:80px; animation:float 2s ease-in-out infinite alternate; cursor:pointer; transition:0.3s; }
+    .encouragement img:hover { transform:scale(1.3) rotate(-25deg); }
+    .encouragement p { font-size:18px; color:#4f46e5; font-weight:bold; margin-top:10px; animation:fadeIn 2s ease-in-out infinite alternate; text-align:center; }
+    @keyframes float { 0%{transform:translateY(0);} 50%{transform:translateY(-20px) rotate(3deg);} 100%{transform:translateY(0);} }
+    @keyframes fadeIn { 0%{opacity:0.6; transform:translateY(5px);} 50%{opacity:1; transform:translateY(-5px);} 100%{opacity:0.8; transform:translateY(0);} }
+  
+  .bottom-nav {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 500px;
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      border-radius: 40px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 10px 0;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease-in-out;
+      text-decoration: none;
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: #555;
+      font-size: 0.8rem;
+      transition: all 0.3s;
+    }
+
+    .nav-item i {
+      font-size: 1.4rem;
+      margin-bottom: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      color: #ff5e57;
+    }
+
+    .nav-item:hover i, .nav-item.active i {
+      transform: scale(1.2);
+    }
+
+    @media (max-width: 600px) {
+      .bottom-nav {
+        width: 95%;
+        bottom: 15px;
+      }
+    }
+ 
+  </style>
+</head>
+<body>
+<div class="header">
+  My Orders Dashboard
+  <div class="customer-level" id="customerLevel">Bronze</div>
+</div>
+<div class="container" id="dashboard" style="display:none;">
+  <div class="stats-row">
+    <div class="stat-box" id="totalOrders">0 Orders</div>
+    <div class="stat-box" id="totalSpent">₦0 Spent</div>
+    <div class="stat-box" id="customerScore">Rating : 0</div>
+  </div>
+  <div class="card">
+    <h2>Orders per Month</h2>
+    <h6>Track your orders here and plan your monthly budget</h6>
+    <canvas id="ordersChart"></canvas>
+  </div>
+  <div class="card">
+    <h2>Favourite Products</h2>
+    <h6>See your favorite and recurring orders</h6>
+    <canvas id="favChart"></canvas>
+  </div>
+  <div class="card">
+    <h2>Your Orders</h2>
+    See past transactions and orders here
+    <div class="orders-list" id="ordersList"></div>
+  </div>
+ 
+</div>
+<div class="container" id="encouragementSection" style="display:none;">
+  <div class="encouragement">
+    <img src="https://cdn-icons-png.flaticon.com/512/194/194938.png" alt="Animated character">
+    <p>Looks like you haven't logged in or placed many orders yet! Start shopping now!</p>
+    <strong><a href="/tucks/home.html" style="text-decoration: none;">Click Here To Order Now</a></strong>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+    <a href="/tucks/home.html"class="nav-item" >
+      
+      <span>Home</span>
+    </a>
+
+    <a href="/tucks/cart.html" class="nav-item">
+      
+      <span>Cart</span>
+    </a>
+
+    <a href="/tucks/order.html" class="nav-item active">
+      
+      <span>Orders</span>
+    </a>
+
+    <a href="/tucks/profile.html" class="nav-item">
+     
+      <span>Profile</span>
+    </a>
+  </nav>
+ 
+
+
+<script>
+  const firebaseConfig =
+   { 
+    apiKey: "AIzaSyDzwnmGgEcN63RcCHSNU6p_xXKxmeqzF6k",
+  authDomain: "losixmarket.firebaseapp.com",
+  projectId: "losixmarket",
+  storageBucket: "losixmarket.firebasestorage.app",
+  messagingSenderId: "301860246689",
+  appId: "1:301860246689:web:aabf0ab9af41081a91cce0",
+  measurementId: "G-ZPVVZ8GNP0"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const auth = firebase.auth();
+
+  document.addEventListener('DOMContentLoaded',()=>{
+    auth.onAuthStateChanged(user=>{
+      if(user){
+        document.getElementById('dashboard').style.display='block';
+        document.getElementById('encouragementSection').style.display='none';
+        loadUserData(user.uid);
+      } else {
+        document.getElementById('dashboard').style.display='none';
+        document.getElementById('encouragementSection').style.display='flex';
+        alert('User not logged in');
+      }
+    });
+  });
+
+  async function loadUserData(uid){
+    try{
+      const userDoc = await db.collection('users').doc(uid).get();
+      const userData = userDoc.exists ? userDoc.data() : {};
+      const stats = userData.stats || {};
+      const score = userData.customerScore || 0;
+
+      document.getElementById('totalOrders').innerText=`${stats.totalOrders||0} Orders`;
+      document.getElementById('totalSpent').innerText=`₦${(stats.totalSpent||0).toLocaleString()} Spent`;
+      document.getElementById('customerScore').innerText=`Score: ${score}`;
+
+      const levelEl = document.getElementById('customerLevel');
+      if(score<20) levelEl.innerText='Bronze';
+      else if(score<50) levelEl.innerText='Silver';
+      else if(score<100) levelEl.innerText='Gold';
+      else levelEl.innerText='Platinum';
+
+      db.collection('orders').where('userId','==',uid).orderBy('createdAt','desc').onSnapshot(snapshot=>{
+        const ordersList = document.getElementById('ordersList');
+        ordersList.innerHTML='';
+        if(snapshot.empty){
+          document.getElementById('encouragementSection').style.display='flex';
+        } else {
+          document.getElementById('encouragementSection').style.display='none';
+        }
+        snapshot.forEach(doc=>{
+          const o=doc.data();
+          const box=document.createElement('div');
+          box.className='order-box';
+          box.innerHTML=`<h3>Order ${doc.id}</h3><p>Total: ₦${o.total||0}</p>`;
+          box.onclick=()=>showChat(doc.id);
+          ordersList.appendChild(box);
+          gsap.fromTo(box,{y:30,opacity:0,scale:0.8},{y:0,opacity:1,scale:1,duration:0.6, ease:"bounce.out"});
+        });
+      });
+
+      const ordersPerMonth = stats.ordersPerMonth||Array(12).fill(0);
+      new Chart(document.getElementById('ordersChart'),{type:'bar',data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],datasets:[{label:'Orders',data:ordersPerMonth,backgroundColor:'#4f46e5'}]},options:{responsive:true,animation:{duration:1200}}});
+      const favProducts = stats.productCount||{};
+      new Chart(document.getElementById('favChart'),{type:'pie',data:{labels:Object.keys(favProducts),datasets:[{data:Object.values(favProducts),backgroundColor:['#4f46e5','#3b82f6','#f472b6','#facc15','#10b981']}]},options:{responsive:true,animation:{duration:1200}}});
+
+    } catch(e){
+      alert('Error loading user data:');
+      loadSampleData();
+    }
+  }
+
+  function loadSampleData(){
+    document.getElementById('totalOrders').innerText='No Orders';
+    document.getElementById('totalSpent').innerText='₦000000 Spent';
+    document.getElementById('customerScore').innerText='Ranking: ... ';
+    document.getElementById('customerLevel').innerText='🤖';
+
+    const ordersList = document.getElementById('ordersList');
+    ordersList.innerHTML='';
+    ['PLACE YOUR ORDER','PLACE YOUR ORDER '].forEach(id=>{
+      const box=document.createElement('div');
+      box.className='order-box';
+      box.innerHTML=`<h3>Order ${id}</h3>`;
+      ordersList.appendChild(box);
+      gsap.fromTo(box,{y:30,opacity:0,scale:0.8},{y:0,opacity:1,scale:1,duration:0.6, ease:"bounce.out"});
+    });
+
+    document.getElementById('encouragementSection').style.display='flex';
+
+    new Chart(document.getElementById('ordersChart'),{type:'bar',data:{labels:['Jan','Feb','Mar','Apr','May','Jun'],datasets:[{label:'Orders',data:[3,5,2,6,1,4],backgroundColor:'#4f46e5'}]},options:{responsive:true,animation:{duration:1200}}});
+    new Chart(document.getElementById('favChart'),{type:'pie',data:{labels:['Shoes','Shirt','Perfume'],datasets:[{data:[6,3,2],backgroundColor:['#4f46e5','#3b82f6','#f472b6']}]},options:{responsive:true,animation:{duration:1200}}});
+  }
+
+  async function showChat(orderId){
+    document.getElementById('chatSection').style.display='block';
+    const chatBox=document.getElementById('chatMessages');
+    chatBox.innerHTML='';
+    const chatRef=db.collection('orderChats').doc(orderId);
+    chatRef.onSnapshot(snap=>{
+      chatBox.innerHTML='';
+      if(!snap.exists()) return;
+      const messages = snap.data().messages || [];
+      messages.forEach(m=>{
+        const div=document.createElement('div');
+        div.className='chat-message';
+        if(m.senderId===auth.currentUser.uid) div.classList.add('user');
+        div.innerText=`${m.senderName||m.senderId}: ${m.message}`;
+        chatBox.appendChild(div);
+        gsap.fromTo(div,{opacity:0,y:20,scale:0.8,rotation:-5},{opacity:1,y:0,scale:1,rotation:0,duration:0.6, ease:"bounce.out"});
+      });
+      chatBox.scrollTop=chatBox.scrollHeight;
+    });
+  }
+</script>
+</body>
+</html>

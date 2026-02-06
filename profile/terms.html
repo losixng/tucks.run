@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Market - Terms & Conditions</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.7;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    /* Menu Toggle Checkbox */
+#menuToggle {
+  display: none;
+}
+
+/* Hamburger */
+.menu-icon {
+  width: 30px;
+  height: 24px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.4s ease;
+}
+.menu-icon span {
+  position: absolute;
+  height: 3px;
+  width: 100%;
+  background: white;
+  border-radius: 3px;
+  transition: all 0.4s ease;
+}
+.menu-icon span:nth-child(1) { top: 0; }
+.menu-icon span:nth-child(2) { top: 10px; }
+.menu-icon span:nth-child(3) { top: 20px; }
+
+/* Animate to X */
+#menuToggle:checked + label .menu-icon span:nth-child(1) {
+  transform: rotate(45deg);
+  top: 10px;
+}
+#menuToggle:checked + label .menu-icon span:nth-child(2) {
+  opacity: 0;
+}
+#menuToggle:checked + label .menu-icon span:nth-child(3) {
+  transform: rotate(-45deg);
+  top: 10px;
+}
+
+/* Dropdown Menu */
+nav {
+  position: fixed;
+  top: 65px;
+  right: 15px;
+  width: 180px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border-radius: 15px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  padding: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-15px);
+  transition: all 0.3s ease;
+}
+
+/* Show when checked */
+#menuToggle:checked ~ nav {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* Menu links */
+nav a {
+  display: block;
+  padding: 10px;
+  text-decoration: none;
+  color: #ff6b6b;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: background 0.3s ease, transform 0.2s;
+}
+nav a:hover {
+  background: rgba(255,107,107,0.15);
+  transform: translateX(4px);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  nav {
+    width: 70%;
+    right: 15%;
+  }
+}
+
+    body {
+      padding-bottom: 80px; /* space for nav */
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 500px;
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      border-radius: 40px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 10px 0;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease-in-out;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: #555;
+      font-size: 0.8rem;
+      transition: all 0.3s;
+    }
+
+    .nav-item i {
+      font-size: 1.4rem;
+      margin-bottom: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      color: #ff5e57;
+    }
+
+    .nav-item:hover i, .nav-item.active i {
+      transform: scale(1.2);
+    }
+
+    @media (max-width: 600px) {
+      .bottom-nav {
+        width: 95%;
+        bottom: 15px;
+      }
+    }
+
+    header {
+      background: linear-gradient(to right, #ff7a00, #ffb347);
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    main {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h2 {
+      margin-top: 24px;
+      color: #ff7a00;
+    }
+    p {
+      margin: 12px 0;
+    }
+    ul {
+      margin: 12px 0 12px 20px;
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+      color: #555;
+    }
+     /* Menu toggle */
+.menu-icon {
+  width: 30px;
+  height: 24px;
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.menu-icon span {
+  height: 3px;
+  background: white;
+  border-radius: 3px;
+  transition: all 0.4s ease;
+}
+
+/* Transform to X */
+#menuToggle:checked + label.menu-icon span:nth-child(1) {
+  transform: rotate(45deg) translateY(10px);
+}
+#menuToggle:checked + label.menu-icon span:nth-child(2) {
+  opacity: 0;
+}
+#menuToggle:checked + label.menu-icon span:nth-child(3) {
+  transform: rotate(-45deg) translateY(-10px);
+}
+
+/* Dropdown Menu */
+.menu-dropdown {
+  position: fixed;
+  top: 65px;
+  right: 15px;
+  width: 180px;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  padding: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-15px);
+  transition: all 0.3s ease;
+}
+
+/* Show dropdown when checked */
+#menuToggle:checked ~ .menu-dropdown {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* Links */
+.menu-dropdown a {
+  display: block;
+  padding: 10px;
+  color: #ff6b6b;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.menu-dropdown a:hover {
+  background: rgba(255,107,107,0.15);
+  transform: translateX(4px);
+}
+
+  </style>
+</head>
+<body>
+  <!-- Floating Bottom Navigation -->
+  <div  class="bottom-nav">
+    <a href="/home.html" class="nav-item active">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </a>
+
+    <a href="/fits.html" class="nav-item">
+      <i class="fa-solid fa-shirt"></i>
+      <span>Fits</span>
+    </a>
+
+    <a href="/giftoria.html" class="nav-item">
+      <i class="fa-solid fa-gift"></i>
+      <span>Giftoria</span>
+    </a>
+
+    <a href="/profile.html" class="nav-item">
+      <i class="fa-solid fa-user"></i>
+      <span>Profile</span>
+    </a>
+  </div>
+  <header style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,#ff6b6b,#ff8e53);padding:10px 15px;position:sticky;top:0;z-index:999;box-shadow:0 3px 15px rgba(0,0,0,0.1);">
+  <div class="logo" style="font-size:1.6rem;font-weight:700;color:white;text-shadow:0 0 8px rgba(255,255,255,0.5);letter-spacing:1px;">market</div>
+  <div class="search-container" style="display:flex;align-items:center;flex:1;margin:0 10px;position:relative;">
+    <input type="text" id="searchInput" placeholder="Search products..." style="width:100%;padding:10px 40px 10px 15px;border-radius:25px;border:none;outline:none;background:rgba(255,255,255,0.2);color:white;font-size:1rem;transition:all 0.3s;"/>
+    <button id="searchBtn" style="position:absolute;right:10px;background:transparent;border:none;color:white;font-size:1.2rem;cursor:pointer;">🔍</button>
+    <div id="suggestionBox" style="position:absolute;top:100%;width:100%;background:orangered;border-radius:8px;box-shadow:0 4px 15px rgba(0,0,0,0.1);max-height:250px;overflow-y:auto;display:none;z-index:1000;"></div>
+  </div>
+  <input type="checkbox" id="menuToggle">
+  <label for="menuToggle">
+    <div class="menu-icon">
+      <span></span><span></span><span></span>
+    </div>
+  </label>
+
+  <nav>
+    <a href="/auctions.html">Auctions</a>
+    <a href="/profile/help.html">Help</a>
+    <a href="/fits.html">Fits</a>
+    <a href="/giftoria.html">Giftoria</a>
+    <a href="profile/cart.html">Cart</a>
+    <a href="/profile/partner.html">Partner With Us</a>
+  </nav>
+</header>
+<div id="tips" style="background:#fff2ee;color:#ff5a5a;text-align:center;padding:10px 15px;font-weight:500;animation:fadeIn 1s ease;">Welcome to Market!</div>
+
+<!-- Floating Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="/home.html" class="nav-item active">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </a>
+
+    <a href="/fits.html" class="nav-item">
+      <i class="fa-solid fa-shirt"></i>
+      <span>Fits</span>
+    </a>
+
+    <a href="/giftoria.html" class="nav-item">
+      <i class="fa-solid fa-gift"></i>
+      <span>Giftoria</span>
+    </a>
+
+    <a href="/profile.html" class="nav-item">
+      <i class="fa-solid fa-user"></i>
+      <span>Profile</span>
+    </a>
+  </nav>
+
+<header><strong style="color: orangered;">market</strong> - Terms & Conditions</header>
+
+<main>
+  <p>Welcome to <strong>Market </strong>. By using our website and services, you agree to the following Terms & Conditions. Please read them carefully.</p>
+
+  <h2>1. Acceptance of Terms</h2>
+  <p>By using or purchasing from <strong>market</strong> , you agree to comply with these Terms. If you do not agree, please stop using our services.</p>
+
+  <h2>2. Use of Our Services</h2>
+  <ul>
+    <li>You must be responsible for your decisions or have parental/guardian consent to use our platform.</li>
+    <li>You agree not to misuse our website, interfere with its operation, or attempt to access restricted areas.</li>
+  </ul>
+
+  <h2>3. Products & Orders</h2>
+  <ul>
+    <li>All product descriptions and prices are subject to change without notice.</li>
+    <li>Placing an order does not guarantee availability. If a product is unavailable, we will notify you promptly.</li>
+    <li>We reserve the right to refuse or cancel any order for any reason.</li>
+  </ul>
+
+  <h2>4. Payments & Billing</h2>
+  <ul>
+    <li>All payments must be made in full before orders are processed.</li>
+    <li>Prices displayed are in Nigerian Naira (₦) unless otherwise stated.</li>
+    <li>Billing details must be accurate. Swift is not responsible for delays caused by incorrect information.</li>
+  </ul>
+
+  <h2>5. Shipping & Delivery</h2>
+  <ul>
+    <li>Delivery timelines are estimates and may vary due to factors beyond our control.</li>
+    <li>Risk of loss or damage passes to you once items are delivered to the provided address.</li>
+  </ul>
+
+  <h2 id="refund">6. Returns & Refunds</h2>
+  <ul>
+    <li>Returns are accepted only if items are unused, in original packaging, and within 7 days of delivery.</li>
+    <li>Certain items (e.g., customized outfits, personal accessories) are not eligible for return.</li>
+    <li>Refunds will be processed after inspection of returned items.</li>
+    <li>
+      After refunds processing it will take about 7 to 14 working days before refund is deposited in the user's account 
+    </li>
+  </ul>
+
+  <h2>7. User Accounts</h2>
+  <ul>
+    <li>You are responsible for maintaining the confidentiality of your account details.</li>
+    <li>Losix Team will not be liable for losses caused by unauthorized account use or activities with the website.</li>
+  </ul>
+
+  <h2>8. Limitation of Liability</h2>
+  <p>Losix Team is not responsible for indirect, incidental, or consequential damages resulting from the use of our website or products.</p>
+
+  <h2>9. Privacy</h2>
+  <p>Your personal information is protected according to our Privacy Policy. We do not sell or misuse customer data.</p>
+
+  <h2>10. Changes to Terms</h2>
+  <p>Losix Team may update these Terms at any time. Continued use of our website means you accept the revised Terms.</p>
+
+  <h2>11. Contact Us</h2>
+  <p>If you have questions about these Terms, please contact us at <a href="mailto: losix.ng@gmail.com">losix.ng@gmail.com</a>.</p>
+  
+  <h2>12.  Copyright</h2>
+  <p>We reserve all rights concerning this website and violation of any will not be allowed</p>
+</main>
+
+<footer>© 2025 Losix Team. All Rights Reserved.</footer>
+ <script type="module" src="/script.js"></script>
+</body>
+</html>

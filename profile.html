@@ -1,0 +1,495 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="linear-gradient(60deg,#F2C464 0%, #C6F4D6 100%)">
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log('Service Worker Registered'));
+    });
+  }
+</script>
+
+  <title>market - Profile</title>
+  <style>
+    /* ===== Global Reset ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+/* Menu Toggle Checkbox */
+#menuToggle {
+  display: none;
+}
+
+/* Hamburger */
+.menu-icon {
+  width: 30px;
+  height: 24px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.4s ease;
+}
+.menu-icon span {
+  position: absolute;
+  height: 3px;
+  width: 100%;
+  background: white;
+  border-radius: 3px;
+  transition: all 0.4s ease;
+}
+.menu-icon span:nth-child(1) { top: 0; }
+.menu-icon span:nth-child(2) { top: 10px; }
+.menu-icon span:nth-child(3) { top: 20px; }
+
+/* Animate to X */
+#menuToggle:checked + label .menu-icon span:nth-child(1) {
+  transform: rotate(45deg);
+  top: 10px;
+}
+#menuToggle:checked + label .menu-icon span:nth-child(2) {
+  opacity: 0;
+}
+#menuToggle:checked + label .menu-icon span:nth-child(3) {
+  transform: rotate(-45deg);
+  top: 10px;
+}
+
+/* Dropdown Menu */
+nav {
+  position: fixed;
+  top: 65px;
+  right: 15px;
+  width: 180px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border-radius: 15px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  padding: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-15px);
+  transition: all 0.3s ease;
+}
+
+/* Show when checked */
+#menuToggle:checked ~ nav {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* Menu links */
+nav a {
+  display: block;
+  padding: 10px;
+  text-decoration: none;
+  color: #ff6b6b;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: background 0.3s ease, transform 0.2s;
+}
+nav a:hover {
+  background: rgba(255,107,107,0.15);
+  transform: translateX(4px);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  nav {
+    width: 70%;
+    right: 15%;
+  }
+}
+
+
+body {
+  background:linear-gradient(60deg,#F2C464 0%, #C6F4D6 100%);
+  color: #333;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== Header ===== */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #9be15d, #f8ffae); /* green-yellow gradient */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.logo .site-name {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #e74c3c; /* red/orange highlight */
+}
+
+.header input[type="search"] {
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: 1px solid #ddd;
+  width: 40%;
+  outline: none;
+  transition: 0.3s;
+}
+
+.header input[type="search"]:focus {
+  border-color: #9be15d;
+  box-shadow: 0 0 8px rgba(155, 225, 93, 0.6);
+}
+
+.menu {
+  position: relative;
+}
+
+.menu button {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  display: none;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  position: absolute;
+  right: 0;
+  top: 45px;
+  min-width: 180px;
+  overflow: hidden;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.dropdown-menu a {
+  padding: 10px 15px;
+  text-decoration: none;
+  color: #333;
+  transition: 0.3s;
+}
+
+.dropdown-menu a:hover {
+  background: #9be15d;
+  color: #fff;
+}
+
+.menu:hover .dropdown-menu {
+  display: flex;
+}
+
+/* ===== Profile Section ===== */
+main {
+  flex: 1;
+  padding: 20px;
+}
+
+h2 {
+  margin-bottom: 15px;
+  font-size: 1.4rem;
+  color: #444;
+}
+
+.profile-menu {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.profile-menu li {
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.profile-menu li:hover {
+  background: linear-gradient(135deg, #f8ffae, #9be15d);
+  color: #fff;
+  transform: translateX(6px);
+}
+
+/* ===== Bottom Navigation ===== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  display: flex;
+  justify-content: space-around;
+  padding: 12px 0;
+  border-top: 1px solid #ddd;
+  box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.5s ease;
+}
+body {
+      padding-bottom: 80px; /* space for nav */
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 500px;
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      border-radius: 40px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 10px 0;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease-in-out;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: #555;
+      font-size: 0.8rem;
+      transition: all 0.3s;
+    }
+
+    .nav-item i {
+      font-size: 1.4rem;
+      margin-bottom: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      color: #ff5e57;
+    }
+
+    .nav-item:hover i, .nav-item.active i {
+      transform: scale(1.2);
+    }
+
+    @media (max-width: 600px) {
+      .bottom-nav {
+        width: 95%;
+        bottom: 15px;
+      }
+    }
+
+.bottom-nav a {
+  text-decoration: none;
+  color: #555;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.85rem;
+  transition: 0.3s;
+}
+
+.bottom-nav a:hover {
+  color: #e67e22; /* orange */
+  transform: scale(1.1);
+}
+
+.bottom-nav i {
+  font-size: 1.4rem;
+  margin-bottom: 3px;
+}
+
+/* ===== Animations ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.title{
+  padding-left: 50px;
+  font-size: 30px;
+  padding-top: 30px;
+  color: orangered;
+}
+.ending{
+  padding-top: 50px;
+}
+ /* Menu toggle */
+.menu-icon {
+  width: 30px;
+  height: 24px;
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.menu-icon span {
+  height: 3px;
+  background: white;
+  border-radius: 3px;
+  transition: all 0.4s ease;
+}
+
+/* Transform to X */
+#menuToggle:checked + label.menu-icon span:nth-child(1) {
+  transform: rotate(45deg) translateY(10px);
+}
+#menuToggle:checked + label.menu-icon span:nth-child(2) {
+  opacity: 0;
+}
+#menuToggle:checked + label.menu-icon span:nth-child(3) {
+  transform: rotate(-45deg) translateY(-10px);
+}
+
+/* Dropdown Menu */
+.menu-dropdown {
+  position: fixed;
+  top: 65px;
+  right: 15px;
+  width: 180px;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  padding: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-15px);
+  transition: all 0.3s ease;
+}
+
+/* Show dropdown when checked */
+#menuToggle:checked ~ .menu-dropdown {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* Links */
+.menu-dropdown a {
+  display: block;
+  padding: 10px;
+  color: #ff6b6b;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.menu-dropdown a:hover {
+  background: rgba(255,107,107,0.15);
+  transform: translateX(4px);
+}
+
+    
+  </style>
+  
+</head>
+<body>
+<header style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,#ff6b6b,#ff8e53);padding:10px 15px;position:sticky;top:0;z-index:999;box-shadow:0 3px 15px rgba(0,0,0,0.1);">
+  <div class="logo" style="font-size:1.6rem;font-weight:700;color:white;text-shadow:0 0 8px rgba(255,255,255,0.5);letter-spacing:1px;">market</div>
+  <div class="search-container" style="display:flex;align-items:center;flex:1;margin:0 10px;position:relative;">
+    <input type="text" id="searchInput" placeholder="Search products..." style="width:100%;padding:10px 40px 10px 15px;border-radius:25px;border:none;outline:none;background:rgba(255,255,255,0.2);color:white;font-size:1rem;transition:all 0.3s;"/>
+    <button id="searchBtn" style="position:absolute;right:10px;background:transparent;border:none;color:white;font-size:1.2rem;cursor:pointer;">🔍</button>
+    <div id="suggestionBox" style="position:absolute;top:100%;width:100%;background:orangered;border-radius:8px;box-shadow:0 4px 15px rgba(0,0,0,0.1);max-height:250px;overflow-y:auto;display:none;z-index:1000;"></div>
+  </div>
+  <input type="checkbox" id="menuToggle">
+  <label for="menuToggle">
+    <div class="menu-icon">
+      <span></span><span></span><span></span>
+    </div>
+  </label>
+
+  <nav>
+    <a href="/auctions.html">Auctions</a>
+    <a href="/profile/help.html">Help</a>
+    <a href="/fits.html">Fits</a>
+    <a href="/giftoria.html">Giftoria</a>
+    <a href="profile/cart.html">Cart</a>
+    <a href="/profile/partner.html">Partner With Us</a>
+  </nav>
+</header>
+<div id="tips" style="background:#fff2ee;color:#ff5a5a;text-align:center;padding:10px 15px;font-weight:500;animation:fadeIn 1s ease;">Welcome to Market!</div>
+
+<!-- Floating Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="/home.html" class="nav-item active">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </a>
+
+    <a href="/fits.html" class="nav-item">
+      <i class="fa-solid fa-shirt"></i>
+      <span>Fits</span>
+    </a>
+
+    <a href="/giftoria.html" class="nav-item">
+      <i class="fa-solid fa-gift"></i>
+      <span>Giftoria</span>
+    </a>
+
+    <a href="/profile.html" class="nav-item">
+      <i class="fa-solid fa-user"></i>
+      <span>Profile</span>
+    </a>
+  </nav>
+
+  <nav>
+    <h2 class="title">My Profile</h2>
+  </nav>
+
+  <main>
+    <ul class="profile-menu">
+      <li onclick="navigateTo('/profile/register.html')">👤 Become a Customer</li>
+      <li onclick="navigateTo('/profile/install.html')">🤖 Install</li>
+      <li onclick="navigateTo('/profile/help.html')">🆘 Help</li>
+      <li onclick="navigateTo('/profile/orders.html')">🧾 My Orders</li>
+      <li onclick="navigateTo('/profile/referral.html')">🎁 Referrals</li>
+      <li onclick="navigateTo('/profile/refund.html')">🔁 Get A Refund </li>
+      <li onclick="navigateTo('/profile/cart.html')">🛒 My Cart</li>
+      <li onclick="navigateTo('/profile/reviews.html')">⭐ Reviews & Feedback</li>
+      <li onclick="navigateTo('/profile/partner.html')">🤝 Partner With Us</li>
+      <li onclick="navigateTo('/profile/terms.html')">📃 Terms & Conditions</li>
+      <li onclick="logout()">🚪 Logout</li>
+    </ul>
+  </main>
+  <nav class="ending"></nav>
+  
+  
+ <script type="module" src="/script.js"></script>
+  <script>
+    function navigateTo(page) {
+      window.location.href = page;
+      flashMessage('loading....')
+    }
+
+    function logout() {
+      localStorage.clear();
+      sessionStorage.clear();
+      alert("Logged out.");
+      window.location.href = "home.html";
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="rgb(128, 128, 128)">
+<link rel="icon" alt="Logo" href="/tucks/logo.png">
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log('Service Worker Registered'));
+    });
+  }
+</script>
+  <title>Install Tucks </title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="linear-gradient(60deg,#F2C464 0%, #C6F4D6 100%)">
+
+  <!-- Optional: icons for favicon & iOS -->
+  <link rel="icon" href="/icons/icon-192x192.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icons/icon-512x512.png">
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: radial-gradient(circle at 20% 20%, rgb(0, 204, 255),rgb(128, 128, 128) 70%);
+      color: #fff;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      letter-spacing: 1px;
+      margin-bottom: 0.5em;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    p {
+      max-width: 320px;
+      margin-bottom: 1.5em;
+      opacity: 0.85;
+      animation: fadeIn 1.5s ease-in-out;
+    }
+
+    button {
+      background: linear-gradient(135deg, #ff2e63, #ff5959);
+      border: none;
+      color: #fff;
+      padding: 12px 40px;
+      border-radius: 25px;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      box-shadow: 0 0 15px rgba(255, 46, 99, 0.6);
+      transition: transform 0.3s, box-shadow 0.3s;
+      display: none;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 25px rgba(255, 46, 99, 0.8);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Floating particles */
+    .bubble {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      bottom: -20px;
+      animation: floatUp 8s infinite ease-in-out;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-100vh) scale(0.5); opacity: 0; }
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 500px;
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      border-radius: 40px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 10px 0;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease-in-out;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: #555;
+      font-size: 0.8rem;
+      transition: all 0.3s;
+    }
+
+    .nav-item i {
+      font-size: 1.4rem;
+      margin-bottom: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      color: #ff5e57;
+    }
+
+
+  </style>
+</head>
+<body>
+  <h1>Install Tucks</h1>
+  <p>Install <strong>Tucks</strong> shopping app for faster access, offline browsing, and a thrilling soundtrack experience!</p>
+  <button id="installBtn">Install App</button>
+
+<!-- Floating Bottom Navigation -->
+  <div  class="bottom-nav">
+    <a href="/tucks/home.html" class="nav-item">
+      
+      <span>Home</span>
+    </a>
+
+    <a href="/tucks/cart.html" class="nav-item">
+      
+      <span>Cart</span>
+    </a>
+
+    <a href="/tucks/order.html" class="nav-item">
+      
+      <span>Orders</span>
+    </a>
+
+    <a href="/tucks/profile.html" class="nav-item">
+     
+      <span>Profile</span>
+    </a>
+  </div>
+
+
+  <script>
+    // Floating background animation
+    for (let i = 0; i < 15; i++) {
+      const bubble = document.createElement('div');
+      bubble.classList.add('bubble');
+      bubble.style.left = Math.random() * 100 + 'vw';
+      bubble.style.animationDelay = Math.random() * 5 + 's';
+      bubble.style.animationDuration = (6 + Math.random() * 6) + 's';
+      document.body.appendChild(bubble);
+    }
+
+    // PWA install handler
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = 'inline-block';
+    });
+
+    installBtn.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          console.log('User installed Tucks');
+        }
+        deferredPrompt = null;
+      }
+    });
+
+    window.addEventListener('appinstalled', () => {
+      installBtn.style.display = 'none';
+      alert('App successfully installed!');
+    });
+  </script>
+</body>
+</html>

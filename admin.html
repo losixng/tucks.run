@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Payment Verification</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f0f0f0; margin:0; padding:0; }
+  .container { max-width: 900px; margin: 50px auto; background: #fff; padding: 20px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.1); }
+  h2 { text-align:center; margin-bottom: 30px; }
+  table { width:100%; border-collapse: collapse; }
+  th, td { padding:10px; text-align:left; border-bottom:1px solid #ddd; }
+  th { background:#ff6a00; color:#fff; }
+  tr:hover { background:#f9f9f9; }
+  button { padding:6px 12px; margin:2px; border:none; border-radius:6px; cursor:pointer; color:#fff; }
+  .approve { background: #28a745; }
+  .reject { background: #dc3545; }
+  .block { background: #6c757d; }
+</style>
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+
+  const firebaseConfig = {
+   apiKey: "AIzaSyDzwnmGgEcN63RcCHSNU6p_xXKxmeqzF6k",
+      authDomain: "losixmarket.firebaseapp.com",
+      projectId: "losixmarket",
+      storageBucket: "losixmarket.firebasestorage.app",
+      messagingSenderId: "301860246689",
+      appId: "1:301860246689:web:aabf0ab9af41081a91cce0",
+      measurementId: "G-ZPVVZ8GNP0"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  window.auth = auth;
+</script>
+</head>
+<body>
+<div class="container">
+  <h2>Admin Payment Verification</h2>
+  <table id="paymentsTable">
+    <thead>
+      <tr>
+        <th>User ID</th>
+        <th>Amount (₦)</th>
+        <th>Narration Code</th>
+        <th>Timestamp</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="6" style="text-align:center;">Loading...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script type="module">
+  import { auth } from './firebase-init.js'; // optional if exposed globally
+
+  let currentUser = null;
+
+  // Only allow admin access
+  onAuthStateChanged(auth, async (user) => {
+    if(!user){
+      alert("⚠️ Please log in as admin.");
+      window.location.href = "/login.html";
+      return;
+    }
+    currentUser = user;
+
+    // TODO: optionally check if this user is in your admin list
+    loadPendingPayments();
+  });
+
+  async function loadPendingPayments(){
+    try{
+      const res = await fetch('/.netlify/functions/getPendingWalletTopUps');
+      const data = await res.json();
+      const tbody = document.querySelector('#paymentsTable tbody');
+      tbody.innerHTML = '';
+
+      if(data.length === 0){
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No pending payments.</td></tr>';
+        return;
+      }
+
+      data.forEach(payment => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${payment.userId}</td>
+          <td>₦${Number(payment.amount).toLocaleString()}</td>
+          <td>${payment.narrationCode}</td>
+          <td>${new Date(payment.timestamp).toLocaleString()}</td>
+          <td>${payment.status}</td>
+          <td>
+            <button class="approve">Approve</button>
+            <button class="reject">Reject</button>
+            <button class="block">Block User</button>
+          </td>
+        `;
+
+        // Actions
+        tr.querySelector('.approve').addEventListener('click', () => updatePaymentStatus(payment.id, 'approved'));
+        tr.querySelector('.reject').addEventListener('click', () => updatePaymentStatus(payment.id, 'rejected'));
+        tr.querySelector('.block').addEventListener('click', () => blockUser(payment.userId));
+
+        tbody.appendChild(tr);
+      });
+
+    } catch(e){
+      console.error(e);
+      alert('Error loading pending payments.');
+    }
+  }
+
+  async function updatePaymentStatus(paymentId, status){
+    try{
+      const res = await fetch('/.netlify/functions/updateWalletTopUp', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ paymentId, status })
+      });
+      const data = await res.json();
+      if(data.success){
+        alert(`Payment marked as ${status}.`);
+        loadPendingPayments();
+      } else {
+        alert('Failed to update payment.');
+      }
+    } catch(e){
+      console.error(e);
+      alert('Error updating payment.');
+    }
+  }
+
+  async function blockUser(userId){
+    if(!confirm('⚠️ Are you sure you want to block this user?')) return;
+    try{
+      const res = await fetch('/.netlify/functions/blockUser', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ userId })
+      });
+      const data = await res.json();
+      if(data.success){
+        alert('User blocked successfully.');
+        loadPendingPayments();
+      } else {
+        alert('Failed to block user.');
+      }
+    } catch(e){
+      console.error(e);
+      alert('Error blocking user.');
+    }
+  }
+</script>
+</body>
+</html>

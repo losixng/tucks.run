@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" alt="Logo" href="/logo.png">
+<meta name="theme-color" content="linear-gradient(60deg,#F2C464 0%, #C6F4D6 100%)">
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log('Service Worker Registered'));
+    });
+  }
+</script>
+
+<title>Tucks Food Delivery</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#0b0f1a; --card:#12172a; --accent:#00ffd5; --accent2:#7a7cff;
+  --danger:#ff5d5d; --text:#e8ebff; --muted:#9aa1ff;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;font-family:Poppins;
+  background:radial-gradient(1200px 600px at 10% -10%, #1b2150, transparent),var(--bg);
+  color:var(--text);min-height:100vh;
+  display:flex;justify-content:center;padding:20px
+}
+.container{max-width:1000px;width:100%}
+h1{text-align:center;margin-bottom:6px}
+.sub{text-align:center;color:var(--muted);margin-bottom:16px}
+
+.countdown{
+  background:linear-gradient(180deg,#151b38,#0f1430);
+  border-radius:18px;padding:18px;text-align:center;
+}
+.time{display:flex;justify-content:center;gap:14px;margin-top:10px}
+.unit{
+  background:#0b1030;border-radius:14px;padding:12px 14px;
+  min-width:90px
+}
+.num{font-size:34px;font-weight:700}
+.label{font-size:12px;color:var(--muted)}
+
+.card{
+  background:linear-gradient(180deg,#151b38,#0f1430);
+  border-radius:22px;padding:22px;margin-top:20px;
+  display:none
+}
+.card.show{display:block}
+
+.account{
+  background:#0b1030;border:1px solid #2a31ff;
+  border-radius:16px;padding:14px;margin-bottom:18px
+}
+
+form{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.full{grid-column:1/-1}
+label{font-size:12px;color:var(--muted)}
+input,select{
+  width:100%;padding:12px 14px;border-radius:14px;
+  border:1px solid #242b66;background:#0b1030;color:var(--text)
+}
+
+table{width:100%;border-collapse:collapse}
+th,td{border:1px solid #242b66;padding:10px;text-align:center}
+th{color:var(--accent)}
+
+.total{margin-top:12px;font-weight:600}
+
+button{
+  padding:14px 22px;border-radius:999px;border:none;
+  font-weight:600;cursor:pointer;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+}
+button:disabled{opacity:.6;cursor:not-allowed}
+
+.closed{text-align:center;color:var(--danger);margin-top:14px}
+
+.loading{display:none;text-align:center;margin-top:10px}
+.spinner{
+  width:24px;height:24px;border:3px solid #2a31ff;
+  border-top-color:transparent;border-radius:50%;
+  animation:spin 1s linear infinite;margin:auto
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>Food Delivery</h1>
+<div class="sub">Get your food delivered to your door step for just ₦250 and ₦50 transfer fee</div>
+
+<div class="countdown">
+  <div id="cdTitle">Next order opens in</div>
+  <div class="time">
+    <div class="unit"><div class="num" id="hh">00</div><div class="label">HRS</div></div>
+    <div class="unit"><div class="num" id="mm">00</div><div class="label">MIN</div></div>
+    <div class="unit"><div class="num" id="ss">00</div><div class="label">SEC</div></div>
+  </div>
+    <button type="button" onclick="viewLastCode()" style="margin-top:10px">
+  📄 View last delivery code
+</button>
+</div>
+
+<div class="card" id="formCard">
+
+<div class="account">
+  <div><b>Transfer To:</b></div>
+  <div>Ojo Miracle</div>
+  <div>Moniepoint</div>
+  <div><b>9169174059</b></div>
+  <div style="margin-top:6px">Delivery fee: ₦250 + ₦50 transfer</div>
+  <button type="button" onclick="openAlarm()" style="margin-top:12px">🔔 Set Order Opening Alarm</button>
+</div>
+
+<form id="orderForm">
+
+<input id="name" placeholder="Name" required>
+<input id="phone" placeholder="Phone" required>
+<input class="full" id="location" placeholder="Location" required>
+
+<div class="full">
+<table>
+<thead>
+<tr><th>Item</th><th>Qty</th><th>Price</th></tr>
+</thead>
+<tbody id="orderTable">
+<tr>
+<td><input class="item" list="productList"></td>
+<td><input class="qty" type="number" value="1" min="1"></td>
+<td><input class="price" value="0" readonly></td>
+</tr>
+</tbody>
+</table>
+<datalist id="productList"></datalist>
+<button type="button" onclick="addRow()">+ Add item</button>
+</div>
+
+<div class="full total" id="total">Total: ₦0</div>
+
+<!-- Wallet / Receipt choice -->
+<div class="full">
+  <label>Payment Method:</label>
+  <div style="display:flex;gap:10px;margin-top:6px">
+    <label>
+      <input type="radio" name="paymentType" value="wallet" checked> Wallet
+    </label>
+    <label>
+      <input type="radio" name="paymentType" value="receipt"> Upload Receipt
+    </label>
+  </div>
+</div>
+
+<div class="full" id="receiptBox" style="border-inline-color: var(--danger);">
+  <label style="color: yellow;">Upload receipt</label>
+  <input type="file" id="receipt" accept="image/*">
+</div>
+
+<div class="full">
+<button id="submitBtn">Submit Order</button>
+<div class="loading" id="loading">
+  <div class="spinner"></div>
+  Processing order…
+</div>
+</div>
+
+</form>
+</div>
+
+<div class="closed" id="closedMsg"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey:"AIzaSyDzwnmGgEcN63RcCHSNU6p_xXKxmeqzF6k",
+  authDomain:"losixmarket.firebaseapp.com",
+  projectId:"losixmarket"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const DELIVERY = 250;
+const TRANSFER = 50;
+
+const PRODUCTS = [
+  { name:"Jollof Rice", price:250 },
+  { name:"Jollof Spaghetti", price:250 },
+  { name:"Fried Rice", price:2600 },
+  { name:"White Rice & Stew", price:2400 },
+  { name:"White Spaghetti & Stew", price:250 },
+  { name:"Chicken", price:1500 },
+  { name:"Beef", price:1000 },
+  { name:"Turkey", price:1800 },
+  { name:"Moi Moi", price:800 },
+  { name:"Soft Drink", price:500 }
+];
+
+window.viewLastCode = function () {
+  const phone = document.getElementById("phone").value;
+
+  if (!phone) {
+    alert("Please place an order first.");
+    return;
+  }
+
+  const code = localStorage.getItem(`lastCode_${phone}`);
+
+  if (!code) {
+    alert("No delivery code found for this phone on this device.");
+  } else {
+    alert(`Your last delivery code is: ${code}`);
+  }
+};
+
+// Restore cached values
+["name","phone","location"].forEach(id=>{
+  const el=document.getElementById(id);
+  el.value=localStorage.getItem(id)||"";
+  el.oninput=()=>localStorage.setItem(id,el.value);
+});
+
+// Populate products
+const productList=document.getElementById("productList");
+PRODUCTS.forEach(p=>{
+  const o=document.createElement("option");
+  o.value=p.name;
+  productList.appendChild(o);
+});
+
+document.addEventListener("input",e=>{
+  if(e.target.classList.contains("item")){
+    const r=e.target.closest("tr");
+    const prod=PRODUCTS.find(p=>p.name.toLowerCase()===e.target.value.toLowerCase());
+    r.querySelector(".price").value=prod?prod.price:0;
+  }
+  calcTotal();
+});
+
+function addRow(){
+  document.getElementById("orderTable").insertAdjacentHTML("beforeend",`
+    <tr>
+      <td><input class="item" list="productList"></td>
+      <td><input class="qty" type="number" value="1" min="1"></td>
+      <td><input class="price" value="0" readonly></td>
+    </tr>
+  `);
+}
+window.addRow = addRow;
+
+function calcTotal(){
+  let sum=0;
+  document.querySelectorAll("#orderTable tr").forEach(r=>{
+    sum+=(+r.querySelector(".qty").value||0)*(+r.querySelector(".price").value||0);
+  });
+  document.getElementById("total").textContent="Total: ₦"+(sum+DELIVERY+TRANSFER);
+}
+
+function openAlarm(){
+  window.location.href="intent://alarm#Intent;scheme=clock;package=com.google.android.deskclock;end";
+}
+
+// ===== Payment Type Toggle =====
+const paymentRadios = document.querySelectorAll('input[name="paymentType"]');
+const receiptBox = document.getElementById("receiptBox");
+
+paymentRadios.forEach(radio => {
+  radio.addEventListener("change", () => {
+    if (radio.value === "receipt") {
+      receiptBox.style.display = "block";
+      document.getElementById("receipt").required = true;
+    } else {
+      receiptBox.style.display = "none";
+      document.getElementById("receipt").required = false;
+    }
+  });
+});
+document.querySelector('input[name="paymentType"]:checked').dispatchEvent(new Event('change'));
+
+// ===== Delivery Code + Cloudinary Upload + Firebase Save =====
+function generateDeliveryCode(){
+  const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let code="";
+  for(let i=0;i<4;i++) code+=chars[Math.floor(Math.random()*chars.length)];
+  return code;
+}
+
+async function uploadReceipt(file){
+  const data = new FormData();
+  data.append("file", file);
+  data.append("upload_preset","losix_products");
+
+  const res = await fetch("https://api.cloudinary.com/v1_1/dthxl4jcn/image/upload",{
+    method:"POST",
+    body:data
+  });
+  const json = await res.json();
+  return json.secure_url;
+}
+
+document.getElementById("orderForm").onsubmit = async (e)=>{
+  e.preventDefault();
+  const submitBtn = document.getElementById("submitBtn");
+  const loader = document.getElementById("loading");
+  submitBtn.disabled=true;
+  loader.style.display="block";
+
+  const name=document.getElementById("name").value;
+  const phone=document.getElementById("phone").value;
+  const location=document.getElementById("location").value;
+  const items=Array.from(document.querySelectorAll("#orderTable tr")).map(r=>({
+    item: r.querySelector(".item").value,
+    qty: r.querySelector(".qty").value,
+    price: r.querySelector(".price").value
+  }));
+
+  const total=document.getElementById("total").textContent;
+
+  const paymentType = document.querySelector('input[name="paymentType"]:checked').value;
+  let receiptUrl = "";
+
+  if(paymentType === "receipt"){
+    const receiptFile = document.getElementById("receipt").files[0];
+    if(receiptFile){
+      receiptUrl = await uploadReceipt(receiptFile);
+    }
+  } else if(paymentType === "wallet"){
+    // Call backend serverless function to validate wallet
+    const walletValid = await fetch("/.netlify/functions/verifyWalletPayment", {
+      method: "POST",
+      body: JSON.stringify({ phone, amount: total.replace("Total: ₦","") })
+    }).then(res => res.json());
+
+    if(!walletValid.success){
+      alert("Wallet payment not found or insufficient funds.");
+      submitBtn.disabled = false;
+      loader.style.display = "none";
+      return;
+    }
+  }
+
+  const deliveryCode = generateDeliveryCode();
+  const expiresAt = Date.now() + 105*60*1000;
+
+  try{
+    await addDoc(collection(db,"foodOrders"),{
+      name, phone, location, items, total, deliveryCode,
+      codeExpiresAt:expiresAt,
+      codeUsed:false,
+      receiptUrl,
+      paymentType,
+      createdAt:serverTimestamp()
+    });
+    alert(`Order submitted! Your delivery code is: ${deliveryCode}`);
+    localStorage.setItem(`lastCode_${phone}`, deliveryCode);
+  }catch(err){
+    alert("Failed to submit order. Please try again.");
+    submitBtn.disabled=false;
+  } finally {
+    loader.style.display = "none";
+    setTimeout(()=>{
+      document.getElementById("orderTable").innerHTML = `
+      <tr>
+        <td><input class="item" list="productList"></td>
+        <td><input class="qty" type="number" value="1" min="1"></td>
+        <td><input class="price" value="0" readonly></td>
+      </tr>`;
+      document.getElementById("total").textContent = "Total: ₦0";
+      document.getElementById("receipt").value = "";
+      submitBtn.disabled = false;
+    },300);
+  }
+};
+
+// ===== Timer logic =====
+const weekday=["12:00","12:40","18:30"];
+const sunday=["11:00","15:00","18:30"];
+const card=document.getElementById("formCard");
+const msg=document.getElementById("closedMsg");
+const hh=document.getElementById("hh");
+const mm=document.getElementById("mm");
+const ss=document.getElementById("ss");
+const title=document.getElementById("cdTitle");
+
+function buildWindow(base,time){
+  const [h,m]=time.split(":").map(Number);
+  const d=new Date(base);
+  d.setHours(h,m,0,0);
+  return {d, open:new Date(d-3600000), close:new Date(d-1500000)};
+}
+function nextWindow(){
+  const now=new Date();
+  const times=now.getDay()===0?sunday:weekday;
+  for(const t of times){
+    const w=buildWindow(now,t);
+    if(now<w.close) return w;
+  }
+  const tomorrow=new Date(now);
+  tomorrow.setDate(now.getDate()+1);
+  const t=(tomorrow.getDay()===0?sunday:weekday)[0];
+  return buildWindow(tomorrow,t);
+}
+setInterval(()=>{
+  const now=new Date();
+  const w=nextWindow();
+  if(!w) return;
+  card.classList.add("show");
+  msg.textContent="";
+  title.textContent="Next delivery in";
+  const diff=Math.max(0,w.d-now);
+  hh.textContent=String(Math.floor(diff/3600000)).padStart(2,"0");
+  mm.textContent=String(Math.floor(diff%3600000/60000)).padStart(2,"0");
+  ss.textContent=String(Math.floor(diff%60000/1000)).padStart(2,"0");
+},1000);
+
+</script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+/* =============== GENERAL STYLING =============== */
+
+body {
+  margin: 0;
+  font-family: Poppins, sans-serif;
+  background: linear-gradient(60deg,rgb(0, 204, 255) 0%, rgb(128, 128, 128) 100%);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.card {
+  width: 90%;
+  max-width: 420px;
+  background: #1f1f1f;
+  padding: 30px;
+  border-radius: 18px;
+  box-shadow: 0 8px 30px rgb(128, 128, 128) ;
+  animation: fadeIn 0.8s ease;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 1.7rem;
+  letter-spacing: 1px;
+}
+
+/* INPUTS */
+input, select {
+  width: 100%;
+  padding: 14px;
+  margin: 10px 0;
+  border: none;
+  outline: none;
+  border-radius: 10px;
+  background: #333;
+  color: white;
+  font-size: 15px;
+  transition: 0.3s;
+}
+
+input:focus, select:focus {
+  background: #444;
+  box-shadow: 0 0 10px #00b3ff;
+}
+
+/* BUTTON */
+button {
+  width: 100%;
+  background: #00b3ff;
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+button:hover {
+  background: #0096d6;
+  transform: scale(1.03);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* ERROR ANIMATIONS */
+.shake {
+  animation: shakeAnim 0.3s ease;
+}
+
+@keyframes shakeAnim {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  50% { transform: translateX(6px); }
+  75% { transform: translateX(-6px); }
+  100% { transform: translateX(0); }
+}
+
+/* PAGE LOAD ANIMATION */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* SMALL PROMPT POPUP */
+.alertBox {
+  background: #ff4a4a;
+  padding: 8px 18px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  display: none;
+  animation: popIn 0.3s ease;
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.6); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}

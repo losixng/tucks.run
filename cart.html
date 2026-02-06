@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="linear-gradient(60deg,#F2C464 0%, #C6F4D6 100%)">
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log('Service Worker Registered'));
+    });
+  }
+</script>
+
+  <title>market - Cart</title>
+
+  <!-- Paystack inline script (must be loaded BEFORE the module that uses it) -->
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+
+  <!-- jsPDF (for PDF receipt generation) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    :root {
+      --accent: #ff6a00;
+      --muted: #666;
+      --bg: linear-gradient(60deg,#F2C464 0%, #C6F4D6 100%);
+      --card-shadow: 0 10px 36px rgba(10,10,10,0.08);
+    }
+    body {
+      padding-bottom: 80px; /* space for nav */
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 500px;
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      border-radius: 40px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 10px 0;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease-in-out;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: #555;
+      font-size: 0.8rem;
+      transition: all 0.3s;
+    }
+
+    .nav-item i {
+      font-size: 1.4rem;
+      margin-bottom: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      color: #ff5e57;
+    }
+
+    .nav-item:hover i, .nav-item.active i {
+      transform: scale(1.2);
+    }
+
+    @media (max-width: 600px) {
+      .bottom-nav {
+        width: 95%;
+        bottom: 15px;
+      }
+    }
+
+    body {
+      font-family: Inter,system-ui,Segoe UI,Roboto,Arial;
+      margin: 0;
+      background: var(--bg);
+      color: #111;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Menu Toggle Checkbox */
+#menuToggle {
+  display: none;
+}
+
+/* Hamburger */
+.menu-icon {
+  width: 30px;
+  height: 24px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.4s ease;
+}
+.menu-icon span {
+  position: absolute;
+  height: 3px;
+  width: 100%;
+  background: white;
+  border-radius: 3px;
+  transition: all 0.4s ease;
+}
+.menu-icon span:nth-child(1) { top: 0; }
+.menu-icon span:nth-child(2) { top: 10px; }
+.menu-icon span:nth-child(3) { top: 20px; }
+
+/* Animate to X */
+#menuToggle:checked + label .menu-icon span:nth-child(1) {
+  transform: rotate(45deg);
+  top: 10px;
+}
+#menuToggle:checked + label .menu-icon span:nth-child(2) {
+  opacity: 0;
+}
+#menuToggle:checked + label .menu-icon span:nth-child(3) {
+  transform: rotate(-45deg);
+  top: 10px;
+}
+
+/* Dropdown Menu */
+nav {
+  position: fixed;
+  top: 65px;
+  right: 15px;
+  width: 180px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border-radius: 15px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  padding: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-15px);
+  transition: all 0.3s ease;
+}
+
+/* Show when checked */
+#menuToggle:checked ~ nav {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* Menu links */
+nav a {
+  display: block;
+  padding: 10px;
+  text-decoration: none;
+  color: #ff6b6b;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: background 0.3s ease, transform 0.2s;
+}
+nav a:hover {
+  background: rgba(255,107,107,0.15);
+  transform: translateX(4px);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  nav {
+    width: 70%;
+    right: 15%;
+  }
+}
+
+    h1 {
+      text-align: center;
+      margin: 20px 0;
+      font-weight: 800;
+    }
+    .cart-container {
+      flex: 1;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .cart-item {
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      text-align: center;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .cart-item:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.12);
+    }
+    .cart-item img {
+      max-width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+    .cart-item h3 {
+      margin: 6px 0;
+      font-size: 1.1rem;
+      color: var(--accent);
+    }
+    .cart-item p {
+      font-size: 14px;
+      color: var(--muted);
+      margin: 4px 0;
+    }
+    .cart-item button {
+      margin-top: auto;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all .2s;
+    }
+    .cart-item button:hover {
+      background: #e25d00;
+    }
+    .summary {
+      text-align: center;
+      margin: 20px 0;
+    }
+    .summary div {
+      font-size: 18px;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    .btn-secondary {
+      background: #fff;
+      color: #111;
+      border: 1px solid #ddd;
+    }
+    /* Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.6);
+      z-index: 1000;
+      padding: 12px;
+    }
+    .modal.show {
+      display: flex;
+    }
+    .modal-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 18px;
+      max-width: 720px;
+      width: 100%;
+      max-height: 92vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    .form-row {
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+    }
+    label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    input, textarea, select {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #eee;
+    }
+    .totals {
+      background: #fafafa;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 12px;
+    }
+    .totals div {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+    }
+    .modal-foot {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    @media (max-width: 768px) {
+      .cart-container {
+        grid-template-columns: 1fr;
+      }
+    }
+     /* Menu toggle */
+.menu-icon {
+  width: 30px;
+  height: 24px;
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.menu-icon span {
+  height: 3px;
+  background: white;
+  border-radius: 3px;
+  transition: all 0.4s ease;
+}
+
+/* Transform to X */
+#menuToggle:checked + label.menu-icon span:nth-child(1) {
+  transform: rotate(45deg) translateY(10px);
+}
+#menuToggle:checked + label.menu-icon span:nth-child(2) {
+  opacity: 0;
+}
+#menuToggle:checked + label.menu-icon span:nth-child(3) {
+  transform: rotate(-45deg) translateY(-10px);
+}
+
+/* Dropdown Menu */
+.menu-dropdown {
+  position: fixed;
+  top: 65px;
+  right: 15px;
+  width: 180px;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  padding: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-15px);
+  transition: all 0.3s ease;
+}
+
+/* Show dropdown when checked */
+#menuToggle:checked ~ .menu-dropdown {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* Links */
+.menu-dropdown a {
+  display: block;
+  padding: 10px;
+  color: #ff6b6b;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.menu-dropdown a:hover {
+  background: rgba(255,107,107,0.15);
+  transform: translateX(4px);
+}
+
+  </style>
+</head>
+<body>
+  <!-- Floating Bottom Navigation -->
+  <div  class="bottom-nav">
+    <a href="/home.html" class="nav-item active">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </a>
+
+    <a href="/fits.html" class="nav-item">
+      <i class="fa-solid fa-shirt"></i>
+      <span>Fits</span>
+    </a>
+
+    <a href="/giftoria.html" class="nav-item">
+      <i class="fa-solid fa-gift"></i>
+      <span>Giftoria</span>
+    </a>
+
+    <a href="/profile.html" class="nav-item">
+      <i class="fa-solid fa-user"></i>
+      <span>Profile</span>
+    </a>
+  </div>
+  <header style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,#ff6b6b,#ff8e53);padding:10px 15px;position:sticky;top:0;z-index:999;box-shadow:0 3px 15px rgba(0,0,0,0.1);">
+  <div class="logo" style="font-size:1.6rem;font-weight:700;color:white;text-shadow:0 0 8px rgba(255,255,255,0.5);letter-spacing:1px;">market</div>
+  <div class="search-container" style="display:flex;align-items:center;flex:1;margin:0 10px;position:relative;">
+    <input type="text" id="searchInput" placeholder="Search products..." style="width:100%;padding:10px 40px 10px 15px;border-radius:25px;border:none;outline:none;background:rgba(255,255,255,0.2);color:white;font-size:1rem;transition:all 0.3s;"/>
+    <button id="searchBtn" style="position:absolute;right:10px;background:transparent;border:none;color:white;font-size:1.2rem;cursor:pointer;">🔍</button>
+    <div id="suggestionBox" style="position:absolute;top:100%;width:100%;background:orangered;border-radius:8px;box-shadow:0 4px 15px rgba(0,0,0,0.1);max-height:250px;overflow-y:auto;display:none;z-index:1000;"></div>
+  </div>
+  <input type="checkbox" id="menuToggle">
+  <label for="menuToggle">
+    <div class="menu-icon">
+      <span></span><span></span><span></span>
+    </div>
+  </label>
+
+  <nav>
+    <a href="/auctions.html">Auctions</a>
+    <a href="/profile/help.html">Help</a>
+    <a href="/fits.html">Fits</a>
+    <a href="/giftoria.html">Giftoria</a>
+    <a href="profile/cart.html">Cart</a>
+    <a href="/profile/partner.html">Partner With Us</a>
+  </nav>
+</header>
+<div id="tips" style="background:#fff2ee;color:#ff5a5a;text-align:center;padding:10px 15px;font-weight:500;animation:fadeIn 1s ease;">Welcome to Market!</div>
+
+  <h1>Your Cart</h1>
+  
+  <div class="summary">
+    <div id="total">Total: ₦0</div>
+    <div class="actions">
+      <button class="btn btn-primary" id="checkoutBtn">Proceed to Pay</button>
+      
+      <button class="btn btn-secondary" id="shareCart">Share Cart</button>
+    </div>
+  </div>
+  
+  <div class="cart-container" id="cartContainer"></div>
+
+  <!-- Floating Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="/home.html" class="nav-item active">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </a>
+
+    <a href="/fits.html" class="nav-item">
+      <i class="fa-solid fa-shirt"></i>
+      <span>Fits</span>
+    </a>
+
+    <a href="/giftoria.html" class="nav-item">
+      <i class="fa-solid fa-gift"></i>
+      <span>Giftoria</span>
+    </a>
+
+    <a href="/profile.html" class="nav-item">
+      <i class="fa-solid fa-user"></i>
+      <span>Profile</span>
+    </a>
+  </nav>
+
+
+  <!-- Buy Modal (same as product page style) -->
+  <div id="buyModal" class="modal">
+    <div class="modal-card">
+      <h3>Complete Purchase</h3>
+      <div class="form-row"><label for="buyerName">Full name</label><input id="buyerName"></div>
+      <div class="form-row"><label for="buyerPhone">Phone</label><input id="buyerPhone"></div>
+      <div class="form-row"><label for="buyerEmail">Email</label><input id="buyerEmail"></div>
+      <div class="form-row"><label for="buyerAddress">Shipping Address</label><textarea id="buyerAddress"></textarea></div>
+      <div class="form-row"><label for="buyerShipping">Shipping option</label>
+        <select id="buyerShipping">
+          <option value="NURTW">LOCAL - ₦3,000(varies)</option>
+          <option value="GIG">GIG LOGISTICS — ₦5,000</option>
+        </select>
+      </div>
+
+<!-- Receipt Upload Modal -->
+<div id="receiptModal" class="modal">
+  <div class="modal-card">
+    <h3>Upload Transfer Receipt</h3>
+
+    <div class="form-row">
+      <label>Upload Receipt Image</label>
+      <input type="file" id="receiptFile" accept="image/*">
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn btn-primary" id="submitReceipt">Submit Receipt</button>
+      <button class="btn btn-secondary" id="cancelReceipt">Cancel</button>
+    </div>
+  </div>
+</div>
+
+      <div class="totals">
+        <div><span>Cart Total</span><span id="sumCart">₦0</span></div>
+        <div><span>Transaction Fee</span><span>₦100</span></div>
+        <div style="border-top:1px dashed #ddd; padding-top:8px; font-weight:800">
+          <span>Final</span><span id="finalTotal">₦0</span>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-primary" id="payNow">Pay Now</button>
+        <button class="btn btn-primary" id="payWithWalletBtn">Pay via Wallet</button>
+         <button class="btn btn-secondary" id="uploadReceiptBtn">Upload Receipt</button>
+        <button class="btn btn-secondary" id="cancelBuy">Cancel</button>
+      </div>
+    </div>
+  </div>
+ <script type="module" src="/script.js"></script>
+  <!-- FIREBASE init (module) - saves orders to Firestore if available -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+
+    // Your FIREBASE config (kept as in your previous script)
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyDzwnmGgEcN63RcCHSNU6p_xXKxmeqzF6k",
+      authDomain: "losixmarket.firebaseapp.com",
+      projectId: "losixmarket",
+      storageBucket: "losixmarket.firebasestorage.app",
+      messagingSenderId: "301860246689",
+      appId: "1:301860246689:web:aabf0ab9af41081a91cce0",
+      measurementId: "G-ZPVVZ8GNP0"
+    };
+
+    let db = null;
+    try {
+      const app = initializeApp(FIREBASE_CONFIG);
+      db = getFirestore(app);
+      console.info("Firestore initialized (cart page).");
+      // expose helper to global scope
+      window.saveOrderToFirestore = async function(order) {
+        // write to 'orders' collection
+        await addDoc(collection(db, "orders"), { ...order, createdAt: serverTimestamp() });
+      };
+    } catch (err) {
+      alert("An error occured on cart page; Please contact us immediately.", err);
+      window.saveOrderToFirestore = null;
+    }
+  </script>
+
+  <!-- Main cart + payment logic (keeps your original structure + adds PDF receipt and Firestore save) -->
+  <script>
+    // access jsPDF from UMD build
+    const { jsPDF } = window.jspdf || {};
+
+    const cartContainer = document.getElementById("cartContainer");
+    const totalEl = document.getElementById("total");
+    const checkoutBtn = document.getElementById("checkoutBtn");
+    const buyModal = document.getElementById("buyModal");
+    const payNowBtn = document.getElementById("payNow");
+    const cancelBuy = document.getElementById("cancelBuy");
+    const sumCart = document.getElementById("sumCart");
+    const finalTotal = document.getElementById("finalTotal");
+    const shareCartBtn = document.getElementById("shareCart");
+
+    // buyer fields
+    const bmName = document.getElementById("buyerName");
+    const bmPhone = document.getElementById("buyerPhone");
+    const bmEmail = document.getElementById("buyerEmail");
+    const bmAddress = document.getElementById("buyerAddress");
+    const bmShipping = document.getElementById("buyerShipping");
+
+    // load cart (your existing key)
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    function moneyFormat(n){ return '₦' + Number(n||0).toLocaleString('en-US'); }
+
+    function renderCart() {
+      cartContainer.innerHTML = "";
+      let total = 0;
+      cart.forEach((item, index) => {
+        const div = document.createElement("div");
+        div.classList.add("cart-item");
+        div.innerHTML = `
+          <img src="${(item.images && item.images[0]) || item.image || ''}" alt="${item.name}">
+          <h3>${item.name}</h3>
+          <p>${item.desc || ''}</p>
+          <p><strong>${moneyFormat(item.price)}</strong></p>
+          <div class="row">
+            <button class="remove" data-idx="${index}">Remove</button>
+            <button class="btn buy-one" data-idx="${index}">Buy This</button>
+          </div>
+        `;
+        cartContainer.appendChild(div);
+        total += Number(item.price || 0);
+      });
+      totalEl.textContent = "Total: " + moneyFormat(total);
+      sumCart.textContent = moneyFormat(total);
+      finalTotal.textContent = moneyFormat(total + 100);
+
+      // wire remove buttons
+      document.querySelectorAll('.remove').forEach(b => b.addEventListener('click', (e)=> {
+        const i = Number(e.currentTarget.dataset.idx);
+        cart.splice(i,1);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        renderCart();
+      }));
+
+      // wire buy single item buttons (prefills modal for single product checkout)
+      document.querySelectorAll('.buy-one').forEach(b => b.addEventListener('click', (e) => {
+        const i = Number(e.currentTarget.dataset.idx);
+        currentCheckoutSingle = cart[i]; // set currentItem to single product
+        // prefill fields (optional)
+        bmName.value = ''; bmPhone.value = ''; bmEmail.value = ''; bmAddress.value = ''; bmShipping.value = 'NURTW';
+        // set modal totals for single
+        sumCart.textContent = moneyFormat(currentCheckoutSingle.price);
+        finalTotal.textContent = moneyFormat(Number(currentCheckoutSingle.price || 0) + 100);
+        buyModal.classList.add("show");
+      }));
+    }
+
+    // hold single-product checkout if user clicks buy for a single product
+    let currentCheckoutSingle = null;
+
+    // clicking cart checkout (cart-wide)
+    checkoutBtn.addEventListener("click", () => {
+      if(!cart || cart.length === 0) return alert("Your cart is empty!");
+      currentCheckoutSingle = null; // indicate full-cart checkout
+      // prefill or reset fields
+      bmName.value = ''; bmPhone.value = ''; bmEmail.value = ''; bmAddress.value = ''; bmShipping.value = 'NURTW';
+      // modal totals already reflect current cart in renderCart()
+      buyModal.classList.add("show");
+    });
+
+    cancelBuy.addEventListener("click", ()=> buyModal.classList.remove("show"));
+
+    // Share Cart
+    shareCartBtn.addEventListener("click", async () => {
+      const payload = cart.map(p => ({ id: p.id, name: p.name, price: p.price })).slice(0,50);
+      const data = btoa(JSON.stringify(payload));
+      const shareLink = `${window.location.origin}${window.location.pathname}?shared=${encodeURIComponent(data)}`;
+      const shareText = `🛍️ I put together a cart on Market — take a look and help me out! ${shareLink}`;
+      try {
+        if(navigator.share){
+          await navigator.share({ title:'My Market Cart', text: shareText, url: shareLink });
+        } else {
+          await navigator.clipboard.writeText(shareText);
+          alert('Share text copied to clipboard. Paste it where you want to share.');
+        }
+      } catch (e) {
+        prompt('Copy and share this link:', shareLink);
+      }
+    });
+
+    // Replace with your own Paystack public key (test or live)
+    const PAYSTACK_PUBLIC_KEY = 'pk_test_f84b249cadf2b30de87df5a566b34ec1e17d9c12'; // <<--- REPLACE with your actual public key
+
+    // Payment handler
+    payNowBtn.addEventListener('click', ()=> {
+      const name = bmName.value.trim(); const phone = bmPhone.value.trim();
+      const email = bmEmail.value.trim(); const address = bmAddress.value.trim();
+      const shippingMethod = bmShipping.value;
+
+      if(!name || !phone || !email || !address){ alert('Please fill name, phone, email and address'); return; }
+
+      // assemble order content
+      let products = [];
+      if(currentCheckoutSingle){
+        products.push({
+          id: currentCheckoutSingle.id || null,
+          name: currentCheckoutSingle.name || 'Item',
+          price: Number(currentCheckoutSingle.price || 0),
+          images: currentCheckoutSingle.images || (currentCheckoutSingle.image ? [currentCheckoutSingle.image] : [])
+        });
+      } else {
+        products = cart.map(p => ({ id: p.id || null, name: p.name || 'Item', price: Number(p.price || 0), images: p.images || (p.image ? [p.image] : []) }));
+      }
+
+      const cartTotal = products.reduce((s,p)=> s + (p.price || 0), 0);
+      const txnFee = 100;
+      const shippingFee = shippingMethod === 'GIG' ? 5000 : 3000;
+      const total = cartTotal + txnFee + shippingFee;
+
+      // simple referral code
+      const referral = 'REF-' + Math.random().toString(36).slice(2,8).toUpperCase();
+
+      const order = {
+        userId: null,
+        customer: { name, phone, email, address },
+        products,
+        shippingMethod,
+        shippingFee,
+        transactionFee: txnFee,
+        total,
+        referralCode: referral,
+        status: 'pending',
+        createdAt: new Date().toISOString()
+      };
+
+      if(typeof PaystackPop === 'undefined'){ alert('Paystack not loaded.'); return; }
+
+      // IMPORTANT: callback must be a function (not an async function reference that becomes something else)
+      const handler = PaystackPop.setup({
+        key: PAYSTACK_PUBLIC_KEY,
+        email: email,
+        amount: Math.round(total * 100), // kobo
+        currency: 'NGN',
+        metadata: { custom_fields: [{ display_name: "Referral Code", variable_name: "referral", value: referral }] },
+        callback: function(response){
+      (async () => {
+        order.paystackRef = response.reference;
+        order.status = 'paid';
+    
+        // 🔒 Verify payment securely with your Netlify backend
+        const verifyRes = await fetch("/api/verifyPayment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ reference: response.reference })
+        });
+    
+        const verifyData = await verifyRes.json();
+    
+        if (!verifyData.data || verifyData.data.status !== "success") {
+          alert("⚠️ Payment verification failed! Please contact support.");
+          console.error("Verification failed:", verifyData);
+          return;
+        }
+    
+        try {
+          if (db) {
+            await addDoc(collection(db, 'orders'), {
+              ...order,
+              userId: currentUser ? currentUser.uid : null,
+              createdAt: serverTimestamp()
+            });
+          } else {
+            toast('Error: Please try again....');
+          }
+        } catch (e) {
+          console.warn('Could not save order to Firestore', e);
+          const ordersLocal = JSON.parse(localStorage.getItem('orders') || '[]');
+          ordersLocal.push(order);
+          localStorage.setItem('orders', JSON.stringify(ordersLocal));
+        }
+            // generate & auto-download PDF receipt (non-editable)
+            try {
+              if(typeof jsPDF !== 'undefined'){
+                const doc = new jsPDF();
+                doc.setFontSize(16);
+                doc.text(" Losix Market RECEIPT", 14, 20);
+                doc.setFontSize(11);
+                doc.text(`Reference: ${order.paystackRef}`, 14, 32);
+                doc.text(`Date: ${new Date().toLocaleString()}`, 14, 40);
+                doc.text(`Referral Code: ${order.referralCode}`, 14, 48);
+                doc.text(`Customer: ${order.customer.name}`, 14, 56);
+                doc.text(`Phone: ${order.customer.phone}`, 14, 64);
+                doc.text(`Email: ${order.customer.email}`, 14, 72);
+                doc.text(`Address: ${order.customer.address}`, 14, 80);
+
+                let y = 92;
+                doc.text("Items:", 14, y);
+                y += 8;
+                order.products.forEach((p, i) => {
+                  const line = `${i+1}. ${p.name} — ₦${Number(p.price || 0).toLocaleString()}`;
+                  doc.text(line, 14, y);
+                  y += 8;
+                  if(y > 270){ doc.addPage(); y = 20; }
+                });
+
+                y += 6;
+                doc.text(`Shipping: ₦${order.shippingFee.toLocaleString()}`, 14, y); y += 8;
+                doc.text(`Transaction Fee: ₦${order.transactionFee.toLocaleString()}`, 14, y); y += 8;
+                doc.setFontSize(13);
+                doc.text(`Total Paid: ₦${order.total.toLocaleString()}`, 14, y+6);
+
+                // auto-download
+                doc.save(`RECEIPT_${order.paystackRef}.pdf`);
+              } else {
+                // fallback text
+                const text = `RECEIPT\nRef: ${order.paystackRef}\nDate: ${new Date().toLocaleString()}\n\n` + 
+                  order.products.map((p,i)=> `${i+1}. ${p.name} - ₦${p.price}`).join('\n') +
+                  `\n\nShipping: ₦${order.shippingFee}\nTransaction Fee: ₦${order.transactionFee}\nTotal Paid: ₦${order.total}`;
+                const blob = new Blob([text], { type: 'text/plain' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `RECEIPT_${order.paystackRef}.txt`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+              }
+            } catch (pdfErr) {
+              console.warn('Receipt generation failed, falling back to text', pdfErr);
+              // fallback text receipt
+              const text = `RECEIPT\nRef: ${order.paystackRef}\nDate: ${new Date().toLocaleString()}\n\n` + 
+                order.products.map((p,i)=> `${i+1}. ${p.name} - ₦${p.price}`).join('\n') +
+                `\n\nShipping: ₦${order.shippingFee}\nTransaction Fee: ₦${order.transactionFee}\nTotal Paid: ₦${order.total}`;
+              const blob = new Blob([text], { type: 'text/plain' });
+              const link = document.createElement('a');
+              link.href = URL.createObjectURL(blob);
+              link.download = `RECEIPT_${order.paystackRef}.txt`;
+              document.body.appendChild(link);
+              link.click();
+              link.remove();
+            }
+
+            // clear cart if full-cart checkout
+            if(!currentCheckoutSingle){
+              localStorage.removeItem('cart');
+              cart = [];
+              renderCart();
+            } else {
+              // if single-item checkout, remove that item from cart (if you want)
+              const idx = cart.findIndex(c => (c.id || '') === (currentCheckoutSingle.id || ''));
+              if(idx >= 0){
+                cart.splice(idx,1);
+                localStorage.setItem('cart', JSON.stringify(cart));
+                renderCart();
+              }
+            }
+
+            buyModal.classList.remove('show');
+            alert('Payment successful. Receipt downloaded.');
+          })();
+        },
+        onClose: function(){
+          alert("Transaction was not completed.");
+        }
+      });
+
+      handler.openIframe();
+    });
+
+    // initial render
+    renderCart();
+
+
+    const uploadReceiptBtn = document.getElementById("uploadReceiptBtn");
+const receiptModal = document.getElementById("receiptModal");
+const receiptFile = document.getElementById("receiptFile");
+const submitReceipt = document.getElementById("submitReceipt");
+const cancelReceipt = document.getElementById("cancelReceipt");
+
+// Open receipt modal
+uploadReceiptBtn.addEventListener("click", () => {
+  buyModal.classList.remove("show");
+  receiptModal.classList.add("show");
+});
+
+// Cancel receipt modal
+cancelReceipt.addEventListener("click", () => {
+  receiptModal.classList.remove("show");
+});
+
+// Submit receipt
+submitReceipt.addEventListener("click", async () => {
+
+  const file = receiptFile.files[0];
+  if (!file) return alert("Please upload your receipt image.");
+
+  const name = bmName.value.trim();
+  const phone = bmPhone.value.trim();
+  const email = bmEmail.value.trim();
+  const address = bmAddress.value.trim();
+  const shippingMethod = bmShipping.value;
+
+  if (!name || !phone || !email || !address) {
+    alert("Please fill all buyer details first.");
+    receiptModal.classList.remove("show");
+    buyModal.classList.add("show");
+    return;
+  }
+
+  // Determine products (single or full cart)
+  let products = [];
+
+  if (currentCheckoutSingle) {
+    products.push({
+      id: currentCheckoutSingle.id || null,
+      name: currentCheckoutSingle.name || "Item",
+      price: Number(currentCheckoutSingle.price || 0)
+    });
+  } else {
+    products = cart.map(p => ({
+      id: p.id || null,
+      name: p.name || "Item",
+      price: Number(p.price || 0)
+    }));
+  }
+
+  const cartTotal = products.reduce((s,p)=> s + p.price, 0);
+  const txnFee = 100;
+  const shippingFee = shippingMethod === "GIG" ? 5000 : 3000;
+  const total = cartTotal + txnFee + shippingFee;
+
+  try {
+    // Upload to Cloudinary
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "YOUR_UPLOAD_PRESET"); // replace
+
+    const cloudRes = await fetch("https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload", {
+      method: "POST",
+      body: formData
+    });
+
+    const cloudData = await cloudRes.json();
+
+    if (!cloudData.secure_url) {
+      alert("Receipt upload failed.");
+      return;
+    }
+
+    // Save to Firestore manualPayments collection
+    if (db) {
+      await addDoc(collection(db, "manualPayments"), {
+        customer: { name, phone, email, address },
+        products,
+        shippingMethod,
+        shippingFee,
+        transactionFee: txnFee,
+        total,
+        receiptUrl: cloudData.secure_url,
+        status: "pending_verification",
+        createdAt: serverTimestamp()
+      });
+    }
+
+    // Clear cart
+    if (!currentCheckoutSingle) {
+      localStorage.removeItem("cart");
+      cart = [];
+    } else {
+      const idx = cart.findIndex(c => c.id === currentCheckoutSingle.id);
+      if (idx >= 0) {
+        cart.splice(idx, 1);
+        localStorage.setItem("cart", JSON.stringify(cart));
+      }
+    }
+
+    renderCart();
+    receiptModal.classList.remove("show");
+
+    alert("Receipt submitted successfully. Awaiting verification.");
+
+  } catch (err) {
+    console.error(err);
+    alert("Something went wrong. Try again.");
+  }
+
+});
+
+    // support loading a shared cart via ?shared=...
+    (function hydrateFromShared(){
+      const params = new URLSearchParams(location.search);
+      const shared = params.get('shared');
+      if(!shared) return;
+      try {
+        const data = JSON.parse(atob(shared));
+        const constructed = data.map(d => ({ id: d.id, name: d.name, price: d.price, images:[], desc: '' }));
+        localStorage.setItem('cart', JSON.stringify(constructed));
+        cart = constructed;
+        renderCart();
+      } catch(e){ console.warn('Could not parse shared cart', e); }
+    })();
+  </script>
+
+<script type="module">
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+
+const auth = getAuth();
+let currentUser = null;
+
+// 🔒 Require login for cart page
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    alert('Please log in to access your cart.');
+    window.location.href = '/login.html';
+  } else {
+    currentUser = user;
+  }
+});
+
+// Wallet elements
+const payWithWalletBtn = document.getElementById("payWithWalletBtn");
+
+// Wallet payment logic
+payWithWalletBtn.addEventListener('click', async () => {
+  if(!currentUser) { alert('Login required!'); return; }
+
+  const name = bmName.value.trim(); 
+  const phone = bmPhone.value.trim();
+  const email = bmEmail.value.trim(); 
+  const address = bmAddress.value.trim();
+  const shippingMethod = bmShipping.value;
+
+  if(!name || !phone || !email || !address) { alert('Fill all buyer details!'); return; }
+
+  // Determine products
+  let products = [];
+  if(currentCheckoutSingle){
+    products.push({
+      id: currentCheckoutSingle.id || null,
+      name: currentCheckoutSingle.name || 'Item',
+      price: Number(currentCheckoutSingle.price || 0),
+      images: currentCheckoutSingle.images || (currentCheckoutSingle.image ? [currentCheckoutSingle.image] : [])
+    });
+  } else {
+    products = cart.map(p => ({
+      id: p.id || null,
+      name: p.name || 'Item',
+      price: Number(p.price || 0),
+      images: p.images || (p.image ? [p.image] : [])
+    }));
+  }
+
+  const cartTotal = products.reduce((s,p)=> s + (p.price || 0), 0);
+  const txnFee = 100;
+  const shippingFee = shippingMethod === 'GIG' ? 5000 : 3000;
+  const total = cartTotal + txnFee + shippingFee;
+
+  // Fetch current wallet balance from Netlify backend
+  try {
+    const res = await fetch('/.netlify/functions/getWalletBalance', {
+      method: 'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ userId: currentUser.uid })
+    });
+    const data = await res.json();
+    const walletBalance = Number(data.balance || 0);
+    if(walletBalance < total){
+      return alert(`Insufficient wallet balance. Your wallet: ₦${walletBalance.toLocaleString()}`);
+    }
+
+    // Deduct immediately
+    const deductionRes = await fetch('/.netlify/functions/deductWallet', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ userId: currentUser.uid, amount: total, products, shippingMethod, txnFee })
+    });
+    const deductionData = await deductionRes.json();
+
+    if(!deductionData.success){
+      return alert('Could not process wallet payment. Try again.');
+    }
+
+    // Clear cart
+    if(!currentCheckoutSingle){
+      cart = [];
+      localStorage.removeItem('cart');
+    } else {
+      const idx = cart.findIndex(c => (c.id || '') === (currentCheckoutSingle.id || ''));
+      if(idx >= 0){
+        cart.splice(idx,1);
+        localStorage.setItem('cart', JSON.stringify(cart));
+      }
+    }
+
+    renderCart();
+    buyModal.classList.remove('show');
+    alert(`✅ Payment successful via Wallet. ₦${total.toLocaleString()} deducted. Admin will verify.`);
+
+  } catch(err){
+    console.error(err);
+    alert('Wallet payment failed. Please try again.');
+  }
+});
+</script>
+
+</body>
+</html>

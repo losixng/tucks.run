@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="/manifest.json">
+   <link rel="icon" alt="Logo" href="/logo.png">
+<meta name="theme-color" content="linear-gradient(60deg,#F2C464 0%, #C6F4D6 100%)">
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log('Service Worker Registered'));
+    });
+  }
+</script>
+
+  <title>Tucks — Shop Footwear</title>
+ 
+ <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+ <style>
+  body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background:linear-gradient(60deg,rgb(0, 204, 255) 0%, rgb(128, 128, 128) 100%);
+      color: #222222;
+    }
+    header {
+      background: #ff7a00;
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+      font-size: 1.6rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+    .departments {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100%, 1fr));
+      gap: 20px;
+      padding: 30px;
+      max-width: 1200px;
+      margin: auto;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      text-align: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+    }
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    }
+    .card img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+    }
+    .card h3 {
+      margin: 15px 0 10px;
+      font-size: 1.2rem;
+      color: #ff7a00;
+    }
+    body {
+      padding-bottom: 80px; /* space for nav */
+    }
+
+   
+    .card p {
+      font-size: 0.9rem;
+      padding: 0 15px 20px;
+      color: #555;
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #111;
+      color: #fff;
+      font-size: 0.85rem;
+      padding-bottom: 60px;
+    }
+    .bottom-nav {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 500px;
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      border-radius: 40px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 10px 0;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease-in-out;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: #555;
+      font-size: 0.8rem;
+      transition: all 0.3s;
+    }
+
+    .nav-item i {
+      font-size: 1.4rem;
+      margin-bottom: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      color: #ff5e57;
+    }
+
+    .nav-item:hover i, .nav-item.active i {
+      transform: scale(1.2);
+    }
+
+    @media (max-width: 600px) {
+      .bottom-nav {
+        width: 95%;
+        bottom: 15px;
+      }
+    }
+ 
+    .gf-advert {
+    margin: 20px;
+    padding: clamp(18px, 4vw, 28px);
+    border-radius: 18px;
+    min-height: 28vh;
+    max-height: 35vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #003973 0%, #E5E5BE 40%, #FF512F 80%, #DD2476 100%);
+    background-size: 300% 300%;
+    animation: gradientFlow 14s ease infinite;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.2);
+  }
+
+  @keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .gf-advert h2 {
+    margin: 0 0 10px;
+    font-size: clamp(20px, 3vw, 32px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  .gf-advert p {
+    margin: 0 0 16px;
+    font-size: clamp(13px, 1.4vw, 16px);
+    max-width: 68ch;
+    line-height: 1.4;
+    color: rgba(255,255,255,0.9);
+  }
+
+  .gf-advert .btn {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.4);
+    padding: 10px 18px;
+    border-radius: 10px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all .2s ease;
+  }
+  .gf-advert .btn:hover {
+    background: rgba(255,255,255,0.25);
+    transform: translateY(-2px);
+  }
+  a{
+    text-decoration: none;
+  }
+  
+/* Menu Toggle Checkbox */
+#menuToggle {
+  display: none;
+}
+
+/* Hamburger */
+.menu-icon {
+  width: 30px;
+  height: 24px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.4s ease;
+}
+.menu-icon span {
+  position: absolute;
+  height: 3px;
+  width: 100%;
+  background: white;
+  border-radius: 3px;
+  transition: all 0.4s ease;
+}
+.menu-icon span:nth-child(1) { top: 0; }
+.menu-icon span:nth-child(2) { top: 10px; }
+.menu-icon span:nth-child(3) { top: 20px; }
+
+/* Animate to X */
+#menuToggle:checked + label .menu-icon span:nth-child(1) {
+  transform: rotate(45deg);
+  top: 10px;
+}
+#menuToggle:checked + label .menu-icon span:nth-child(2) {
+  opacity: 0;
+}
+#menuToggle:checked + label .menu-icon span:nth-child(3) {
+  transform: rotate(-45deg);
+  top: 10px;
+}
+
+/* Dropdown Menu */
+nav .n {
+  position: fixed;
+  top: 65px;
+  right: 15px;
+  width: 180px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border-radius: 15px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  padding: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-15px);
+  transition: all 0.3s ease;
+}
+
+/* Show when checked */
+#menuToggle:checked ~ nav .n {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* Menu links */
+nav .n a {
+  display: block;
+  padding: 10px;
+  text-decoration: none;
+  color: #ff6b6b;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: background 0.3s ease, transform 0.2s;
+
+}
+nav .n a:hover {
+  background: rgba(255,107,107,0.15);
+  transform: translateX(4px);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  nav .n {
+    width: 70%;
+    right: 15%;
+  }
+}
+  /* Menu toggle */
+.menu-icon {
+  width: 30px;
+  height: 24px;
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.menu-icon span {
+  height: 3px;
+  background: white;
+  border-radius: 3px;
+  transition: all 0.4s ease;
+}
+
+/* Transform to X */
+#menuToggle:checked + label.menu-icon span:nth-child(1) {
+  transform: rotate(45deg) translateY(10px);
+}
+#menuToggle:checked + label.menu-icon span:nth-child(2) {
+  opacity: 0;
+}
+#menuToggle:checked + label.menu-icon span:nth-child(3) {
+  transform: rotate(-45deg) translateY(-10px);
+}
+
+/* Dropdown Menu */
+.menu-dropdown {
+  position: fixed;
+  top: 65px;
+  right: 15px;
+  width: 180px;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  padding: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-15px);
+  transition: all 0.3s ease;
+}
+
+/* Show dropdown when checked */
+#menuToggle:checked ~ .menu-dropdown {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* Links */
+.menu-dropdown a {
+  display: block;
+  padding: 10px;
+  color: #ff6b6b;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.menu-dropdown a:hover {
+  background: rgba(255,107,107,0.15);
+  transform: translateX(4px);
+}
+
+
+ </style>
+</head>
+<body>
+  
+  <header style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,#ff6b6b,#ff8e53);padding:10px 15px;position:sticky;top:0;z-index:999;box-shadow:0 3px 15px rgba(0,0,0,0.1);">
+  <div class="logo" style="font-size:1.6rem;font-weight:700;color:white;text-shadow:0 0 8px rgba(255,255,255,0.5);letter-spacing:1px;">Tucks</div>
+  <div class="search-container" style="display:flex;align-items:center;flex:1;margin:0 10px;position:relative;">
+    <input type="text" id="searchInput" placeholder="Search products..." style="width:100%;padding:10px 40px 10px 15px;border-radius:25px;border:none;outline:none;background:rgba(255,255,255,0.2);color:white;font-size:1rem;transition:all 0.3s;"/>
+    <button id="searchBtn" style="position:absolute;right:10px;background:transparent;border:none;color:white;font-size:1.2rem;cursor:pointer;">🔍</button>
+    <div id="suggestionBox" style="position:absolute;top:100%;width:100%;background:orangered;border-radius:8px;box-shadow:0 4px 15px rgba(0,0,0,0.1);max-height:250px;overflow-y:auto;display:none;z-index:1000;"></div>
+  </div>
+  
+  <!-- Fixed menu toggle -->
+<input type="checkbox" id="menuToggle" hidden>
+
+<label for="menuToggle" class="menu-icon">
+  <span></span>
+  <span></span>
+  <span></span>
+</label>
+
+<div class="menu-dropdown">
+  <a href="/profile/help.html">Help</a>
+  
+  <a href="/profile/partner.html">Install</a>
+  <a href="/profile/refund.html">Refunds</a>
+  <a href="/profile/reviews.html">Reviews</a>
+</div>
+</header>
+<div id="tips" style="background:#fff2ee;color:#ff5a5a;text-align:center;padding:10px 15px;font-weight:500;animation:fadeIn 1s ease;">Welcome to Market!</div>
+</div>
+  <header> Explore </header>
+  
+
+  <section class="departments">
+    <a href="/footwear/loafers.html" class="card">
+      <img src="/foo/Loafers.png">
+      <h3>Loafers</h3>
+      <p>Move in style. Everyday. Every step</p>
+    </a>
+
+    <a href="/footwear/sneakers.html" class="card">
+      <img src="/foo/sneakers.png">
+      <h3>Sneakers</h3>
+      <p>Comfort that keeps up</p>
+    </a>
+
+    <a href="/footwear/slides.html" class="card">
+     <img src="/foo/slides.png">
+     <h3>Slides</h3>
+      <p>Comfort that keeps up. Street ready comfort</p>
+    </a>
+
+    
+  </section>
+
+  <nav class="bottom-nav">
+    <a href="/home.html" class="nav-item">
+      
+      <span>Home</span>
+    </a>
+
+    <a href="/cart.html" class="nav-item">
+      
+      <span>Cart</span>
+    </a>
+
+    <a href="/order.html" class="nav-item">
+      
+      <span>Orders</span>
+    </a>
+
+    <a href="/profile.html" class="nav-item">
+     
+      <span>Profile</span>
+    </a>
+  </nav>
+ 
+
+<script>
+/* ----------------------------- Configuration -----------------------------
+  Behavior:
+    - Logged in detection: prefer Firebase Auth (firebase.auth().onAuthStateChanged)
+      If firebase auth isn't available, falls back to localStorage('isLoggedIn') for dev/testing.
+    - Installed detection: uses localStorage key 'isInstalled' (set to "true" elsewhere after install).
+----------------------------------------------------------------------------*/
+
+// ----- Helper: check Firebase availability (modular or namespaced) -----
+function setupAuthWatcher(onChange) {
+  // Try namespaced (firebase.auth())
+  try {
+    if (window.firebase && firebase.auth && typeof firebase.auth === 'function') {
+      return firebase.auth().onAuthStateChanged(user => onChange(!!user));
+    }
+  } catch(e) { /* ignore */ }
+
+  // Try modular (getAuth / onAuthStateChanged) - common when using new SDK
+  try {
+    if (window.firebase && firebase.getAuth && firebase.onAuthStateChanged) {
+      const auth = firebase.getAuth();
+      return firebase.onAuthStateChanged(auth, user => onChange(!!user));
+    }
+  } catch(e) { /* ignore */ }
+
+  // No firebase found — fallback: treat localStorage flag as auth (dev mode)
+  // This allows testing when firebase libs not loaded.
+  const fallback = () => onChange(localStorage.getItem('isLoggedIn') === 'true');
+  // Run immediately
+  fallback();
+  // And listen to storage events (in case another tab changes it)
+  window.addEventListener('storage', () => fallback());
+  // Return a dummy unsubscribe
+  return () => {};
+}
+
+// ----- Installed check (localStorage) -----
+function checkInstalled() {
+  return localStorage.getItem('isInstalled') === 'true';
+}
+
+// ----- Emoji pool (professional shopping/food/clothes/skincare) -----
+const EMOJIS = ['👢👡','👌🤟','👍👠','🛍️','👞','👢👡','👟🥾','👞👟','👢👡','👠🥾'];
+
+// ----- Create ephemeral floating emoji (visible for ~1s) -----
+function spawnEmojiOnce() {
+  const e = document.createElement('div');
+  const emoji = EMOJIS[Math.floor(Math.random()*EMOJIS.length)];
+  e.textContent = emoji;
+
+  // styling
+  e.style.position = 'fixed';
+  e.style.zIndex = 600;
+  const size = Math.floor(20 + Math.random()*20); // 20-40px
+  e.style.fontSize = size + 'px';
+  // start from random horizontal position near bottom
+  const left = Math.floor(8 + Math.random()*(window.innerWidth - 40));
+  e.style.left = left + 'px';
+  e.style.bottom = '-10px';
+  e.style.pointerEvents = 'none';
+  e.style.opacity = '0';
+  e.style.transform = 'translateY(0) scale(1)';
+  // subtle text shadow for glow on dark background
+  e.style.textShadow = '0 2px 8px rgba(0,0,0,0.6)';
+
+  document.body.appendChild(e);
+
+  // Force reflow, then animate
+  requestAnimationFrame(() => {
+    e.style.transition = 'transform 950ms cubic-bezier(.25,.9,.3,1), opacity 400ms linear';
+    e.style.opacity = '1';
+    // move up ~80-140px and drift horizontally a bit
+    const up = 80 + Math.random()*80;
+    const drift = (Math.random()-0.5) * 60;
+    e.style.transform = `translateY(-${up}px) translateX(${drift}px) scale(1.02)`;
+  });
+
+  // fade out after 900ms then remove at 1100ms (safety)
+  setTimeout(() => { e.style.opacity = '0'; }, 900);
+  setTimeout(() => { try{ e.remove(); } catch(e){} }, 1100);
+}
+
+// spawn emojis continuously, but each is only visible ~1s
+setInterval(spawnEmojiOnce, 650); // creates a new short-lived emoji ~ every 650ms
+
+// ----------------- UI / Popup Creation (all JS, mobile-first) -----------------
+let latestPopup = null;
+function createActionPopup({ showLogin, showInstall }) {
+  // If popup exists remove before creating new
+  if (latestPopup) { latestPopup.remove(); latestPopup = null; }
+
+  // If neither should be shown, do nothing
+  if (!showLogin && !showInstall) return;
+
+  const popup = document.createElement('div');
+  latestPopup = popup;
+  popup.setAttribute('role','dialog');
+  popup.setAttribute('aria-modal','true');
+
+  // Base styles (glass blur, dark-blue / dark-gray)
+  popup.style.position = 'fixed';
+  popup.style.left = '50%';
+  popup.style.top = '-100%';              // animate from top
+  popup.style.transform = 'translateX(-50%)';
+  popup.style.zIndex = 1000;
+  popup.style.width = '92%';              // mobile-first
+  popup.style.maxWidth = '420px';
+  popup.style.padding = '18px 16px 22px';
+  popup.style.borderRadius = '14px';
+  popup.style.backdropFilter = 'blur(10px) saturate(120%)';
+  popup.style.background = 'linear-gradient(180deg, rgba(8,20,50,0.85), rgba(18,22,30,0.78))';
+  popup.style.border = '1px solid rgba(255,255,255,0.04)';
+  popup.style.boxShadow = '0 10px 30px rgba(2,8,30,0.6), 0 2px 8px rgba(10,20,45,0.45)';
+  popup.style.color = '#E6F2FF';
+  popup.style.textAlign = 'center';
+  popup.style.overflow = 'hidden';
+  popup.style.touchAction = 'manipulation';
+
+  // Close (✖️) button
+  const closeBtn = document.createElement('button');
+  closeBtn.innerHTML = '✖️';
+  closeBtn.setAttribute('aria-label','Close');
+  closeBtn.style.position = 'absolute';
+  closeBtn.style.top = '8px';
+  closeBtn.style.right = '8px';
+  closeBtn.style.width = '36px';
+  closeBtn.style.height = '36px';
+  closeBtn.style.borderRadius = '10px';
+  closeBtn.style.border = 'none';
+  closeBtn.style.background = 'transparent';
+  closeBtn.style.color = '#D9EEF9';
+  closeBtn.style.fontSize = '18px';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.style.backdropFilter = 'none';
+  closeBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.4)';
+  closeBtn.onpointerdown = () => { popup.style.display = 'none'; };
+
+  // Title
+  const h = document.createElement('h3');
+  h.textContent = 'Action Required';
+  h.style.margin = '6px 0 2px';
+  h.style.fontSize = '1.1rem';
+  h.style.letterSpacing = '0.2px';
+  h.style.color = '#EFF8FF';
+
+  // Message
+  const p = document.createElement('p');
+  p.style.margin = '6px 6px 14px';
+  p.style.fontSize = '0.95rem';
+  p.style.lineHeight = '1.25';
+  p.style.color = '#CFE9FF';
+
+  if (showLogin && showInstall) {
+    p.textContent = 'Please login and install the app to enjoy the full experience.';
+  } else if (showLogin) {
+    p.textContent = 'Please login to continue.';
+  } else {
+    p.textContent = 'Please install the app to continue.';
+  }
+
+  // Buttons container
+  const btnWrap = document.createElement('div');
+  btnWrap.style.display = 'flex';
+  btnWrap.style.flexDirection = 'column';
+  btnWrap.style.alignItems = 'center';
+  btnWrap.style.gap = '10px';
+  btnWrap.style.marginTop = '4px';
+  btnWrap.style.padding = '0 6px 8px';
+
+  // Shared button factory (glowing accent)
+  function makeActionButton(text, href, accent=true) {
+    const btn = document.createElement('button');
+    btn.textContent = text;
+    btn.style.width = '100%';
+    btn.style.maxWidth = '320px';
+    btn.style.padding = '14px 18px';
+    btn.style.fontSize = '16px';
+    btn.style.borderRadius = '12px';
+    btn.style.border = 'none';
+    btn.style.cursor = 'pointer';
+    btn.style.fontWeight = 700;
+    btn.style.boxShadow = accent
+      ? '0 6px 18px rgba(0,122,255,0.16), 0 2px 6px rgba(0,0,0,0.35)'
+      : '0 4px 12px rgba(0,0,0,0.25)';
+    btn.style.transition = 'transform .22s cubic-bezier(.2,.9,.28,1), box-shadow .22s';
+    btn.style.color = accent ? '#051233' : '#EAF6FF';
+    btn.style.background = accent ? 'linear-gradient(90deg,#6CCBFF,#2B9BFF)' : 'rgba(255,255,255,0.04)';
+    btn.ontouchstart = () => btn.style.transform = 'translateY(2px) scale(.995)';
+    btn.ontouchend = () => btn.style.transform = 'translateY(0) scale(1)';
+    btn.onmouseenter = () => { btn.style.transform = 'scale(1.03)'; };
+    btn.onmouseleave = () => { btn.style.transform = 'scale(1)'; };
+
+    btn.onclick = (ev) => {
+      ev.preventDefault();
+      // small click glow effect then redirect
+      btn.style.boxShadow = '0 10px 30px rgba(43,155,255,0.28)';
+      setTimeout(()=> { window.location.href = href; }, 180);
+    };
+    return btn;
+  }
+
+  // Build buttons based on flags
+  if (showLogin) {
+    const loginBtn = makeActionButton('Login', 'login.html', true);
+    btnWrap.appendChild(loginBtn);
+  }
+  if (showInstall) {
+    // install button uses a cool soft neon outline
+    const installBtn = makeActionButton('Install App', 'profile/install.html', true);
+    installBtn.style.background = 'linear-gradient(90deg,#7CF0D6,#4BD1FF)';
+    installBtn.style.color = '#04222A';
+    btnWrap.appendChild(installBtn);
+  }
+
+  // Assemble popup
+  popup.appendChild(closeBtn);
+  popup.appendChild(h);
+  popup.appendChild(p);
+  popup.appendChild(btnWrap);
+  document.body.appendChild(popup);
+
+  // Entrance animation (slide-down + subtle pop)
+  requestAnimationFrame(() => {
+    popup.style.transition = 'top .72s cubic-bezier(.18,.85,.24,1), transform .36s ease-out';
+    popup.style.top = '50%';
+    popup.style.transform = 'translate(-50%,-50%) scale(1)';
+  });
+
+  // For accessibility: focus first focusable button
+  requestAnimationFrame(() => {
+    const firstBtn = popup.querySelector('button:not([aria-label])');
+    if (firstBtn) firstBtn.focus();
+  });
+
+  // small auto-dismiss if user taps outside (mobile friendly)
+  function outsideListener(e) {
+    if (!popup.contains(e.target)) {
+      popup.style.display = 'none';
+      document.removeEventListener('pointerdown', outsideListener);
+    }
+  }
+  // Only add after a short delay so clicks that opened don't immediately close
+  setTimeout(() => {
+    document.addEventListener('pointerdown', outsideListener);
+  }, 400);
+}
+
+/* ----------------- Core logic: decide what to show ----------------- */
+let lastAuthValue = false;
+function evaluateAndShowPopup(loggedIn) {
+  const installed = checkInstalled();
+  // If both true → show nothing (hide popup if present)
+  if (loggedIn && installed) {
+    if (latestPopup) { latestPopup.remove(); latestPopup = null; }
+    return;
+  }
+
+  // If logged and not installed => show only install
+  const showInstall = installed === false;
+  const showLogin = loggedIn === false;
+
+  createActionPopup({ showLogin, showInstall });
+}
+
+// Hook Firebase watcher (or fallback)
+const unsubscribe = setupAuthWatcher((isLogged) => {
+  lastAuthValue = isLogged;
+  evaluateAndShowPopup(isLogged);
+});
+
+// On initial load also evaluate using local check (in case firebase async hasn't called yet)
+setTimeout(() => {
+  // If firebase didn't set anything yet, fallback to localStorage flag for UX (dev)
+  if (typeof lastAuthValue !== 'boolean') {
+    const fallbackLogged = localStorage.getItem('isLoggedIn') === 'true';
+    evaluateAndShowPopup(fallbackLogged);
+  }
+}, 300);
+
+// Optional: expose helper functions for debugging/testing
+window.__appPromptHelpers = {
+  markInstalled() { localStorage.setItem('isInstalled', 'true'); evaluateAndShowPopup(lastAuthValue); },
+  markUninstalled() { localStorage.removeItem('isInstalled'); evaluateAndShowPopup(lastAuthValue); },
+  markLoggedInLocal() { localStorage.setItem('isLoggedIn','true'); evaluateAndShowPopup(true); },
+  markLoggedOutLocal() { localStorage.removeItem('isLoggedIn'); evaluateAndShowPopup(false); }
+};
+
+</script>
+
+
+
+
+ <script type="module" src="/script.js"></script>
+  <!-- Firebase Setup -->
+<script type="module">
+  // Import the functions you need from the SDKs
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-analytics.js";
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDzwnmGgEcN63RcCHSNU6p_xXKxmeqzF6k" ,
+    authDomain: "losixmarket.firebaseapp.com",
+    projectId: "losixmarket" ,
+    storageBucket: "losixmarket.firebasestorage.app",
+    messagingSenderId: "301860246689",
+    appId:"1:301860246689:web:aabf0ab9af41081a91cce0",
+    measurementId: "G-ZPVVZ8GNP0"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+
+  console.log("✅ Firebase initialized:", app);
+</script>
+
+  
+</body>
+</html>

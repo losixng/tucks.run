@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="manifest" href="/manifest.json">
+   <link rel="icon" alt="Logo" href="/logo.png">
+<meta name="theme-color" content="linear-gradient(60deg,#F2C464 0%, #C6F4D6 100%)">
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log('Service Worker Registered'));
+    });
+  }
+</script>
+
+  <title>Tucks - Hair Essentials & Accessories</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+}
+
+body{
+  height:100vh;
+  overflow:hidden;
+  color:#fff;
+}
+
+/* BACKGROUND SLIDESHOW */
+.background{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background-size:cover;
+  background-position:center;
+  transition:opacity 1.5s ease-in-out;
+  z-index:-2;
+}
+
+.overlay{
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:linear-gradient(
+    rgba(40,0,40,0.6),
+    rgba(0,0,0,0.6)
+  );
+  z-index:-1;
+}
+
+/* CONTENT */
+.container{
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  padding:20px;
+}
+
+/* TITLE */
+h1{
+  font-size:3rem;
+  font-weight:700;
+  letter-spacing:1px;
+  text-shadow:0 8px 30px rgba(255,105,180,0.6);
+  animation:fadeUp 1s ease forwards;
+  transition:0.4s;
+}
+
+h1:hover{
+  transform:scale(1.05);
+  text-shadow:0 10px 40px rgba(255,182,193,0.9);
+}
+
+/* SUBTEXT */
+p{
+  margin-top:20px;
+  max-width:700px;
+  font-size:1.1rem;
+  opacity:0.95;
+  text-shadow:0 5px 20px rgba(0,0,0,0.6);
+  animation:fadeUp 1s ease forwards 0.3s;
+}
+
+/* FLOATING HAIR ICONS */
+.products{
+  margin-top:40px;
+  display:flex;
+  gap:40px;
+}
+
+.product{
+  font-size:2.5rem;
+  animation:float 3s ease-in-out infinite;
+  transition:0.3s;
+}
+
+.product:hover{
+  transform:scale(1.3);
+  filter:drop-shadow(0 0 20px #ffb6c1);
+}
+
+.product:nth-child(2){ animation-delay:0.5s; }
+.product:nth-child(3){ animation-delay:1s; }
+.product:nth-child(4){ animation-delay:1.5s; }
+
+/* CTA BUTTON */
+.cta{
+  margin-top:60px;
+  padding:16px 45px;
+  border-radius:50px;
+  background:linear-gradient(45deg,#c471f5,#fa71cd);
+  color:#fff;
+  font-weight:600;
+  text-decoration:none;
+  font-size:1.1rem;
+  box-shadow:0 0 25px rgba(250,113,205,0.8);
+  transition:0.4s;
+  position:relative;
+  overflow:hidden;
+}
+
+.cta::before{
+  content:'';
+  position:absolute;
+  top:0;
+  left:-100%;
+  width:100%;
+  height:100%;
+  background:linear-gradient(120deg,transparent,rgba(255,255,255,0.5),transparent);
+  transition:0.7s;
+}
+
+.cta:hover::before{
+  left:100%;
+}
+
+.cta:hover{
+  transform:translateY(-5px) scale(1.07);
+  box-shadow:0 0 40px rgba(250,113,205,1);
+}
+
+/* ANIMATIONS */
+@keyframes fadeUp{
+  from{opacity:0; transform:translateY(30px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+@keyframes float{
+  0%,100%{ transform:translateY(0); }
+  50%{ transform:translateY(-15px); }
+}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  h1{ font-size:2.2rem; }
+  .products{ gap:20px; }
+}
+
+.bottom-nav {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 500px;
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      border-radius: 40px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 10px 0;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease-in-out;
+    }
+     .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: #555;
+      font-size: 0.8rem;
+      transition: all 0.3s;
+    }
+
+    .nav-item i {
+      font-size: 1.4rem;
+      margin-bottom: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      color: #ff5e57;
+    }
+
+    .nav-item:hover i, .nav-item.active i {
+      transform: scale(1.2);
+    }
+
+    @media (max-width: 600px) {
+      .bottom-nav {
+        width: 95%;
+        bottom: 15px;
+      }
+    }
+
+</style>
+</head>
+
+<body>
+
+<div class="background" id="bg"></div>
+<div class="overlay"></div>
+
+<div class="container">
+  <h1>Hair Essentials & Accessories</h1>
+
+  <p>
+    From silky bonnets to luxury brushes and statement accessories —
+    everything you need to protect, style and elevate your beauty.
+    Because your hair deserves excellence.
+  </p>
+
+  <div class="products">
+    <div class="product">💇🏽‍♀️</div>
+    <div class="product">🧴</div>
+    <div class="product">🎀</div>
+    <div class="product">🪮</div>
+  </div>
+
+  <a href="/hairessentials/hairProducts.html" class="cta">
+    Shop Now
+  </a>
+</div>
+
+<nav class="bottom-nav">
+    <a href="/home.html" class="nav-item">
+      
+      <span>Home</span>
+    </a>
+
+    <a href="/cart.html" class="nav-item">
+      
+      <span>Cart</span>
+    </a>
+
+    <a href="/order.html" class="nav-item">
+      
+      <span>Orders</span>
+    </a>
+
+    <a href="/profile.html" class="nav-item">
+     
+      <span>Profile</span>
+    </a>
+  </nav>
+
+
+<script>
+const images = [
+  '/images/hair-bg1.jpg',
+  '/images/hair-bg2.jpg',
+  '/images/hair-bg3.jpg'
+];
+
+let current = 0;
+const bg = document.getElementById('bg');
+
+function changeBackground(){
+  bg.style.opacity = 0;
+
+  setTimeout(()=>{
+    current = (current + 1) % images.length;
+    bg.style.backgroundImage = `url(${images[current]})`;
+    bg.style.opacity = 1;
+  },800);
+}
+
+bg.style.backgroundImage = `url(${images[0]})`;
+bg.style.opacity = 1;
+
+setInterval(changeBackground, 6000);
+</script>
+
+</body>
+</html>

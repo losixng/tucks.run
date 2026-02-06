@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Market Wallet</title>
+
+<style>
+  body { font-family: Arial, sans-serif; background:#f8f8f8; margin:0; }
+  .wallet-container {
+    max-width:500px; margin:50px auto;
+    background:#fff; padding:20px;
+    border-radius:12px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.1);
+    text-align:center;
+  }
+  h2 { margin-bottom:20px; }
+  .balance { font-size:2rem; color:#ff6a00; margin-bottom:20px; }
+  button {
+    padding:12px 20px;
+    font-size:1rem;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#ff6a00;
+    color:#fff;
+    transition:0.3s;
+  }
+  button:hover { background:#e25d00; }
+
+  .modal {
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.6);
+    justify-content:center;
+    align-items:center;
+    z-index:1000;
+  }
+  .modal.show { display:flex; }
+
+  .modal-card {
+    background:#fff;
+    padding:20px;
+    border-radius:12px;
+    width:90%;
+    max-width:400px;
+    text-align:left;
+    position:relative;
+  }
+  .modal-card input {
+    width:100%;
+    padding:10px;
+    margin:10px 0;
+    border-radius:8px;
+    border:1px solid #ccc;
+  }
+  .close-modal {
+    position:absolute;
+    top:10px;
+    right:15px;
+    cursor:pointer;
+    font-weight:bold;
+    font-size:1.2rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="wallet-container" id="walletContainer" style="display:none;">
+  <h2>Your Wallet</h2>
+  <div class="balance" id="walletBalance">₦0</div>
+  <button id="topUpBtn">Top Up Wallet</button>
+
+  <button id="logoutBtn"
+    style="margin-top:10px;background:#555;">
+    Logout
+  </button>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="topUpModal">
+  <div class="modal-card">
+    <span class="close-modal" id="closeModal">&times;</span>
+    <h3>Top Up Wallet</h3>
+    <input type="number" id="topUpAmount" placeholder="Enter amount (₦)" min="1">
+    <div>Your narration code: <strong id="narrationCode"></strong></div>
+    <div>Time remaining: <strong id="timeRemaining"></strong></div>
+    <button id="confirmPaymentBtn">I Have Paid</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+
+/////////////////////////////
+// 1️⃣ Firebase Init
+/////////////////////////////
+
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "losixmarket.firebaseapp.com",
+  projectId: "losixmarket",
+  storageBucket: "losixmarket.firebasestorage.app",
+  messagingSenderId: "301860246689",
+  appId: "1:301860246689:web:aabf0ab9af41081a91cce0"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+/////////////////////////////
+// 2️⃣ DOM
+/////////////////////////////
+
+const walletContainer = document.getElementById("walletContainer");
+const walletBalanceEl = document.getElementById("walletBalance");
+const topUpBtn = document.getElementById("topUpBtn");
+const topUpModal = document.getElementById("topUpModal");
+const closeModal = document.getElementById("closeModal");
+const narrationCodeEl = document.getElementById("narrationCode");
+const timeRemainingEl = document.getElementById("timeRemaining");
+const topUpAmountEl = document.getElementById("topUpAmount");
+const confirmPaymentBtn = document.getElementById("confirmPaymentBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+
+let narrationCode = "";
+let countdownInterval = null;
+let topUpStartTime = null;
+const TOP_UP_TIMEOUT = 15 * 60;
+
+/////////////////////////////
+// 3️⃣ Secure Auth Gate
+/////////////////////////////
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "/login.html";
+    return;
+  }
+
+  // Show wallet ONLY after auth confirmed
+  walletContainer.style.display = "block";
+
+  // Fetch real wallet balance from backend
+  try {
+    const res = await fetch("/.netlify/functions/getWalletBalance", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: user.uid })
+    });
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : {};
+
+    walletBalanceEl.textContent =
+      `₦${(data.balance || 0).toLocaleString()}`;
+  } catch (err) {
+    console.error("Balance fetch error:", err);
+    walletBalanceEl.textContent = "₦0";
+  }
+});
+
+/////////////////////////////
+// 4️⃣ Helpers
+/////////////////////////////
+
+function generateNarrationCode() {
+  return "NC-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+}
+
+function startCountdown() {
+  if (countdownInterval) clearInterval(countdownInterval);
+
+  countdownInterval = setInterval(() => {
+    const now = Math.floor(Date.now() / 1000);
+    const elapsed = now - topUpStartTime;
+    const remaining = TOP_UP_TIMEOUT - elapsed;
+
+    if (remaining <= 0) {
+      clearInterval(countdownInterval);
+      timeRemainingEl.textContent = "00:00";
+      alert("Time expired. Generate new code.");
+      return;
+    }
+
+    const mins = String(Math.floor(remaining / 60)).padStart(2, "0");
+    const secs = String(remaining % 60).padStart(2, "0");
+    timeRemainingEl.textContent = `${mins}:${secs}`;
+  }, 1000);
+}
+
+/////////////////////////////
+// 5️⃣ Events
+/////////////////////////////
+
+topUpBtn.addEventListener("click", () => {
+  narrationCode = generateNarrationCode();
+  narrationCodeEl.textContent = narrationCode;
+  topUpStartTime = Math.floor(Date.now() / 1000);
+  startCountdown();
+  topUpModal.classList.add("show");
+});
+
+closeModal.addEventListener("click", () =>
+  topUpModal.classList.remove("show")
+);
+
+confirmPaymentBtn.addEventListener("click", async () => {
+  const amount = Number(topUpAmountEl.value);
+  if (!amount || amount <= 0)
+    return alert("Enter valid amount");
+
+  const user = auth.currentUser;
+  if (!user) return;
+
+  try {
+    const res = await fetch("/.netlify/functions/addWalletTopUp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: user.uid,
+        amount,
+        narrationCode
+      })
+    });
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : {};
+
+    if (data.success) {
+      alert("Top-up submitted for admin review.");
+      topUpModal.classList.remove("show");
+    } else {
+      alert("Top-up failed.");
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert("Backend error.");
+  }
+});
+
+/////////////////////////////
+// 6️⃣ Logout
+/////////////////////////////
+
+logoutBtn.addEventListener("click", async () => {
+  await signOut(auth);
+  window.location.href = "/login.html";
+});
+</script>
+
+</body>
+</html>

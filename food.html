@@ -1,0 +1,104 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<link rel="manifest" href="/manifest.json">
+   <link rel="icon" alt="Logo" href="/logo.png">
+<meta name="theme-color" content="linear-gradient(60deg,#F2C464 0%, #C6F4D6 100%)">
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log('Service Worker Registered'));
+    });
+  }
+</script>
+
+<title>WELCOME</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,sans-serif}
+body{height:100vh;background:radial-gradient(circle at top,#0f2a55,#020b18 70%);display:flex;align-items:center;justify-content:center;overflow:hidden;color:white}.scene{position:relative;width:360px;height:480px;perspective:2200px;transform-style:preserve-3d;animation:cameraPush 5s ease forwards} @keyframes cameraPush{0%{transform:scale(1)}70%{transform:scale(1.04)}100%{transform:scale(1.12)}}
+
+.frame{position:absolute;inset:0;border-radius:28px;background:linear-gradient(180deg,#163d7a,#0a1a33);box-shadow:inset 0 0 40px rgba(135,206,235,.3),0 45px 90px rgba(0,0,0,.65);overflow:hidden;transform:translateZ(40px)}
+
+.inside{position:absolute;inset:0;background:radial-gradient(circle at center,#3fa9f5,#061427 72%);box-shadow:inset 0 0 80px rgba(135,206,235,.7)}
+
+/* DOORS */ .door{position:absolute;width:50%;height:100%;top:0;background:linear-gradient(135deg,#2b6cb0,#1e3c72);box-shadow:inset 0 0 25px rgba(255,255,255,.18),0 25px 45px rgba(0,0,0,.7);transform-style:preserve-3d} .door::after{content:'';position:absolute;inset:14px;border-radius:14px;border:2px solid rgba(135,206,235,.4)} .door.left{left:0;transform-origin:left center} .door.right{right:0;transform-origin:right center} .open-left{animation:openLeft 1.4s cubic-bezier(.15,.85,.25,1) forwards} .open-right{animation:openRight 1.4s cubic-bezier(.15,.85,.25,1) forwards} @keyframes openLeft{to{transform:rotateY(-120deg) skewY(-2deg)}} @keyframes openRight{to{transform:rotateY(120deg) skewY(2deg)}}
+
+/* PLATFORM */ .platform{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) translateZ(150px) scale(0);width:170px;height:170px;border-radius:30px;background:linear-gradient(145deg,#1e90ff,#0b3c6f);box-shadow:0 0 50px rgba(30,144,255,.95),0 40px 80px rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;animation:popIn .9s cubic-bezier(.18,.9,.2,1) forwards;animation-delay:1.5s} .platform span{font-size:5rem;filter:drop-shadow(0 0 22px rgba(255,255,255,.9))} @keyframes popIn{to{transform:translate(-50%,-50%) translateZ(150px) scale(1)}}
+
+/* WELCOME */ .welcome{position:absolute;top:20px;width:100%;text-align:center;font-size:3.2rem;font-weight:900;letter-spacing:8px;text-shadow:0 0 20px rgba(135,206,235,.9),0 0 60px rgba(30,144,255,1);transform:translateZ(120px);animation:pulseGlow 1.8s infinite ease-in-out} @keyframes pulseGlow{0%,100%{text-shadow:0 0 18px #87ceeb,0 0 40px #1e90ff}50%{text-shadow:0 0 34px #fff,0 0 80px #1e90ff}}
+
+/* CREDIT */ .credit{position:absolute;bottom:26px;width:100%;text-align:center;font-size:1.1rem;opacity:0;letter-spacing:1.2px;color:#cfe8ff;transform:translateZ(80px)} .show-credit{animation:fadeUp .7s ease forwards} @keyframes fadeUp{from{opacity:0;transform:translateY(12px) translateZ(80px)}to{opacity:1;transform:translateY(0) translateZ(80px)}}
+
+/* EMOJIS */ .emoji{position:absolute;font-size:2rem;filter:drop-shadow(0 0 14px rgba(255,255,255,.9));animation:burst 2.4s cubic-bezier(.15,.85,.3,1) forwards} @keyframes burst{0%{opacity:0;transform:translate3d(0,0,0) scale(.4)}20%{opacity:1}100%{opacity:0;transform:translate3d(var(--x),var(--y),280px) scale(1.6);filter:blur(1px)}} </style>
+
+</head>
+<body>
+<div class="scene">
+  <div class="frame">
+    <div class="inside"></div>
+    <div class="door left"></div>
+    <div class="door right"></div>
+  </div>
+  <div class="platform"><span>🍽️</span></div>
+  <div class="welcome" id="welcome"></div>
+  <div class="credit" id="credit">imagined by Losix Team</div>
+</div>
+
+
+<script>
+const leftDoor = document.querySelector('.door.left');
+const rightDoor = document.querySelector('.door.right');
+const welcomeEl = document.getElementById('welcome');
+const creditEl = document.getElementById('credit');
+
+// Open doors smoothly
+setTimeout(() => {
+  leftDoor.classList.add('open-left');
+  rightDoor.classList.add('open-right');
+}, 400);
+
+// Typing effect for welcome text
+const text = 'WELCOME';
+let i = 0;
+setTimeout(() => {
+  const typing = setInterval(() => {
+    welcomeEl.textContent += text[i];
+    i++;
+    if (i === text.length) clearInterval(typing);
+  }, 170);
+}, 1600);
+
+// Show credit smoothly
+setTimeout(() => creditEl.classList.add('show-credit'), 3600);
+
+// Emoji burst (lighter & smooth)
+const foods = ['🍔','🍕','🍟','🌮','🍩','🍗','🍜','🍣','🍙','🥪','🥗','🍰','🧁','🍦','🍧','🍿','🥞','🍛','🍚','🍖','🍤','🌯','🥟'];
+
+setTimeout(() => {
+  const center = document.querySelector('.platform').getBoundingClientRect();
+  const scene = document.querySelector('.scene').getBoundingClientRect();
+  foods.forEach((f, i) => {
+    const angle = (i / foods.length) * Math.PI * 2;
+    const e = document.createElement('span');
+    e.className = 'emoji';
+    e.textContent = f;
+    e.style.left = center.left - scene.left + center.width / 2 + 'px';
+    e.style.top = center.top - scene.top + center.height / 2 + 'px';
+    e.style.setProperty('--x', Math.cos(angle) * 120 + 'px'); // smaller distance
+    e.style.setProperty('--y', Math.sin(angle) * 120 + 'px'); // smaller distance
+    document.querySelector('.scene').appendChild(e);
+
+    // Remove after animation ends
+    setTimeout(() => e.remove(), 2400);
+  });
+}, 2400);
+
+// Redirect after animation
+setTimeout(() => location.href = 'food_delivery.html', 5000);
+</script>
+
+</body>
+</html>
