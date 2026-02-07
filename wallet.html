@@ -1,259 +1,316 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
+<title>My Wallet</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Market Wallet</title>
 
 <style>
-  body { font-family: Arial, sans-serif; background:#f8f8f8; margin:0; }
-  .wallet-container {
-    max-width:500px; margin:50px auto;
-    background:#fff; padding:20px;
-    border-radius:12px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.1);
-    text-align:center;
-  }
-  h2 { margin-bottom:20px; }
-  .balance { font-size:2rem; color:#ff6a00; margin-bottom:20px; }
-  button {
-    padding:12px 20px;
-    font-size:1rem;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    background:#ff6a00;
-    color:#fff;
-    transition:0.3s;
-  }
-  button:hover { background:#e25d00; }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #87CEEB, #1e3a8a);
+}
 
-  .modal {
-    display:none;
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,0.6);
-    justify-content:center;
-    align-items:center;
-    z-index:1000;
-  }
-  .modal.show { display:flex; }
+/* Header */
+.header {
+  background: #1e3a8a;
+  color: white;
+  padding: 15px;
+  text-align: center;
+  font-size: 20px;
+}
 
-  .modal-card {
-    background:#fff;
-    padding:20px;
-    border-radius:12px;
-    width:90%;
-    max-width:400px;
-    text-align:left;
-    position:relative;
-  }
-  .modal-card input {
-    width:100%;
-    padding:10px;
-    margin:10px 0;
-    border-radius:8px;
-    border:1px solid #ccc;
-  }
-  .close-modal {
-    position:absolute;
-    top:10px;
-    right:15px;
-    cursor:pointer;
-    font-weight:bold;
-    font-size:1.2rem;
-  }
+/* Layout */
+.container {
+  padding: 20px;
+}
+
+/* Animated Balance Card */
+.balance-card {
+  background: #f3f4f6;
+  border-radius: 15px;
+  padding: 25px;
+  text-align: center;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  animation: floatCard 3s ease-in-out infinite;
+}
+
+@keyframes floatCard {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0px); }
+}
+
+.balance-card h3 {
+  margin: 0;
+  color: #1e3a8a;
+}
+
+.balance-amount {
+  font-size: 34px;
+  font-weight: bold;
+  color: #2563eb;
+  margin-top: 10px;
+}
+
+/* Sections */
+.section {
+  background: #f3f4f6;
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.section h4 {
+  margin-top: 0;
+  color: #1e3a8a;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  background: #1e3a8a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+button:hover {
+  background: #2563eb;
+}
+
+/* Countdown */
+.timer {
+  margin-top: 10px;
+  font-weight: bold;
+  color: red;
+}
+
+/* Transactions */
+.transaction {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  font-size: 14px;
+}
+
+.status-success { color: green; }
+.status-pending { color: orange; }
+.status-expired { color: red; }
+
+.logout-btn {
+  margin-top: 10px;
+  background: gray;
+}
 </style>
 </head>
+
 <body>
 
-<div class="wallet-container" id="walletContainer" style="display:none;">
-  <h2>Your Wallet</h2>
-  <div class="balance" id="walletBalance">₦0</div>
-  <button id="topUpBtn">Top Up Wallet</button>
+<div class="header">My Wallet</div>
 
-  <button id="logoutBtn"
-    style="margin-top:10px;background:#555;">
-    Logout
-  </button>
-</div>
+<div class="container">
 
-<!-- Modal -->
-<div class="modal" id="topUpModal">
-  <div class="modal-card">
-    <span class="close-modal" id="closeModal">&times;</span>
-    <h3>Top Up Wallet</h3>
-    <input type="number" id="topUpAmount" placeholder="Enter amount (₦)" min="1">
-    <div>Your narration code: <strong id="narrationCode"></strong></div>
-    <div>Time remaining: <strong id="timeRemaining"></strong></div>
-    <button id="confirmPaymentBtn">I Have Paid</button>
+  <!-- BALANCE -->
+  <div class="balance-card">
+    <h3>Wallet Balance</h3>
+    <div class="balance-amount" id="balance">₦0</div>
   </div>
+
+  <!-- FUND WALLET -->
+  <div class="section">
+    <h4>Fund Wallet</h4>
+    <input type="number" id="amount" placeholder="Enter amount (₦)">
+    <button onclick="generatePayment()">Generate Payment Coupon</button>
+    <p id="couponInfo"></p>
+    <div class="timer" id="timer"></div>
+  </div>
+
+  <!-- TRANSACTIONS -->
+  <div class="section">
+    <h4>Transaction History</h4>
+    <div id="transactions"></div>
+  </div>
+
+  <button class="logout-btn" onclick="logout()">Logout</button>
+
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-import {
-  getAuth,
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-
-/////////////////////////////
-// 1️⃣ Firebase Init
-/////////////////////////////
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc, collection, addDoc, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "YOUR_KEY",
-  authDomain: "losixmarket.firebaseapp.com",
-  projectId: "losixmarket",
-  storageBucket: "losixmarket.firebasestorage.app",
-  messagingSenderId: "301860246689",
-  appId: "1:301860246689:web:aabf0ab9af41081a91cce0"
+ apiKey: "AIzaSyDzwnmGgEcN63RcCHSNU6p_xXKxmeqzF6k" ,
+    authDomain: "losixmarket.firebaseapp.com",
+    projectId: "losixmarket" ,
+    storageBucket: "losixmarket.firebasestorage.app",
+    messagingSenderId: "301860246689",
+    appId:"1:301860246689:web:aabf0ab9af41081a91cce0",
+    measurementId: "G-ZPVVZ8GNP0"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
-/////////////////////////////
-// 2️⃣ DOM
-/////////////////////////////
-
-const walletContainer = document.getElementById("walletContainer");
-const walletBalanceEl = document.getElementById("walletBalance");
-const topUpBtn = document.getElementById("topUpBtn");
-const topUpModal = document.getElementById("topUpModal");
-const closeModal = document.getElementById("closeModal");
-const narrationCodeEl = document.getElementById("narrationCode");
-const timeRemainingEl = document.getElementById("timeRemaining");
-const topUpAmountEl = document.getElementById("topUpAmount");
-const confirmPaymentBtn = document.getElementById("confirmPaymentBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-
-let narrationCode = "";
+let currentUser = null;
 let countdownInterval = null;
-let topUpStartTime = null;
-const TOP_UP_TIMEOUT = 15 * 60;
 
-/////////////////////////////
-// 3️⃣ Secure Auth Gate
-/////////////////////////////
-
+/* ---------------- AUTH CHECK ---------------- */
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    window.location.href = "/login.html";
+    window.location.href = "login.html";
     return;
   }
 
-  // Show wallet ONLY after auth confirmed
-  walletContainer.style.display = "block";
+  currentUser = user;
+  localStorage.setItem("isLoggedIn", "true");
 
-  // Fetch real wallet balance from backend
-  try {
-    const res = await fetch("/.netlify/functions/getWalletBalance", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: user.uid })
-    });
-
-    const text = await res.text();
-    const data = text ? JSON.parse(text) : {};
-
-    walletBalanceEl.textContent =
-      `₦${(data.balance || 0).toLocaleString()}`;
-  } catch (err) {
-    console.error("Balance fetch error:", err);
-    walletBalanceEl.textContent = "₦0";
-  }
+  loadWallet();
+  listenTransactions();
 });
 
-/////////////////////////////
-// 4️⃣ Helpers
-/////////////////////////////
-
-function generateNarrationCode() {
-  return "NC-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+/* ---------------- LOAD WALLET ---------------- */
+async function loadWallet() {
+  const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+  if (userDoc.exists()) {
+    const balance = userDoc.data().walletBalance || 0;
+    document.getElementById("balance").innerText = "₦" + balance.toLocaleString();
+  }
 }
 
-function startCountdown() {
-  if (countdownInterval) clearInterval(countdownInterval);
+/* ---------------- GENERATE PAYMENT ---------------- */
+window.generatePayment = async function () {
+  const amount = parseFloat(document.getElementById("amount").value);
+  if (!amount || amount <= 0) {
+    alert("Enter valid amount");
+    return;
+  }
+
+  const coupon = "TX" + Math.random().toString(36).substring(2,8).toUpperCase();
+  const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
+  await addDoc(collection(db, "walletTransactions"), {
+    uid: currentUser.uid,
+    email: currentUser.email,
+    amount,
+    coupon,
+    status: "pending",
+    expiresAt,
+    createdAt: new Date()
+  });
+
+  document.getElementById("couponInfo").innerHTML =
+    `Transfer exactly ₦${amount}<br>
+     Use narration: <b>${coupon}</b>`;
+
+  startCountdown(expiresAt);
+  document.getElementById("amount").value = "";
+};
+
+/* ---------------- COUNTDOWN ---------------- */
+function startCountdown(expiryTime) {
+  clearInterval(countdownInterval);
 
   countdownInterval = setInterval(() => {
-    const now = Math.floor(Date.now() / 1000);
-    const elapsed = now - topUpStartTime;
-    const remaining = TOP_UP_TIMEOUT - elapsed;
+    const now = new Date();
+    const diff = expiryTime - now;
 
-    if (remaining <= 0) {
+    if (diff <= 0) {
       clearInterval(countdownInterval);
-      timeRemainingEl.textContent = "00:00";
-      alert("Time expired. Generate new code.");
+      document.getElementById("timer").innerText = "Coupon Expired";
       return;
     }
 
-    const mins = String(Math.floor(remaining / 60)).padStart(2, "0");
-    const secs = String(remaining % 60).padStart(2, "0");
-    timeRemainingEl.textContent = `${mins}:${secs}`;
+    const minutes = Math.floor(diff / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+
+    document.getElementById("timer").innerText =
+      `Expires in ${minutes}m ${seconds}s`;
   }, 1000);
 }
 
-/////////////////////////////
-// 5️⃣ Events
-/////////////////////////////
+/* ---------------- TRANSACTIONS ---------------- */
+function listenTransactions() {
+  const q = query(
+    collection(db, "walletTransactions"),
+    where("uid", "==", currentUser.uid),
+    orderBy("createdAt", "desc")
+  );
 
-topUpBtn.addEventListener("click", () => {
-  narrationCode = generateNarrationCode();
-  narrationCodeEl.textContent = narrationCode;
-  topUpStartTime = Math.floor(Date.now() / 1000);
-  startCountdown();
-  topUpModal.classList.add("show");
-});
+  onSnapshot(q, (snapshot) => {
+    const container = document.getElementById("transactions");
+    container.innerHTML = "";
 
-closeModal.addEventListener("click", () =>
-  topUpModal.classList.remove("show")
-);
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const div = document.createElement("div");
+      div.className = "transaction";
 
-confirmPaymentBtn.addEventListener("click", async () => {
-  const amount = Number(topUpAmountEl.value);
-  if (!amount || amount <= 0)
-    return alert("Enter valid amount");
+      div.innerHTML = `
+        ₦${data.amount} - ${data.coupon}
+        <br>
+        <span class="status-${data.status}">
+          ${data.status}
+        </span>
+      `;
 
-  const user = auth.currentUser;
-  if (!user) return;
-
-  try {
-    const res = await fetch("/.netlify/functions/addWalletTopUp", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId: user.uid,
-        amount,
-        narrationCode
-      })
+      container.appendChild(div);
     });
 
-    const text = await res.text();
-    const data = text ? JSON.parse(text) : {};
+    loadWallet();
+  });
+}
 
-    if (data.success) {
-      alert("Top-up submitted for admin review.");
-      topUpModal.classList.remove("show");
-    } else {
-      alert("Top-up failed.");
-    }
+/* ---------------- FOOD DELIVERY WALLET PAYMENT ---------------- */
+/* Call this function from your food delivery checkout */
+window.payWithWallet = async function(orderTotal) {
+  const userRef = doc(db, "users", currentUser.uid);
+  const userSnap = await getDoc(userRef);
+  const balance = userSnap.data().walletBalance || 0;
 
-  } catch (err) {
-    console.error(err);
-    alert("Backend error.");
+  if (balance < orderTotal) {
+    alert("Insufficient wallet balance.");
+    return false;
   }
-});
 
-/////////////////////////////
-// 6️⃣ Logout
-/////////////////////////////
+  await updateDoc(userRef, {
+    walletBalance: balance - orderTotal
+  });
 
-logoutBtn.addEventListener("click", async () => {
+  await addDoc(collection(db, "walletTransactions"), {
+    uid: currentUser.uid,
+    email: currentUser.email,
+    amount: orderTotal,
+    coupon: "FOOD_ORDER",
+    status: "success",
+    type: "debit",
+    createdAt: new Date()
+  });
+
+  alert("Payment Successful!");
+  return true;
+};
+
+/* ---------------- LOGOUT ---------------- */
+window.logout = async function () {
   await signOut(auth);
-  window.location.href = "/login.html";
-});
+  localStorage.removeItem("isLoggedIn");
+  window.location.href = "login.html";
+};
 </script>
 
 </body>

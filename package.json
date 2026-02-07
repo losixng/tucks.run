@@ -1,0 +1,11 @@
+{
+  "name": "wallet-system",
+  "version": "1.0.0",
+  "description": "Netlify serverless backend for wallet verification",
+  "main": "index.js",
+  "type": "commonjs",
+  "dependencies": {
+    "firebase-admin": "^12.0.0",
+    "googleapis": "^131.0.0"
+  }
+}

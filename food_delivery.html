@@ -180,13 +180,24 @@ button:disabled{opacity:.6;cursor:not-allowed}
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+import { 
+  getFirestore, 
+  collection, 
+  addDoc, 
+  serverTimestamp,
+  doc,
+  runTransaction,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey:"AIzaSyDzwnmGgEcN63RcCHSNU6p_xXKxmeqzF6k",
-  authDomain:"losixmarket.firebaseapp.com",
-  projectId:"losixmarket"
+ apiKey: "AIzaSyDzwnmGgEcN63RcCHSNU6p_xXKxmeqzF6k" ,
+    authDomain: "losixmarket.firebaseapp.com",
+    projectId: "losixmarket" ,
+    storageBucket: "losixmarket.firebasestorage.app",
+    messagingSenderId: "301860246689",
+    appId:"1:301860246689:web:aabf0ab9af41081a91cce0",
+    measurementId: "G-ZPVVZ8GNP0"
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -206,6 +217,23 @@ const PRODUCTS = [
   { name:"Moi Moi", price:800 },
   { name:"Soft Drink", price:500 }
 ];
+
+import { 
+  getAuth, 
+  onAuthStateChanged 
+} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+
+const auth = getAuth(app);
+let currentUser = null;
+
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    alert("Please login first");
+    window.location.href = "login.html";
+  } else {
+    currentUser = user;
+  }
+});
 
 window.viewLastCode = function () {
   const phone = document.getElementById("phone").value;
@@ -335,20 +363,69 @@ document.getElementById("orderForm").onsubmit = async (e)=>{
     if(receiptFile){
       receiptUrl = await uploadReceipt(receiptFile);
     }
-  } else if(paymentType === "wallet"){
-    // Call backend serverless function to validate wallet
-    const walletValid = await fetch("/.netlify/functions/verifyWalletPayment", {
-      method: "POST",
-      body: JSON.stringify({ phone, amount: total.replace("Total: ₦","") })
-    }).then(res => res.json());
+  } else if (method === "wallet") {
 
-    if(!walletValid.success){
-      alert("Wallet payment not found or insufficient funds.");
-      submitBtn.disabled = false;
-      loader.style.display = "none";
-      return;
-    }
+  if (!currentUser) {
+    alert("Login required");
+    return;
   }
+
+  const userRef = doc(db, "users", currentUser.uid);
+  const ordersRef = collection(db, "foodOrders");
+  const transactionsRef = collection(db, "walletTransactions");
+
+  try {
+
+    await runTransaction(db, async (transaction) => {
+
+      const userSnap = await transaction.get(userRef);
+
+      if (!userSnap.exists()) {
+        throw "User wallet not found";
+      }
+
+      const walletBalance = userSnap.data().walletBalance || 0;
+
+      if (walletBalance < total) {
+        throw "Insufficient wallet balance";
+      }
+
+      // 1️⃣ Deduct wallet
+      transaction.update(userRef, {
+        walletBalance: walletBalance - total
+      });
+
+      // 2️⃣ Save food order
+      const newOrderRef = doc(ordersRef);
+      transaction.set(newOrderRef, {
+        ...orderData,
+        paymentMethod: "wallet",
+        status: "paid",
+        createdAt: serverTimestamp()
+      });
+
+      // 3️⃣ Save wallet transaction record
+      const newTransactionRef = doc(transactionsRef);
+      transaction.set(newTransactionRef, {
+        userId: currentUser.uid,
+        type: "debit",
+        amount: total,
+        description: "Food order payment",
+        createdAt: serverTimestamp()
+      });
+
+    });
+
+    alert("Order placed successfully 🎉");
+    form.reset();
+    totalAmount.textContent = "₦0";
+
+  } catch (error) {
+    alert(error);
+  }
+
+  return;
+}
 
   const deliveryCode = generateDeliveryCode();
   const expiresAt = Date.now() + 105*60*1000;

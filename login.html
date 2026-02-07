@@ -1,66 +1,138 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login - Market</title>
-<style>
-  body { font-family: Arial, sans-serif; background:#f8f8f8; display:flex; justify-content:center; align-items:center; height:100vh; margin:0;}
-  .auth-container { background:#fff; padding:30px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.1); width:90%; max-width:400px; text-align:center;}
-  h2 { margin-bottom:20px; }
-  input { width:100%; padding:12px; margin:10px 0; border-radius:8px; border:1px solid #ccc; font-size:1rem; }
-  button { width:100%; padding:12px; font-size:1rem; border:none; border-radius:8px; cursor:pointer; background:#ff6a00; color:#fff; transition:0.3s; }
-  button:hover { background:#e25d00; }
-  .link { margin-top:15px; display:block; font-size:0.9rem; color:#555; text-decoration:none; }
-  .link:hover { text-decoration:underline; }
-</style>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #87CEEB, #1e3a8a);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: #f3f4f6;
+      padding: 40px;
+      width: 350px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    h2 {
+      text-align: center;
+      color: #1e3a8a;
+      margin-bottom: 25px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #1e3a8a;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #2563eb;
+    }
+
+    .link {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .link a {
+      color: #1e3a8a;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .error {
+      color: red;
+      font-size: 13px;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="auth-container">
+<div class="container">
   <h2>Login</h2>
-  <input type="email" id="loginEmail" placeholder="Email">
-  <input type="password" id="loginPassword" placeholder="Password">
-  <button id="loginBtn">Login</button>
-  <a href="signup.html" class="link">Don't have an account? Sign Up</a>
+
+  <div class="error" id="error"></div>
+
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
+
+  <button onclick="login()">Login</button>
+
+  <div class="link">
+    Don't have an account? <a href="signup.html">Sign Up</a>
+  </div>
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// Firebase config
 const firebaseConfig = {
-  apiKey: "AIzaSyDzwnmGgEcN63RcCHSNU6p_xXKxmeqzF6k",
-      authDomain: "losixmarket.firebaseapp.com",
-      projectId: "losixmarket",
-      storageBucket: "losixmarket.firebasestorage.app",
-      messagingSenderId: "301860246689",
-      appId: "1:301860246689:web:aabf0ab9af41081a91cce0",
-      measurementId: "G-ZPVVZ8GNP0"
+ apiKey: "AIzaSyDzwnmGgEcN63RcCHSNU6p_xXKxmeqzF6k" ,
+    authDomain: "losixmarket.firebaseapp.com",
+    projectId: "losixmarket" ,
+    storageBucket: "losixmarket.firebasestorage.app",
+    messagingSenderId: "301860246689",
+    appId:"1:301860246689:web:aabf0ab9af41081a91cce0",
+    measurementId: "G-ZPVVZ8GNP0"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-const loginBtn = document.getElementById('loginBtn');
-loginBtn.addEventListener('click', async () => {
-  const email = document.getElementById('loginEmail').value;
-  const password = document.getElementById('loginPassword').value;
+window.login = async function () {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const errorDiv = document.getElementById("error");
 
-  if(!email || !password){
-    return alert('Enter email and password!');
+  errorDiv.textContent = "";
+
+  if (!email || !password) {
+    errorDiv.textContent = "Please fill all fields.";
+    return;
   }
 
   try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    alert('✅ Login successful! Redirecting to menu...');
-    window.location.href = "/index.html";
-  } catch(e){
-    console.error(e);
-    alert(`⚠️ ${e.message}`);
+    await signInWithEmailAndPassword(auth, email, password);
+
+    // Fallback for your popup logic
+    localStorage.setItem("isLoggedIn", "true");
+
+    window.location.href = "index.html"; // change if needed
+  } catch (error) {
+    errorDiv.textContent = error.message;
   }
-});
+};
 </script>
 
 </body>
