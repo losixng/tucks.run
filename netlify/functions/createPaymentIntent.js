@@ -17,11 +17,11 @@ exports.handler = async (event) => {
       new Date(Date.now() + 15 * 60 * 1000)
     );
 
-    await db.collection("payment_intents").add({
+    await db.collection("walletTransactions").add({
       userId: user.uid,
       amount: Number(amount),
-      senderName,
-      couponCode: coupon,
+      sender,
+      coupon: coupon,
       status: "pending",
       expiresAt,
       createdAt: admin.firestore.FieldValue.serverTimestamp()

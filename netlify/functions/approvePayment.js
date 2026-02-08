@@ -4,7 +4,7 @@ exports.handler = async (event) => {
   try {
     const { intentId } = JSON.parse(event.body);
 
-    const intentRef = db.collection("payment_intents").doc(intentId);
+    const intentRef = db.collection("walletTransactions").doc(intentId);
 
     await db.runTransaction(async (t) => {
       const intentDoc = await t.get(intentRef);
