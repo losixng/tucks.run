@@ -1,5 +1,3 @@
 [functions]
   directory = "netlify/functions"
 
-[functions.checkBankPayments]
-  schedule = "*/1 * * * *"

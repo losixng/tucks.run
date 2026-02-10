@@ -448,6 +448,22 @@ nav a:hover {
   
   <div class="summary">
     <div id="total">Total: ₦0</div>
+
+<div id="walletDisplay" style="
+  background:white;
+  padding:12px;
+  border-radius:10px;
+  margin-bottom:10px;
+  box-shadow:0 8px 25px rgba(0,0,0,0.08);
+  font-weight:700;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+">
+  <span>Wallet Balance</span>
+  <span id="walletBalance">₦0</span>
+</div>
+
     <div class="actions">
       <button class="btn btn-primary" id="checkoutBtn">Proceed to Pay</button>
       
@@ -528,6 +544,169 @@ nav a:hover {
       </div>
     </div>
   </div>
+
+<script type="module"> 
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+
+const auth = getAuth();
+let currentUser = null;
+let walletBalanceLive = 0;
+let walletProcessing = false;
+
+const walletBalanceEl = document.getElementById("walletBalance");
+const payWithWalletBtn = document.getElementById("payWithWalletBtn");
+
+function formatMoney(n){
+  return "₦" + Number(n || 0).toLocaleString("en-US");
+}
+
+async function loadWalletBalance(uid){
+  try{
+    const res = await fetch('/.netlify/functions/getWalletBalance',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ userId: uid })
+    });
+
+    const data = await res.json();
+    walletBalanceLive = Number(data.balance || 0);
+
+    walletBalanceEl.textContent = formatMoney(walletBalanceLive);
+
+    // smooth animation
+    walletBalanceEl.style.transform = "scale(1.1)";
+    setTimeout(()=> walletBalanceEl.style.transform = "scale(1)", 200);
+
+  }catch(err){
+    console.error("Wallet load error", err);
+  }
+}
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    alert('Please log in to access your cart.');
+    window.location.href = '/login.html';
+  } else {
+    currentUser = user;
+    await loadWalletBalance(user.uid);
+  }
+});
+
+payWithWalletBtn.addEventListener('click', async () => {
+
+  if(walletProcessing) return;
+
+  if(!currentUser){
+    alert('Login required!');
+    return;
+  }
+
+  const name = bmName.value.trim();
+  const phone = bmPhone.value.trim();
+  const email = bmEmail.value.trim();
+  const address = bmAddress.value.trim();
+  const shippingMethod = bmShipping.value;
+
+  if(!name || !phone || !email || !address){
+    alert('Fill all buyer details!');
+    return;
+  }
+
+  let products = [];
+
+  if(currentCheckoutSingle){
+    products.push({
+      id: currentCheckoutSingle.id || null,
+      name: currentCheckoutSingle.name || 'Item',
+      price: Number(currentCheckoutSingle.price || 0)
+    });
+  } else {
+    products = cart.map(p => ({
+      id: p.id || null,
+      name: p.name || 'Item',
+      price: Number(p.price || 0)
+    }));
+  }
+
+  const cartTotal = products.reduce((s,p)=> s + p.price, 0);
+  const txnFee = 100;
+  const shippingFee = shippingMethod === 'GIG' ? 5000 : 3000;
+  const total = cartTotal + txnFee + shippingFee;
+
+  if(walletBalanceLive < total){
+    showInsufficientPopup(total);
+    return;
+  }
+
+  try{
+
+    walletProcessing = true;
+    payWithWalletBtn.disabled = true;
+    payWithWalletBtn.innerHTML = "Processing...";
+
+    const res = await fetch('/.netlify/functions/deductWallet',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        userId: currentUser.uid,
+        amount: total,
+        products,
+        shippingMethod,
+        txnFee
+      })
+    });
+
+    const data = await res.json();
+
+    if(!data.success){
+      throw new Error("Deduction failed");
+    }
+
+    // deduction animation
+    walletBalanceLive -= total;
+    walletBalanceEl.textContent = formatMoney(walletBalanceLive);
+    walletBalanceEl.style.color = "#ef4444";
+    setTimeout(()=> walletBalanceEl.style.color = "#111", 800);
+
+    // Clear cart
+    if(!currentCheckoutSingle){
+      cart = [];
+      localStorage.removeItem('cart');
+    } else {
+      const idx = cart.findIndex(c => (c.id || '') === (currentCheckoutSingle.id || ''));
+      if(idx >= 0){
+        cart.splice(idx,1);
+        localStorage.setItem('cart', JSON.stringify(cart));
+      }
+    }
+
+    renderCart();
+    buyModal.classList.remove('show');
+
+    alert(`✅ Wallet payment successful. ₦${total.toLocaleString()} deducted.`);
+
+  }catch(err){
+    console.error(err);
+    alert("Wallet payment failed.");
+  }finally{
+    walletProcessing = false;
+    payWithWalletBtn.disabled = false;
+    payWithWalletBtn.innerHTML = "Pay via Wallet";
+  }
+
+});
+
+function showInsufficientPopup(amount){
+  alert(`Insufficient wallet balance.
+
+Required: ${formatMoney(amount)}
+Available: ${formatMoney(walletBalanceLive)}
+
+Please top up your wallet.`);
+}
+</script>
+
+
  <script type="module" src="/script.js"></script>
   <!-- FIREBASE init (module) - saves orders to Firestore if available -->
   <script type="module">

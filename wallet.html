@@ -1,159 +1,140 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>My Wallet</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wallet</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #87CEEB, #1e3a8a);
+:root{
+  --bg:#0b0f1a;
+  --card:#12172a;
+  --accent:#00ffd5;
+  --accent2:#7a7cff;
+  --danger:#ff5d5d;
+  --text:#e8ebff;
+  --muted:#9aa1ff;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Poppins;
+  background:radial-gradient(1200px 600px at 10% -10%, #1b2150, transparent),var(--bg);
+  color:var(--text);
+  padding:20px;
+}
+.container{
+  max-width:900px;
+  margin:auto;
+}
+h1{text-align:center;margin-bottom:20px}
+
+.card{
+  background:linear-gradient(180deg,#151b38,#0f1430);
+  border-radius:22px;
+  padding:20px;
+  margin-bottom:20px;
 }
 
-/* Header */
-.header {
-  background: #1e3a8a;
-  color: white;
-  padding: 15px;
-  text-align: center;
-  font-size: 20px;
+.balance-card{
+  font-size:28px;
+  font-weight:700;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  animation:pulse 2s infinite alternate;
+}
+@keyframes pulse{
+  from{transform:scale(1)}
+  to{transform:scale(1.03)}
 }
 
-/* Layout */
-.container {
-  padding: 20px;
+input{
+  width:100%;
+  padding:12px;
+  border-radius:14px;
+  border:1px solid #242b66;
+  background:#0b1030;
+  color:white;
+  margin-bottom:12px;
 }
 
-/* Animated Balance Card */
-.balance-card {
-  background: #f3f4f6;
-  border-radius: 15px;
-  padding: 25px;
-  text-align: center;
-  margin-bottom: 20px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-  animation: floatCard 3s ease-in-out infinite;
+button{
+  padding:12px 18px;
+  border:none;
+  border-radius:999px;
+  font-weight:600;
+  cursor:pointer;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
 }
 
-@keyframes floatCard {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-6px); }
-  100% { transform: translateY(0px); }
+button:disabled{
+  opacity:.6;
+  cursor:not-allowed;
 }
 
-.balance-card h3 {
-  margin: 0;
-  color: #1e3a8a;
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
 }
-
-.balance-amount {
-  font-size: 34px;
-  font-weight: bold;
-  color: #2563eb;
-  margin-top: 10px;
+th,td{
+  border:1px solid #242b66;
+  padding:8px;
+  text-align:center;
 }
-
-/* Sections */
-.section {
-  background: #f3f4f6;
-  border-radius: 15px;
-  padding: 20px;
-  margin-bottom: 20px;
-}
-
-.section h4 {
-  margin-top: 0;
-  color: #1e3a8a;
-}
-
-input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
-button {
-  width: 100%;
-  padding: 12px;
-  background: #1e3a8a;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-button:hover {
-  background: #2563eb;
-}
-
-/* Countdown */
-.timer {
-  margin-top: 10px;
-  font-weight: bold;
-  color: red;
-}
-
-/* Transactions */
-.transaction {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-  font-size: 14px;
-}
-
-.status-success { color: green; }
-.status-pending { color: orange; }
-.status-expired { color: red; }
-
-.logout-btn {
-  margin-top: 10px;
-  background: gray;
-}
+th{color:var(--accent)}
+.status-pending{color:#ffcc00}
+.status-approved{color:#00ff99}
+.status-rejected{color:var(--danger)}
 </style>
 </head>
 
 <body>
-
-<div class="header">My Wallet</div>
-
 <div class="container">
 
-  <!-- BALANCE -->
-  <div class="balance-card">
-    <h3>Wallet Balance</h3>
-    <div class="balance-amount" id="balance">₦0</div>
-  </div>
+<h1>My Wallet</h1>
 
-  <!-- FUND WALLET -->
-  <div class="section">
-    <h4>Fund Wallet</h4>
-    <input type="number" id="amount" placeholder="Enter amount (₦)">
-    <button onclick="generatePayment()">Generate Payment Coupon</button>
-    <p id="couponInfo"></p>
-    <div class="timer" id="timer"></div>
-  </div>
+<div class="card balance-card">
+  <div>Current Balance</div>
+  <div id="balance">₦0</div>
+</div>
 
-  <!-- TRANSACTIONS -->
-  <div class="section">
-    <h4>Transaction History</h4>
-    <div id="transactions"></div>
-  </div>
+<div class="card">
+  <h3>Top Up Wallet</h3>
+  <input type="number" id="topupAmount" placeholder="Enter amount">
+  <button id="topupBtn">Request Top Up</button>
+</div>
 
-  <button class="logout-btn" onclick="logout()">Logout</button>
+<div class="card">
+  <h3>Transaction History</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Amount</th>
+        <th>Type</th>
+        <th>Status</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody id="txnTable"></tbody>
+  </table>
+</div>
 
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, getDoc, updateDoc, collection, addDoc, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+import { 
+  getFirestore, doc, getDoc, setDoc, updateDoc,
+  collection, addDoc, onSnapshot, query, where, orderBy 
+} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 
 const firebaseConfig = {
- apiKey: "AIzaSyDzwnmGgEcN63RcCHSNU6p_xXKxmeqzF6k" ,
+  apiKey: "AIzaSyDzwnmGgEcN63RcCHSNU6p_xXKxmeqzF6k" ,
     authDomain: "losixmarket.firebaseapp.com",
     projectId: "losixmarket" ,
     storageBucket: "losixmarket.firebasestorage.app",
@@ -163,154 +144,94 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getFirestore(app);
+const auth = getAuth();
+
+const balanceEl = document.getElementById("balance");
+const topupBtn = document.getElementById("topupBtn");
+const txnTable = document.getElementById("txnTable");
 
 let currentUser = null;
-let countdownInterval = null;
 
-/* ---------------- AUTH CHECK ---------------- */
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    window.location.href = "login.html";
-    return;
-  }
+function formatMoney(n){
+  return "₦" + Number(n||0).toLocaleString("en-US");
+}
 
-  currentUser = user;
-  localStorage.setItem("isLoggedIn", "true");
+async function loadBalance(uid){
+  const docRef = doc(db,"users",uid);
+  const snap = await getDoc(docRef);
 
-  loadWallet();
-  listenTransactions();
-});
-
-/* ---------------- LOAD WALLET ---------------- */
-async function loadWallet() {
-  const userDoc = await getDoc(doc(db, "users", currentUser.uid));
-  if (userDoc.exists()) {
-    const balance = userDoc.data().walletBalance || 0;
-    document.getElementById("balance").innerText = "₦" + balance.toLocaleString();
+  if(!snap.exists()){
+    await setDoc(docRef,{
+      balance:0,
+      createdAt:new Date()
+    });
+    balanceEl.textContent = "₦0";
+  } else {
+    balanceEl.textContent = formatMoney(snap.data().balance);
   }
 }
 
-/* ---------------- GENERATE PAYMENT ---------------- */
-window.generatePayment = async function () {
-  const amount = parseFloat(document.getElementById("amount").value);
-  if (!amount || amount <= 0) {
-    alert("Enter valid amount");
-    return;
-  }
-
-  const coupon = "TX" + Math.random().toString(36).substring(2,8).toUpperCase();
-  const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
-
-  await addDoc(collection(db, "walletTransactions"), {
-    uid: currentUser.uid,
-    email: currentUser.email,
-    amount,
-    coupon,
-    status: "pending",
-    expiresAt,
-    createdAt: new Date()
-  });
-
-  document.getElementById("couponInfo").innerHTML =
-    `Transfer exactly ₦${amount}<br>
-     Use narration: <b>${coupon}</b>`;
-
-  startCountdown(expiresAt);
-  document.getElementById("amount").value = "";
-};
-
-/* ---------------- COUNTDOWN ---------------- */
-function startCountdown(expiryTime) {
-  clearInterval(countdownInterval);
-
-  countdownInterval = setInterval(() => {
-    const now = new Date();
-    const diff = expiryTime - now;
-
-    if (diff <= 0) {
-      clearInterval(countdownInterval);
-      document.getElementById("timer").innerText = "Coupon Expired";
-      return;
-    }
-
-    const minutes = Math.floor(diff / 60000);
-    const seconds = Math.floor((diff % 60000) / 1000);
-
-    document.getElementById("timer").innerText =
-      `Expires in ${minutes}m ${seconds}s`;
-  }, 1000);
-}
-
-/* ---------------- TRANSACTIONS ---------------- */
-function listenTransactions() {
+function listenTransactions(uid){
   const q = query(
-    collection(db, "walletTransactions"),
-    where("uid", "==", currentUser.uid),
-    orderBy("createdAt", "desc")
+    collection(db,"walletTransactions"),
+    where("userId","==",uid),
+    orderBy("createdAt","desc")
   );
 
-  onSnapshot(q, (snapshot) => {
-    const container = document.getElementById("transactions");
-    container.innerHTML = "";
-
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      const div = document.createElement("div");
-      div.className = "transaction";
-
-      div.innerHTML = `
-        ₦${data.amount} - ${data.coupon}
-        <br>
-        <span class="status-${data.status}">
-          ${data.status}
-        </span>
+  onSnapshot(q,(snapshot)=>{
+    txnTable.innerHTML="";
+    snapshot.forEach(doc=>{
+      const d = doc.data();
+      const tr = document.createElement("tr");
+      tr.innerHTML=`
+        <td>${formatMoney(d.amount)}</td>
+        <td>${d.type}</td>
+        <td class="status-${d.status}">${d.status}</td>
+        <td>${d.createdAt?.toDate().toLocaleString() || ""}</td>
       `;
-
-      container.appendChild(div);
+      txnTable.appendChild(tr);
     });
-
-    loadWallet();
   });
 }
 
-/* ---------------- FOOD DELIVERY WALLET PAYMENT ---------------- */
-/* Call this function from your food delivery checkout */
-window.payWithWallet = async function(orderTotal) {
-  const userRef = doc(db, "users", currentUser.uid);
-  const userSnap = await getDoc(userRef);
-  const balance = userSnap.data().walletBalance || 0;
+topupBtn.addEventListener("click", async ()=>{
+  const amount = Number(document.getElementById("topupAmount").value);
 
-  if (balance < orderTotal) {
-    alert("Insufficient wallet balance.");
-    return false;
+  if(!amount || amount < 100){
+    alert("Minimum top up is ₦100");
+    return;
   }
 
-  await updateDoc(userRef, {
-    walletBalance: balance - orderTotal
+  topupBtn.disabled = true;
+  topupBtn.innerText = "Submitting...";
+
+  await addDoc(collection(db,"walletTransactions"),{
+    userId: currentUser.uid,
+    amount,
+    type:"credit",
+    status:"pending",
+    description:"Manual top up",
+    createdAt:new Date()
   });
 
-  await addDoc(collection(db, "walletTransactions"), {
-    uid: currentUser.uid,
-    email: currentUser.email,
-    amount: orderTotal,
-    coupon: "FOOD_ORDER",
-    status: "success",
-    type: "debit",
-    createdAt: new Date()
-  });
+  alert("Top up request submitted. Wait for admin approval.");
 
-  alert("Payment Successful!");
-  return true;
-};
+  document.getElementById("topupAmount").value="";
+  topupBtn.disabled=false;
+  topupBtn.innerText="Request Top Up";
+});
 
-/* ---------------- LOGOUT ---------------- */
-window.logout = async function () {
-  await signOut(auth);
-  localStorage.removeItem("isLoggedIn");
-  window.location.href = "login.html";
-};
+onAuthStateChanged(auth,(user)=>{
+  if(!user){
+    window.location.href="/login.html";
+    return;
+  }
+
+  currentUser=user;
+  loadBalance(user.uid);
+  listenTransactions(user.uid);
+});
 </script>
 
 </body>
