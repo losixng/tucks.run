@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <link rel="manifest" href="/manifest.json">
+  <link rel="icon" alt="Logo" href="/logo.png">
+<meta name="theme-color" content="rgb(128, 128, 128)">
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log('Service Worker Registered'));
+    });
+  }
+</script>
+  <title>Tucks Delivery - Help & Support</title>
+<style>
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(135deg, #12172a,#7a7cff);
+  color: #333;
+  overflow-x: hidden;
+}
+/* Menu Toggle Checkbox */
+#menuToggle {
+  display: none;
+}
+
+/* Hamburger */
+.menu-icon {
+  width: 30px;
+  height: 24px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.4s ease;
+}
+.menu-icon span {
+  position: absolute;
+  height: 3px;
+  width: 100%;
+  background: white;
+  border-radius: 3px;
+  transition: all 0.4s ease;
+}
+.menu-icon span:nth-child(1) { top: 0; }
+.menu-icon span:nth-child(2) { top: 10px; }
+.menu-icon span:nth-child(3) { top: 20px; }
+
+/* Animate to X */
+#menuToggle:checked + label .menu-icon span:nth-child(1) {
+  transform: rotate(45deg);
+  top: 10px;
+}
+#menuToggle:checked + label .menu-icon span:nth-child(2) {
+  opacity: 0;
+}
+#menuToggle:checked + label .menu-icon span:nth-child(3) {
+  transform: rotate(-45deg);
+  top: 10px;
+}
+
+/* Dropdown Menu */
+nav {
+  position: fixed;
+  top: 65px;
+  right: 15px;
+  width: 180px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border-radius: 15px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  padding: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-15px);
+  transition: all 0.3s ease;
+}
+
+/* Show when checked */
+#menuToggle:checked ~ nav {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* Menu links */
+nav a {
+  display: block;
+  padding: 10px;
+  text-decoration: none;
+  color: #ff6b6b;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: background 0.3s ease, transform 0.2s;
+}
+nav a:hover {
+  background: rgba(255,107,107,0.15);
+  transform: translateX(4px);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  nav {
+    width: 70%;
+    right: 15%;
+  }
+}
+
+body {
+      padding-bottom: 80px; /* space for nav */
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 500px;
+      background: #7a7cff;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      border-radius: 40px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 10px 0;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease-in-out;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: #555;
+      font-size: 0.8rem;
+      transition: all 0.3s;
+    }
+
+    .nav-item i {
+      font-size: 1.4rem;
+      margin-bottom: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      color: #1b2150;
+    }
+
+    .nav-item:hover i, .nav-item.active i {
+      transform: scale(1.2);
+    }
+
+    @media (max-width: 600px) {
+      .bottom-nav {
+        width: 95%;
+        bottom: 15px;
+      }
+    }
+
+header {
+  text-align: center;
+  padding: 60px 20px 30px;
+  background: linear-gradient(120deg, #ff5e3a, #ff9966);
+  color: white;
+  border-bottom-left-radius: 50% 10%;
+  border-bottom-right-radius: 50% 10%;
+  animation: floatHeader 3s ease-in-out infinite alternate;
+}
+@keyframes floatHeader {
+  from { transform: translateY(0); }
+  to { transform: translateY(10px); }
+}
+
+main {
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+section {
+  margin: 40px 0;
+  padding: 30px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+  animation: fadeIn 1s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+h2 {
+  color: #ff5e3a;
+  margin-bottom: 10px;
+}
+
+.contact-methods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.contact-card {
+  background: linear-gradient(135deg, #fff6f3, #fff);
+  border: 1px solid rgba(255,94,58,0.2);
+  border-radius: 14px;
+  padding: 12px 18px;
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s;
+}
+.contact-card img {
+  width: 24px;
+  height: 24px;
+}
+.contact-card:hover {
+  background: #ff5e3a;
+  color: white;
+  transform: scale(1.05);
+}
+
+.share-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 15px;
+}
+.share-btn {
+  background: linear-gradient(135deg, #ff5e3a, #ff9966);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 10px 18px;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.share-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(255, 94, 58, 0.4);
+}
+
+.faq-item {
+  margin-top: 15px;
+}
+.faq-question {
+  width: 100%;
+  text-align: left;
+  background: rgba(255, 100, 50, 0.1);
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #ff5e3a;
+  transition: 0.3s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.faq-question:hover {
+  background: rgba(255, 100, 50, 0.2);
+}
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease, opacity 0.5s ease;
+  padding: 0 10px;
+  opacity: 0;
+}
+.faq-answer.open {
+  max-height: 300px;
+  opacity: 1;
+  padding: 12px 10px;
+  background: #fff;
+  border-left: 4px solid #ff5e3a;
+  margin-top: 6px;
+  border-radius: 8px;
+  color: #444;
+}
+
+.policy ul {
+  list-style: none;
+  padding: 0;
+}
+.policy li {
+  margin-bottom: 8px;
+}
+.policy a {
+  text-decoration: none;
+  color: #ff5e3a;
+  font-weight: 500;
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  color: #777;
+  background: #fffaf7;
+  font-size: 14px;
+  border-top: 1px solid #ffd4c7;
+}
+
+@media (max-width: 600px) {
+  section { padding: 20px; }
+  .contact-card { font-size: 14px; padding: 10px 14px; }
+}
+ /* Menu toggle */
+.menu-icon {
+  width: 30px;
+  height: 24px;
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.menu-icon span {
+  height: 3px;
+  background: white;
+  border-radius: 3px;
+  transition: all 0.4s ease;
+}
+
+/* Transform to X */
+#menuToggle:checked + label.menu-icon span:nth-child(1) {
+  transform: rotate(45deg) translateY(10px);
+}
+#menuToggle:checked + label.menu-icon span:nth-child(2) {
+  opacity: 0;
+}
+#menuToggle:checked + label.menu-icon span:nth-child(3) {
+  transform: rotate(-45deg) translateY(-10px);
+}
+
+/* Dropdown Menu */
+.menu-dropdown {
+  position: fixed;
+  top: 65px;
+  right: 15px;
+  width: 180px;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  padding: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-15px);
+  transition: all 0.3s ease;
+}
+
+/* Show dropdown when checked */
+#menuToggle:checked ~ .menu-dropdown {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* Links */
+.menu-dropdown a {
+  display: block;
+  padding: 10px;
+  color: #ff6b6b;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.menu-dropdown a:hover {
+  background: rgba(255,107,107,0.15);
+  transform: translateX(4px);
+}
+
+</style>
+</head>
+<body>
+  <!-- Floating Bottom Navigation -->
+  <div  class="bottom-nav">
+    <a href="/food_delivery.html" class="nav-item">
+      
+      <span>Home</span>
+    </a>
+
+    <a href="/wallet.html" class="nav-item">
+      
+      <span>Wallet</span>
+    </a>
+
+    <a href="/help.html" class="nav-item">
+      
+      <span>Help</span>
+    </a>
+
+    <a href="/food_profile.html" class="nav-item">
+     
+      <span>Profile</span>
+    </a>
+  </div>
+
+
+<header>
+  <h1>Need Help? We're Here for You 💬</h1>
+  <p>Everything you need to make your <strong style="color: red;">delivery</strong> experience easy and enjoyable.</p>
+</header>
+
+<main>
+  <!-- Contact Section -->
+  <section>
+    <h2>📞 Contact Us</h2>
+    <p>Have an issue or question? Reach out through any of the following channels:</p>
+    <div class="contact-methods">
+      <a href="https://wa.me/2348083510202" target="_blank" class="contact-card">
+        <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp">
+        WhatsApp Us
+      </a>
+      <a href="mailto:losix.ng@gmail.com" class="contact-card">
+        <img src="https://cdn-icons-png.flaticon.com/512/732/732200.png" alt="Email">
+        Email Us
+      </a>
+      <a href="tel:+2348083510202" class="contact-card">
+        <img src="https://cdn-icons-png.flaticon.com/512/724/724664.png" alt="Call">
+        Call Support
+      </a>
+    </div>
+  </section>
+<!-- Floating Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="/home.html" class="nav-item active">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </a>
+
+    <a href="/fits.html" class="nav-item">
+      <i class="fa-solid fa-shirt"></i>
+      <span>Fits</span>
+    </a>
+
+    <a href="/giftoria.html" class="nav-item">
+      <i class="fa-solid fa-gift"></i>
+      <span>Giftoria</span>
+    </a>
+
+    <a href="/profile.html" class="nav-item">
+      <i class="fa-solid fa-user"></i>
+      <span>Profile</span>
+    </a>
+  </nav>
+
+  <!-- Share Section -->
+  <section>
+    <h2>🔗 Share Tucks</h2>
+    <p>Love what we do? Spread the word! Share <strong style="color: red;">Tucks</strong> with your friends and family.</p>
+    <div class="share-buttons">
+      <button class="share-btn" onclick="shareWhatsApp()">WhatsApp</button>
+      <button class="share-btn" onclick="shareFacebook()">Facebook</button>
+      <button class="share-btn" onclick="shareTwitter()">X (Twitter)</button>
+      <button class="share-btn" onclick="copyLink()">Copy Link</button>
+    </div>
+  </section>
+
+  <!-- FAQs -->
+  <section>
+    <h2>❓ Frequently Asked Questions</h2>
+    <div class="faq-item">
+      <button class="faq-question">Do i need to login to top-up my wallet ? <span>+</span></button>
+      <div class="faq-answer">Yes, so you can see your wallet balance and connect to our banking systems.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question">What's the use of the coupon ? <span>+</span></button>
+      <div class="faq-answer">The coupon should be pasted in the transaction narration, it is used to fasten the verification process.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question">How do I get more information and help ? <span>+</span></button>
+      <div class="faq-answer">Go to the “Help” page for contact info. We’ll always love to help and address any issues.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question">Is my information secure? <span>+</span></button>
+      <div class="faq-answer">Absolutely! We protect your data using trusted, secure systems like Firebase and SSL encryption.</div>
+    </div>
+  </section>
+
+  <!-- Policy Section -->
+  <section class="policy">
+    <h2>📜 Policies & Support</h2>
+    <ul>
+      <li><a href="/profile/refund.html">Refund Policy</a></li>
+      <li><a href="/profile/terms.html">Terms of Service</a></li>
+      <li><a href="/profile/terms.html">Shipping Policy</a></li>
+      <li><a href="/profile/terms.html">Privacy Policy</a></li>
+    </ul>
+  </section>
+</main>
+
+<footer>
+  <p>© 2026 Losix Team | Always here to help ❤️</p>
+</footer>
+ <script type="module" src="/script.js"></script>
+<script>
+// FAQ toggle with smooth animation
+document.querySelectorAll(".faq-question").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const answer = btn.nextElementSibling;
+    const isOpen = answer.classList.contains("open");
+
+    // Close all others
+    document.querySelectorAll(".faq-answer").forEach(a => a.classList.remove("open"));
+    document.querySelectorAll(".faq-question span").forEach(s => s.textContent = "+");
+
+    if (!isOpen) {
+      answer.classList.add("open");
+      btn.querySelector("span").textContent = "−";
+    }
+  });
+});
+
+// Sharing functions
+function shareWhatsApp() {
+  const msg = encodeURIComponent("🔥 Check out Tucks — your one-stop marketplace for amazing deals! https://tucks.run");
+  window.open(`https://wa.me/?text=${msg}`, "_blank");
+}
+function shareFacebook() {
+  const url = encodeURIComponent("https://tucks.run");
+  window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, "_blank");
+}
+function shareTwitter() {
+  const msg = encodeURIComponent("🚀 Discover amazing products and discounts on Tucks! https://tucks.run");
+  window.open(`https://twitter.com/intent/tweet?text=${msg}`, "_blank");
+}
+function copyLink() {
+  navigator.clipboard.writeText("https://tucks.run");
+  alert("✅ Link copied! Share it with your friends 🚀");
+}
+</script>
+
+</body>
+</html>

@@ -5,7 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="linear-gradient(60deg,#F2C464 0%, #C6F4D6 100%)">
+  <link rel="icon" alt="Logo" href="/logo.png">
+<meta name="theme-color" content="rgb(128, 128, 128)">
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -14,8 +15,7 @@
     });
   }
 </script>
-
-  <title>market - Profile</title>
+  <title>Tucks - Profile</title>
   <style>
     /* ===== Global Reset ===== */
 * {
@@ -208,17 +208,17 @@ h2 {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 25px;
 }
 
 .profile-menu li {
-  padding: 14px 18px;
+  padding: 20px 25px;
   border-radius: 12px;
   background: #fff;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 1rem;
+  font-size: 25px;
 }
 
 .profile-menu li:hover {
@@ -434,23 +434,23 @@ body {
 
 <!-- Floating Bottom Navigation -->
   <nav class="bottom-nav">
-    <a href="/home.html" class="nav-item active">
-      <i class="fa-solid fa-house"></i>
+    <a href="/home.html" class="nav-item">
+      
       <span>Home</span>
     </a>
 
-    <a href="/fits.html" class="nav-item">
-      <i class="fa-solid fa-shirt"></i>
-      <span>Fits</span>
+    <a href="/cart.html" class="nav-item">
+      
+      <span>Cart</span>
     </a>
 
-    <a href="/giftoria.html" class="nav-item">
-      <i class="fa-solid fa-gift"></i>
-      <span>Giftoria</span>
+    <a href="/order.html" class="nav-item">
+      
+      <span>Orders</span>
     </a>
 
     <a href="/profile.html" class="nav-item">
-      <i class="fa-solid fa-user"></i>
+     
       <span>Profile</span>
     </a>
   </nav>
@@ -461,16 +461,13 @@ body {
 
   <main>
     <ul class="profile-menu">
-      <li onclick="navigateTo('/profile/register.html')">👤 Become a Customer</li>
+      <li onclick="navigateTo('/food.html')">Order your food now</li>
       <li onclick="navigateTo('/profile/install.html')">🤖 Install</li>
       <li onclick="navigateTo('/profile/help.html')">🆘 Help</li>
-      <li onclick="navigateTo('/profile/orders.html')">🧾 My Orders</li>
-      <li onclick="navigateTo('/profile/referral.html')">🎁 Referrals</li>
       <li onclick="navigateTo('/profile/refund.html')">🔁 Get A Refund </li>
       <li onclick="navigateTo('/profile/cart.html')">🛒 My Cart</li>
       <li onclick="navigateTo('/profile/reviews.html')">⭐ Reviews & Feedback</li>
-      <li onclick="navigateTo('/profile/partner.html')">🤝 Partner With Us</li>
-      <li onclick="navigateTo('/profile/terms.html')">📃 Terms & Conditions</li>
+      <li onclick="navigateTo('/profile/terms.html')"> Terms & Conditions</li>
       <li onclick="logout()">🚪 Logout</li>
     </ul>
   </main>
@@ -488,7 +485,7 @@ body {
       localStorage.clear();
       sessionStorage.clear();
       alert("Logged out.");
-      window.location.href = "home.html";
+      window.location.href = "index.html";
     }
   </script>
 </body>

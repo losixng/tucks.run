@@ -52,7 +52,7 @@ const SAMPLE_PRODUCTS = [
 ];
 
 /* ============ STATE & DOM ============ */
-const matchingFilters = ["black","brown","blue","corporate"];
+const matchingFilters = ["black"];
 const occasionFilters = ["wedding","parties","church","festive","birthday parties","get together"];
 
 let allMatching = [], allOccasion = [];

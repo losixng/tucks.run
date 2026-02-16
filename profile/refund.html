@@ -3,7 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Market - Refund Request</title>
+   <link rel="manifest" href="/manifest.json">
+  <link rel="icon" alt="Logo" href="/logo.png">
+<meta name="theme-color" content="rgb(128, 128, 128)">
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log('Service Worker Registered'));
+    });
+  }
+</script>
+  <title>Tucks - Refund Request</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -262,70 +273,48 @@ nav a:hover {
 <body>
   <!-- Floating Bottom Navigation -->
   <div  class="bottom-nav">
-    <a href="/home.html" class="nav-item active">
-      <i class="fa-solid fa-house"></i>
+    <a href="/home.html" class="nav-item">
+      
       <span>Home</span>
     </a>
 
-    <a href="/fits.html" class="nav-item">
-      <i class="fa-solid fa-shirt"></i>
-      <span>Fits</span>
+    <a href="/cart.html" class="nav-item">
+      
+      <span>Cart</span>
     </a>
 
-    <a href="/giftoria.html" class="nav-item">
-      <i class="fa-solid fa-gift"></i>
-      <span>Giftoria</span>
+    <a href="/order.html" class="nav-item">
+      
+      <span>Orders</span>
     </a>
 
     <a href="/profile.html" class="nav-item">
-      <i class="fa-solid fa-user"></i>
+     
       <span>Profile</span>
     </a>
   </div>
-  <header style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,#ff6b6b,#ff8e53);padding:10px 15px;position:sticky;top:0;z-index:999;box-shadow:0 3px 15px rgba(0,0,0,0.1);">
-  <div class="logo" style="font-size:1.6rem;font-weight:700;color:white;text-shadow:0 0 8px rgba(255,255,255,0.5);letter-spacing:1px;">market</div>
-  <div class="search-container" style="display:flex;align-items:center;flex:1;margin:0 10px;position:relative;">
-    <input type="text" id="searchInput" placeholder="Search products..." style="width:100%;padding:10px 40px 10px 15px;border-radius:25px;border:none;outline:none;background:rgba(255,255,255,0.2);color:white;font-size:1rem;transition:all 0.3s;"/>
-    <button id="searchBtn" style="position:absolute;right:10px;background:transparent;border:none;color:white;font-size:1.2rem;cursor:pointer;">🔍</button>
-    <div id="suggestionBox" style="position:absolute;top:100%;width:100%;background:orangered;border-radius:8px;box-shadow:0 4px 15px rgba(0,0,0,0.1);max-height:250px;overflow-y:auto;display:none;z-index:1000;"></div>
-  </div>
-  <input type="checkbox" id="menuToggle">
-  <label for="menuToggle">
-    <div class="menu-icon">
-      <span></span><span></span><span></span>
-    </div>
-  </label>
-
-  <nav>
-    <a href="/auctions.html">Auctions</a>
-    <a href="/profile/help.html">Help</a>
-    <a href="/fits.html">Fits</a>
-    <a href="/giftoria.html">Giftoria</a>
-    <a href="profile/cart.html">Cart</a>
-    <a href="/profile/partner.html">Partner With Us</a>
-  </nav>
-</header>
+  
 <div id="tips" style="background:#fff2ee;color:#ff5a5a;text-align:center;padding:10px 15px;font-weight:500;animation:fadeIn 1s ease;">Welcome to Market!</div>
 
   <!-- Floating Bottom Navigation -->
   <nav class="bottom-nav">
-    <a href="/home.html" class="nav-item active">
-      <i class="fa-solid fa-house"></i>
+   <a href="/home.html" class="nav-item">
+      
       <span>Home</span>
     </a>
 
-    <a href="/fits.html" class="nav-item">
-      <i class="fa-solid fa-shirt"></i>
-      <span>Fits</span>
+    <a href="/cart.html" class="nav-item">
+      
+      <span>Cart</span>
     </a>
 
-    <a href="/giftoria.html" class="nav-item">
-      <i class="fa-solid fa-gift"></i>
-      <span>Giftoria</span>
+    <a href="/order.html" class="nav-item">
+      
+      <span>Orders</span>
     </a>
 
     <a href="/profile.html" class="nav-item">
-      <i class="fa-solid fa-user"></i>
+     
       <span>Profile</span>
     </a>
   </nav>

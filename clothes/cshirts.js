@@ -47,12 +47,12 @@ const SAMPLE_PRODUCTS = [
     instock: true,
     type: "trousers",
     categories: ["matching"],
-    filters: ["black"]
+    filters: ["cshirts"]
   }
 ];
 
 /* ============ STATE & DOM ============ */
-const matchingFilters = ["black","brown","blue","corporate"];
+const matchingFilters = ["cshirts"];
 const occasionFilters = ["wedding","parties","church","festive","birthday parties","get together"];
 
 let allMatching = [], allOccasion = [];
@@ -254,7 +254,7 @@ async function initProducts(){
 
 function applyProducts(allProducts){
   // Only use those with type 'fits'
-  const fits = allProducts.filter(p => (p.type || '').toLowerCase() === 'trousers');
+  const fits = allProducts.filter(p => (p.type || '').toLowerCase() === 'cshirts');
   allMatching = fits.filter(p => (p.categories || []).map(c=>c.toLowerCase()).includes('matching'));
   allOccasion = fits.filter(p => (p.categories || []).map(c=>c.toLowerCase()).includes('occasion'));
   updateUI();

@@ -1,137 +1,288 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wallet</title>
-
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="manifest" href="/manifest.json">
+  <link rel="icon" alt="Logo" href="/logo.png">
+<meta name="theme-color" content="rgb(128, 128, 128)">
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log('Service Worker Registered'));
+    });
+  }
+</script>
+  <title>Tucks - Wallet</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-
 <style>
 :root{
-  --bg:#0b0f1a;
-  --card:#12172a;
-  --accent:#00ffd5;
-  --accent2:#7a7cff;
-  --danger:#ff5d5d;
-  --text:#e8ebff;
-  --muted:#9aa1ff;
+  --bg:#0b0f1a; --card:#12172a; --accent:#00ffd5; --accent2:#7a7cff;
+  --danger:#ff5d5d; --text:#e8ebff; --muted:#9aa1ff;
 }
-*{box-sizing:border-box}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Poppins}
 body{
-  margin:0;
-  font-family:Poppins;
-  background:radial-gradient(1200px 600px at 10% -10%, #1b2150, transparent),var(--bg);
-  color:var(--text);
+  background: radial-gradient(1200px 600px at 10% -10%, #1b2150, transparent), var(--bg);
+  color: var(--text);
+  min-height:100vh;
+  display:flex;
+  flex-direction: column;
+  justify-content:center;
   padding:20px;
 }
-.container{
-  max-width:900px;
-  margin:auto;
-}
-h1{text-align:center;margin-bottom:20px}
+.container{max-width:600px;width:100%;}
+
+h1{text-align:center;margin-bottom:12px;}
+.sub{text-align:center;color:var(--muted);margin-bottom:20px;}
 
 .card{
   background:linear-gradient(180deg,#151b38,#0f1430);
-  border-radius:22px;
+  border-radius:20px;
   padding:20px;
   margin-bottom:20px;
+  box-shadow:0 0 12px rgba(0,255,213,0.4);
+  transition: transform 0.3s;
+}
+.card:hover{transform: translateY(-5px) scale(1.02);}
+
+.account-card{
+  border:1px solid var(--accent);
+  padding:16px;
+  border-radius:16px;
+  text-align:center;
+  margin-bottom:16px;
+  background:#0b1030;
+  box-shadow:0 0 12px rgba(122,124,255,0.5);
 }
 
-.balance-card{
+.account-card b{color:var(--accent);}
+.account-card div{margin:6px 0;}
+
+#balance{
   font-size:28px;
   font-weight:700;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  animation:pulse 2s infinite alternate;
-}
-@keyframes pulse{
-  from{transform:scale(1)}
-  to{transform:scale(1.03)}
-}
-
-input{
-  width:100%;
-  padding:12px;
-  border-radius:14px;
-  border:1px solid #242b66;
-  background:#0b1030;
-  color:white;
-  margin-bottom:12px;
+  color:var(--accent2);
+  text-align:center;
+  margin-top:10px;
+  text-shadow:0 0 6px var(--accent2);
 }
 
 button{
-  padding:12px 18px;
-  border:none;
+  padding:12px 20px;
   border-radius:999px;
+  border:none;
   font-weight:600;
   cursor:pointer;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  background: linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#000;
+  margin-top:12px;
+  transition: all 0.3s;
 }
+button:hover{filter: brightness(1.2);}
 
-button:disabled{
-  opacity:.6;
-  cursor:not-allowed;
-}
-
-table{
-  width:100%;
-  border-collapse:collapse;
+.countdown{
+  text-align:center;
   margin-top:10px;
 }
-th,td{
-  border:1px solid #242b66;
-  padding:8px;
-  text-align:center;
+.countdown span{
+  font-weight:700;
+  color:var(--accent2);
+  font-size:18px;
+  text-shadow:0 0 6px var(--accent2);
 }
-th{color:var(--accent)}
-.status-pending{color:#ffcc00}
-.status-approved{color:#00ff99}
-.status-rejected{color:var(--danger)}
+
+.car{
+  background:linear-gradient(180deg,#151b38,#0f1430);
+  border-radius:20px;
+  padding:20px;
+  margin-bottom:20px;
+  box-shadow:0 0 12px rgba(255, 251, 0, 0.781);
+  transition: transform 0.3s;
+}
+.car:hover{transform: translateY(-5px) scale(1.02);}
+
+.faq-item {
+  margin-top: 15px;
+}
+.faq-question {
+  width: 100%;
+  text-align: left;
+  background: rgba(255, 100, 50, 0.1);
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #ff5e3a;
+  transition: 0.3s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.faq-question:hover {
+  background: rgba(255, 100, 50, 0.2);
+}
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease, opacity 0.5s ease;
+  padding: 0 10px;
+  opacity: 0;
+}
+.faq-answer.open {
+  max-height: 300px;
+  opacity: 1;
+  padding: 12px 10px;
+  background: #fff;
+  border-left: 4px solid #ff5e3a;
+  margin-top: 6px;
+  border-radius: 8px;
+  color: #444;
+}
+
+body {
+      padding-bottom: 80px; /* space for nav */
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 500px;
+      background: #7a7cff;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      border-radius: 40px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 10px 0;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease-in-out;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: #555;
+      font-size: 0.8rem;
+      transition: all 0.3s;
+    }
+
+    .nav-item i {
+      font-size: 1.4rem;
+      margin-bottom: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      color: #ff5e57;
+    }
+
+    .nav-item:hover i, .nav-item.active i {
+      transform: scale(1.2);
+    }
+
+    @media (max-width: 600px) {
+      .bottom-nav {
+        width: 95%;
+        bottom: 15px;
+      }
+    }
+
+
 </style>
 </head>
-
 <body>
 <div class="container">
+  <h1>Wallet</h1>
+  <div class="sub">Check your balance and generate top-up coupon</div>
 
-<h1>My Wallet</h1>
+<div class="car account-card">
+ <nav style="font-size: 30px;color: yellow;"> Your Wallet Balance </nav>
+    <div id="balance">₦0</div>
+  </div>
 
-<div class="card balance-card">
-  <div>Current Balance</div>
-  <div id="balance">₦0</div>
+  <div class="card account-card">
+    <nav style="padding-bottom: 15px; font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; color: yellow;font-size: 25px;">Wallet Top-up Account</nav>
+    <div class="car account-card">
+    <div><b>Account Name:</b> Ojo Miracle O.</div>
+    <div><b>Account Number: </b><strong  id="copy">9169174059</strong>   <strong onclick="copyText()" style="padding-left: 10px;">📂</strong></div>
+    <div><b>Bank:</b> Moniepoint</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <button id="generateCouponBtn" style="font-size: 25px;color: #1b2150;">Click here to top up wallet</button>
+    <div id="couponInfo" style="margin-top:12px; text-align:center;"> </div>
+    <div class="countdown" id="couponCountdown"></div>
+  </div>
 </div>
+<br>
+<!-- FAQs -->
+  <section>
+    <h2>❓ Frequently Asked Questions</h2>
+    <div class="faq-item">
+      <button class="faq-question">Do i need to login to top-up my wallet ? <span>+</span></button>
+      <div class="faq-answer">Yes, so you can see your wallet balance and connect to our banking systems.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question">What's the use of the coupon ? <span>+</span></button>
+      <div class="faq-answer">The coupon should be pasted in the transaction narration, it is used to fasten the verification process.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question">How do I get more information and help ? <span>+</span></button>
+      <div class="faq-answer">Go to the “Help” page for contact info. We’ll always love to help and address any issues.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question">Is my information secure? <span>+</span></button>
+      <div class="faq-answer">Absolutely! We protect your data using trusted, secure systems like Firebase and SSL encryption.</div>
+    </div>
+  </section>
 
-<div class="card">
-  <h3>Top Up Wallet</h3>
-  <input type="number" id="topupAmount" placeholder="Enter amount">
-  <button id="topupBtn">Request Top Up</button>
-</div>
+<!-- Floating Bottom Navigation -->
+  <div  class="bottom-nav">
+    <a href="/food_delivery.html" class="nav-item">
+      
+      <span>Home</span>
+    </a>
 
-<div class="card">
-  <h3>Transaction History</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>Amount</th>
-        <th>Type</th>
-        <th>Status</th>
-        <th>Date</th>
-      </tr>
-    </thead>
-    <tbody id="txnTable"></tbody>
-  </table>
-</div>
+    <a href="/wallet.html" class="nav-item">
+      
+      <span>Wallet</span>
+    </a>
 
-</div>
+    <a href="/help.html" class="nav-item">
+      
+      <span>Help</span>
+    </a>
+
+    <a href="/food_profile.html" class="nav-item">
+     
+      <span>Profile</span>
+    </a>
+  </div>
+
+<script>
+  function copyText() {
+    const text = 
+    document.getElementById("copy").innerText;
+    navigator.clipboard.writeText(text);
+    alert("Account Number Copied ")
+  }
+
+ 
+
+</script>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, collection, addDoc, serverTimestamp, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-import { 
-  getFirestore, doc, getDoc, setDoc, updateDoc,
-  collection, addDoc, onSnapshot, query, where, orderBy 
-} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDzwnmGgEcN63RcCHSNU6p_xXKxmeqzF6k" ,
@@ -142,97 +293,95 @@ const firebaseConfig = {
     appId:"1:301860246689:web:aabf0ab9af41081a91cce0",
     measurementId: "G-ZPVVZ8GNP0"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const auth = getAuth();
+const auth = getAuth(app);
 
-const balanceEl = document.getElementById("balance");
-const topupBtn = document.getElementById("topupBtn");
-const txnTable = document.getElementById("txnTable");
+let couponTimer;
 
-let currentUser = null;
-
-function formatMoney(n){
-  return "₦" + Number(n||0).toLocaleString("en-US");
+function generateCouponCode(){
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let code = "";
+  for(let i=0;i<6;i++) code += chars[Math.floor(Math.random()*chars.length)];
+  return code;
 }
 
-async function loadBalance(uid){
-  const docRef = doc(db,"users",uid);
-  const snap = await getDoc(docRef);
-
-  if(!snap.exists()){
-    await setDoc(docRef,{
-      balance:0,
-      createdAt:new Date()
-    });
-    balanceEl.textContent = "₦0";
-  } else {
-    balanceEl.textContent = formatMoney(snap.data().balance);
-  }
-}
-
-function listenTransactions(uid){
-  const q = query(
-    collection(db,"walletTransactions"),
-    where("userId","==",uid),
-    orderBy("createdAt","desc")
-  );
-
-  onSnapshot(q,(snapshot)=>{
-    txnTable.innerHTML="";
-    snapshot.forEach(doc=>{
-      const d = doc.data();
-      const tr = document.createElement("tr");
-      tr.innerHTML=`
-        <td>${formatMoney(d.amount)}</td>
-        <td>${d.type}</td>
-        <td class="status-${d.status}">${d.status}</td>
-        <td>${d.createdAt?.toDate().toLocaleString() || ""}</td>
-      `;
-      txnTable.appendChild(tr);
-    });
-  });
-}
-
-topupBtn.addEventListener("click", async ()=>{
-  const amount = Number(document.getElementById("topupAmount").value);
-
-  if(!amount || amount < 100){
-    alert("Minimum top up is ₦100");
+onAuthStateChanged(auth, async user=>{
+  if(!user) { 
+    alert("Please login to use wallet.")
+    window.location.href("/login.html"); 
     return;
   }
+  const currentUser = user;
 
-  topupBtn.disabled = true;
-  topupBtn.innerText = "Submitting...";
+  const userRef = doc(db,"users",currentUser.uid);
 
-  await addDoc(collection(db,"walletTransactions"),{
-    userId: currentUser.uid,
-    amount,
-    type:"credit",
-    status:"pending",
-    description:"Manual top up",
-    createdAt:new Date()
+  // Real-time wallet balance
+  onSnapshot(userRef, snap=>{
+    if(snap.exists()){
+      const bal = Number(snap.data().walletBalance) || 0;
+      document.getElementById("balance").textContent = "₦"+bal.toLocaleString();
+    }
   });
 
-  alert("Top up request submitted. Wait for admin approval.");
+  document.getElementById("generateCouponBtn").onclick = async ()=>{
+    const coupon = generateCouponCode();
+    const amount = prompt("Enter the exact amount to send for top-up (₦):");
+    if(!amount || isNaN(amount)) return alert("Invalid amount");
 
-  document.getElementById("topupAmount").value="";
-  topupBtn.disabled=false;
-  topupBtn.innerText="Request Top Up";
+    const expiresAt = Date.now() + 15*60*1000; // 15 minutes
+    await addDoc(collection(db,"coupons"),{
+      userId:currentUser.uid,
+      coupon,
+      amount:Number(amount),
+      createdAt:serverTimestamp(),
+      expiresAt,
+      used:false,
+      email:currentUser.email,
+      name:currentUser.displayName || currentUser.email
+    });
+
+    document.getElementById("couponInfo").innerHTML = `
+      <b>Paste the Coupon in transaction narration:</b> ${coupon}<br>
+      <b>Amount to send:</b> ₦${Number(amount).toLocaleString()}<br>
+      <b>Send to:</b> 9169174059 - Moniepoint - Ojo Miracle
+    `;
+
+   
+    // Countdown
+    clearInterval(couponTimer);
+    couponTimer = setInterval(()=>{
+      const diff = expiresAt - Date.now();
+      if(diff<=0){
+        clearInterval(couponTimer);
+        document.getElementById("couponCountdown").textContent = "Coupon expired. Generate a new one.";
+      } else {
+        const m = Math.floor(diff/60000);
+        const s = Math.floor((diff%60000)/1000);
+        document.getElementById("couponCountdown").textContent = `Time left: ${m}m ${s}s`;
+      }
+    },1000);
+  };
 });
 
-onAuthStateChanged(auth,(user)=>{
-  if(!user){
-    window.location.href="/login.html";
-    return;
-  }
+// FAQ toggle with smooth animation
+document.querySelectorAll(".faq-question").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const answer = btn.nextElementSibling;
+    const isOpen = answer.classList.contains("open");
 
-  currentUser=user;
-  loadBalance(user.uid);
-  listenTransactions(user.uid);
+    // Close all others
+    document.querySelectorAll(".faq-answer").forEach(a => a.classList.remove("open"));
+    document.querySelectorAll(".faq-question span").forEach(s => s.textContent = "+");
+
+    if (!isOpen) {
+      answer.classList.add("open");
+      btn.querySelector("span").textContent = "−";
+    }
+  });
 });
+
+
 </script>
-
 </body>
 </html>

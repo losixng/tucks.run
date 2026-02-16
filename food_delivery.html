@@ -77,6 +77,61 @@ button:disabled{opacity:.6;cursor:not-allowed}
   animation:spin 1s linear infinite;margin:auto
 }
 @keyframes spin{to{transform:rotate(360deg)}}
+
+body {
+      padding-bottom: 80px; /* space for nav */
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 500px;
+      background: #7a7cff;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      border-radius: 40px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 10px 0;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease-in-out;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: #555;
+      font-size: 0.8rem;
+      transition: all 0.3s;
+    }
+
+    .nav-item i {
+      font-size: 1.4rem;
+      margin-bottom: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      color: #1b2150;
+    }
+
+    .nav-item:hover i, .nav-item.active i {
+      transform: scale(1.2);
+    }
+
+    @media (max-width: 600px) {
+      .bottom-nav {
+        width: 95%;
+        bottom: 15px;
+      }
+    }
+
+
 </style>
 </head>
 
@@ -84,7 +139,17 @@ button:disabled{opacity:.6;cursor:not-allowed}
 <div class="container">
 
 <h1>Food Order</h1>
-<div class="sub">Orders open 1 hour before delivery and close 25 minutes before</div>
+<div class="account">
+  <h4 style="color:#00ffd5;">Ordering Details And Timing</h4>
+  * Order from 12 : 00 AM - 11 : 40 AM
+ <br> Delivered at 12 : 00 PM (Lunch Delivery)
+ <br>* Order from 12 : 30 PM - 6 : 10 PM
+ <br> Delivered at 6 : 30 PM  (Dinner)
+ <br>*On Saturday Delivery is by 9 AM , 12PM AND 6:30PM
+ <br>*On Sunday Delivery is by 11:30 AM , 3PM AND 6:30PM
+ <br><strong style="color:#00ffd5;" >Note : Your order is delivered to your exact location or room</strong>
+</div>
+
 
 <div class="countdown">
   <div id="cdTitle">Next order opens in</div>
@@ -96,34 +161,17 @@ button:disabled{opacity:.6;cursor:not-allowed}
     <button type="button" onclick="viewLastCode()" style="margin-top:10px">
   📄 View last delivery code
 </button>
-<div class="full total" id="total">Total: ₦0</div>
 </div>
 
 <div class="card" id="formCard">
 
-  <div class="full" id="walletBox" style="
-  background:#0b1030;
-  border:1px solid #2a31ff;
-  padding:14px;
-  border-radius:14px;
-  margin-bottom:10px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  font-weight:600;
-">
-  <span>Wallet Balance</span>
-  <span id="walletBalance">₦0</span>
-</div>
-
 <div class="account">
-  <div><b>Transfer To:</b></div>
+  <div><b>Account for receipt payment:</b></div>
   <div>Ojo Miracle</div>
   <div>Moniepoint</div>
   <div><b>9169174059</b></div>
   <div style="margin-top:6px">Delivery fee: ₦250 + ₦50 transfer</div>
-  <button type="button" onclick="openAlarm()" style="margin-top:12px">🔔 Set Order Opening Alarm</button>
-
+  
 </div>
 
 <form id="orderForm">
@@ -156,18 +204,11 @@ button:disabled{opacity:.6;cursor:not-allowed}
 <input type="file" id="receipt" accept="image/*" required>
 </div>
 
-
-
 <div class="full">
-<button type="button" id="walletPayBtn" 
-style="
-  background:linear-gradient(135deg,#00ffd5,#7a7cff);
-  margin-bottom:10px;
-">
-  💳 Pay With Wallet
+<button id="submitBtn">Submit Order</button>
+<button type="button" id="walletBtn" style="margin-top:10px;background:linear-gradient(135deg,#00ffd5,#7a7cff)">
+💳 Pay With Wallet
 </button>
-
-<button id="submitBtn">Submit Order (Manual Transfer)</button>
 <div class="loading" id="loading">
   <div class="spinner"></div>
   Submitting order…
@@ -180,10 +221,45 @@ style="
 <div class="closed" id="closedMsg"></div>
 </div>
 
+<!-- Floating Bottom Navigation -->
+  <div  class="bottom-nav">
+    <a href="/food_delivery.html" class="nav-item">
+      
+      <span>Home</span>
+    </a>
+
+    <a href="/wallet.html" class="nav-item">
+      
+      <span>Wallet</span>
+    </a>
+
+    <a href="/help.html" class="nav-item">
+      
+      <span>Help</span>
+    </a>
+
+    <a href="/food_profile.html" class="nav-item">
+     
+      <span>Profile</span>
+    </a>
+  </div>
+
 <script type="module">
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+import { 
+  getFirestore, 
+  collection, 
+  addDoc, 
+  serverTimestamp,
+  doc,
+  getDoc,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+
+import { 
+  getAuth, 
+  onAuthStateChanged 
+} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey:"AIzaSyDzwnmGgEcN63RcCHSNU6p_xXKxmeqzF6k",
@@ -192,43 +268,12 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const auth = getAuth();
+const auth = getAuth(app);
 let currentUser = null;
-let walletBalanceLive = 0;
-let walletProcessing = false;
 
-const walletBalanceEl = document.getElementById("walletBalance");
-const walletPayBtn = document.getElementById("walletPayBtn");
-
-function formatMoney(n){
-  return "₦" + Number(n || 0).toLocaleString("en-US");
-}
-
-async function loadWalletBalance(uid){
-  try{
-    const res = await fetch('/.netlify/functions/getWalletBalance',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ userId: uid })
-    });
-
-    const data = await res.json();
-    walletBalanceLive = Number(data.balance || 0);
-    walletBalanceEl.textContent = formatMoney(walletBalanceLive);
-
-    // smooth pop animation
-    walletBalanceEl.style.transform = "scale(1.1)";
-    setTimeout(()=> walletBalanceEl.style.transform="scale(1)",200);
-
-  }catch(err){
-    console.error("Wallet load error",err);
-  }
-}
-
-onAuthStateChanged(auth,(user)=>{
+onAuthStateChanged(auth, (user)=>{
   if(user){
     currentUser = user;
-    loadWalletBalance(user.uid);
   }
 });
 
@@ -246,6 +291,59 @@ const PRODUCTS = [
   { name:"Soft Drink", price:500 }
 ];
 
+// ===== SHOW WALLET BALANCE ON FOOD DELIVERY PAGE =====
+const walletBalanceEl = document.createElement("div");
+walletBalanceEl.style.cssText = `
+  background: linear-gradient(135deg,#00ffd5,#7a7cff);
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  text-align: center;
+  color: #0b0f1a;
+  font-size: 16px;
+`;
+walletBalanceEl.textContent = "Wallet Balance: ₦0";
+
+// Insert at the top of the form card
+const formCard = document.getElementById("formCard");
+formCard.insertBefore(walletBalanceEl, formCard.firstChild);
+
+async function loadWalletBalance(uid){
+  try {
+    const userRef = doc(db,"users",uid);
+    const userSnap = await getDoc(userRef);
+    if(userSnap.exists()){
+      const balance = Number(userSnap.data().walletBalance || 0);
+      walletBalanceEl.textContent = "Wallet Balance: ₦" + balance.toLocaleString();
+      // small pop animation
+      walletBalanceEl.style.transform = "scale(1.1)";
+      setTimeout(()=> walletBalanceEl.style.transform = "scale(1)", 200);
+    }
+  } catch(err){
+    console.error("Failed to load wallet balance:", err);
+  }
+}
+
+// Update wallet display when user logs in
+if(currentUser){
+  loadWalletBalance(currentUser.uid);
+}
+
+// Optional: real-time update with onSnapshot
+import { onSnapshot,  } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+onAuthStateChanged(auth, user => {
+  if(user){
+    currentUser = user;
+    const userDocRef = doc(db,"users",user.uid);
+    onSnapshot(userDocRef, docSnap => {
+      if(docSnap.exists()){
+        const balance = Number(docSnap.data().walletBalance || 0);
+        walletBalanceEl.textContent = "Wallet Balance: ₦" + balance.toLocaleString();
+      }
+    });
+  }
+});
 
 window.viewLastCode = function () {
   const phone = document.getElementById("phone").value;
@@ -365,11 +463,18 @@ document.getElementById("orderForm").onsubmit = async (e)=>{
 
   try{
     await addDoc(collection(db,"foodOrders"),{
-      name,phone,location,items,total,deliveryCode,
-      codeExpiresAt:expiresAt,
-      codeUsed:false,
-      receiptUrl,
-      createdAt:serverTimestamp()
+  name,
+  phone,
+  location,
+  items,
+  total,
+  deliveryCode,
+  codeExpiresAt:expiresAt,
+  codeUsed:false,
+  receiptUrl,
+  paymentMethod:"receipt",   // 👈 add
+  status:"pending",          // 👈 add
+  createdAt:serverTimestamp()
     });
     alert(`Order submitted! Please tell the delivery agent the last five digits of your number for verification. Your delivery code is: ${deliveryCode}`);
     
@@ -407,12 +512,11 @@ localStorage.setItem(`lastCode_${phone}`, deliveryCode);
 }
 };
 
-walletPayBtn.addEventListener("click", async ()=>{
-
-  if(walletProcessing) return;
+// ===== WALLET PAYMENT =====
+document.getElementById("walletBtn").addEventListener("click", async ()=>{
 
   if(!currentUser){
-    alert("Please login to use wallet.");
+    alert("Please login first.");
     return;
   }
 
@@ -421,55 +525,45 @@ walletPayBtn.addEventListener("click", async ()=>{
   const location=document.getElementById("location").value;
 
   if(!name || !phone || !location){
-    alert("Fill all fields.");
+    alert("Please fill all details first.");
     return;
   }
 
+  // Calculate total properly (same logic as your calcTotal)
   let sum=0;
-  const items=Array.from(document.querySelectorAll("#orderTable tr")).map(r=>{
-    const qty=+r.querySelector(".qty").value||0;
-    const price=+r.querySelector(".price").value||0;
-    sum+=qty*price;
-    return {
-      item:r.querySelector(".item").value,
-      qty,
-      price
-    };
+  document.querySelectorAll("#orderTable tr").forEach(r=>{
+    sum+=(+r.querySelector(".qty").value||0)*(+r.querySelector(".price").value||0);
   });
 
   const totalAmount = sum + DELIVERY + TRANSFER;
 
-  if(walletBalanceLive < totalAmount){
-    alert(`Insufficient wallet balance.
-Required: ${formatMoney(totalAmount)}
-Available: ${formatMoney(walletBalanceLive)}`);
-    return;
-  }
-
   try{
 
-    walletProcessing=true;
-    walletPayBtn.disabled=true;
-    walletPayBtn.innerHTML="Processing...";
+    const userRef = doc(db,"users",currentUser.uid);
+    const userSnap = await getDoc(userRef);
 
-    const res = await fetch('/.netlify/functions/deductWallet',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        userId: currentUser.uid,
-        amount: totalAmount,
-        description: "Food Order"
-      })
+    if(!userSnap.exists()){
+      alert("Wallet not found.");
+      return;
+    }
+
+    const balance = Number(userSnap.data().walletBalance) || 0;
+
+    if(balance < totalAmount){
+      alert("Insufficient wallet balance.");
+      return;
+    }
+
+    // Deduct balance
+    await updateDoc(userRef,{
+      walletBalance: balance - totalAmount
     });
 
-    const data = await res.json();
-    if(!data.success) throw new Error("Deduction failed");
-
-    // Deduction animation
-    walletBalanceLive -= totalAmount;
-    walletBalanceEl.textContent = formatMoney(walletBalanceLive);
-    walletBalanceEl.style.color="#ff5d5d";
-    setTimeout(()=>walletBalanceEl.style.color="#e8ebff",800);
+    const items=Array.from(document.querySelectorAll("#orderTable tr")).map(r=>({
+      item: r.querySelector(".item").value,
+      qty: r.querySelector(".qty").value,
+      price: r.querySelector(".price").value
+    }));
 
     const deliveryCode = generateDeliveryCode();
     const expiresAt = Date.now() + 105*60*1000;
@@ -483,26 +577,30 @@ Available: ${formatMoney(walletBalanceLive)}`);
       deliveryCode,
       codeExpiresAt:expiresAt,
       codeUsed:false,
-      receiptUrl:"WALLET_PAYMENT",
+      receiptUrl:null,
+      paymentMethod:"wallet",   // 🔥 important
+      status:"pending",        // 🔥 auto approve
+      userId:currentUser.uid,
       createdAt:serverTimestamp()
     });
 
-    alert(`✅ Wallet payment successful!
-Your delivery code is: ${deliveryCode}`);
+    alert(`Wallet payment successful! Your delivery code is: ${deliveryCode}`);
 
     localStorage.setItem(`lastCode_${phone}`, deliveryCode);
 
-    document.getElementById("orderForm").reset();
+    // Reset like your normal submit
+    document.getElementById("orderTable").innerHTML = `
+      <tr>
+        <td><input class="item" list="productList"></td>
+        <td><input class="qty" type="number" value="1" min="1"></td>
+        <td><input class="price" value="0" readonly></td>
+      </tr>
+    `;
     document.getElementById("total").textContent="Total: ₦0";
 
   }catch(err){
+    console.error(err);
     alert("Wallet payment failed.");
-    walletPayBtn.disabled=false;
-    walletPayBtn.innerHTML="💳 Pay With Wallet";
-  }finally{
-    walletProcessing=false;
-    walletPayBtn.disabled=false;
-    walletPayBtn.innerHTML="💳 Pay With Wallet";
   }
 
 });
@@ -553,9 +651,6 @@ setInterval(()=>{
   ss.textContent=String(Math.floor(diff%60000/1000)).padStart(2,"0");
 },1000);
 
-
-</script>
-<script type= "module">
 
 </script>
 </body>

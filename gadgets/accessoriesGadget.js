@@ -1,18 +1,3 @@
-
- 
-
-/* ============================
-   fit8.js - integrated and revised
-   - Firestore (fallback)
-   - Filters, lightbox (up to 5 images)
-   - Cart localStorage
-   - Auth (email/password)
-   - Buy modal (mobile scrollable)
-   - Paystack integration (frontend)
-   - Save order to Firestore (if signed in) or localStorage
-   - Customize requests (Firestore or local)
-   ============================ */
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
 import {
   getFirestore, collection, getDocs, addDoc, serverTimestamp
@@ -49,7 +34,7 @@ try {
 
 /* ============ SAMPLE PRODUCTS (fallback) ============ */
 const SAMPLE_PRODUCTS = [
-   {
+  {
     id: "temp1",
     name: "Error:Please check internet connection",
     desc: "Please refresh....",
@@ -62,12 +47,12 @@ const SAMPLE_PRODUCTS = [
     instock: true,
     type: "accessoriesGadgets",
     categories: ["matching"],
-    filters: ["chargers"]
+    filters: ["accessoriesGadgets"]
   }
 ];
 
 /* ============ STATE & DOM ============ */
-const matchingFilters = ["chargers","power banks"];
+const matchingFilters = ["accessoriesGadgets"];
 const occasionFilters = ["wedding","parties","church","festive","birthday parties","get together"];
 
 let allMatching = [], allOccasion = [];
@@ -92,7 +77,7 @@ const lbStock = document.getElementById('lbStock');
 const lbBuy = document.getElementById('lbBuy');
 const lbAdd = document.getElementById('lbAdd');
 const lbShare = document.getElementById('lbShare');
-
+const lbCustomize = document.getElementById('lbCustomize');
 const lbClose = document.getElementById('lbClose');
 
 const buyModal = document.getElementById('buyModal');
@@ -250,17 +235,17 @@ async function initProducts(){
       });
 
       if(products.length > 0){
-        console.info('Loaded products from Firestore:', products.length);
+        console.info('Loaded products:', products.length);
         applyProducts(products);
         return;
       } else {
-        console.info('Firestore returned 0 products — falling back to SAMPLE_PRODUCTS.');
+        console.info('falling back to SAMPLE_PRODUCTS.');
       }
     } catch (e){
-      console.warn('Firestore fetch failed, using SAMPLE_PRODUCTS. Error:', e);
+      console.warn('fetch failed, using SAMPLE_PRODUCTS. Error:', e);
     }
   } else {
-    console.info('No Firestore instance - using SAMPLE_PRODUCTS.');
+    console.info('No instance - using SAMPLE_PRODUCTS.');
   }
 
   // fallback
@@ -364,13 +349,21 @@ lbShare?.addEventListener('click', async ()=> {
     else { await navigator.clipboard.writeText(`${currentItem.name}\n${currentItem.desc||''}\n${shareUrl}`); toast('Product info copied'); }
   } catch(e) { console.warn(e); toast('Could not share'); }
 });
+lbCustomize?.addEventListener('click', ()=> {
+  if(!currentItem) return;
+  if(cName) cName.value = '';
+  if(cPhone) cPhone.value = '';
+  if(cEmail) cEmail.value = '';
+  if(cDetails) cDetails.value = `Customize for ${currentItem.name}\nNotes: `;
+  if(customModal) { customModal.classList.add('show'); customModal.setAttribute('aria-hidden','false'); }
+});
 
 
 /* ============ BUY FLOW (modal + Paystack) ============ */
 function recalcTotals(){
   if(!currentItem) return null;
   const price = Number(currentItem.price) || 0;
-  const shipping = bmShipping && bmShipping.value === 'GIG' ? 5000 : 3000;
+  const shipping = bmShipping && bmShipping.value === 'GIG' ? 250 : 350;
   const txn = 100;
   const total = price + shipping + txn;
   if(sumProduct) sumProduct.textContent = moneyFmt(price);
@@ -409,6 +402,7 @@ payNow?.addEventListener('click', async ()=>{
     customer: { name, phone, email, address },
     product: { id: currentItem.id, name: currentItem.name, price: Number(currentItem.price), images: currentItem.images || (currentItem.image ? [currentItem.image] : []) },
     shippingMethod: bmShipping.value,
+     clothingSize: size,
     shippingFee: totals.shipping,
     transactionFee: totals.txn,
     customizeFee: 0,
@@ -426,59 +420,60 @@ payNow?.addEventListener('click', async ()=>{
     amount: Math.round(order.total * 100), // kobo
     currency: 'NGN',
     metadata: { custom_fields: [{ display_name: "Product", variable_name: "product", value: order.product.name }] },
-   callback: function(response){
-         (async () => {
-           order.paystackRef = response.reference;
-           order.status = 'paid';
-       
-           // 🔒 Verify payment securely with your Netlify backend
-           const verifyRes = await fetch("/api/verifyPayment", {
-             method: "POST",
-             headers: { "Content-Type": "application/json" },
-             body: JSON.stringify({ reference: response.reference })
-           });
-       
-           const verifyData = await verifyRes.json();
-       
-           if (!verifyData.data || verifyData.data.status !== "success") {
-             alert("⚠️ Payment verification failed! Please contact support.");
-             console.error("Verification failed:", verifyData);
-             return;
-           }
-       
-           try {
-             if (db) {
-               await addDoc(collection(db, 'orders'), {
-                 ...order,
-                 userId: currentUser ? currentUser.uid : null,
-                 createdAt: serverTimestamp()
-               });
-             } else {
-               toast('Error: Please try again....');
-             }
-           } catch (e) {
-             console.warn('Could not save order to Firestore', e);
-             const ordersLocal = JSON.parse(localStorage.getItem('orders') || '[]');
-             ordersLocal.push(order);
-             localStorage.setItem('orders', JSON.stringify(ordersLocal));
-           }
-       
-           saveOrderAsHTML(order);
-       
-           if (confirmContent) {
-             confirmContent.innerHTML = `
-               ✅ Payment successful. Reference: <strong>${response.reference}</strong><br/>
-               Total: ${moneyFmt(order.total)}<br/>
-               We saved a copy of your order (downloaded).
-             `;
-           }
-           if (confirmModal) {
-             confirmModal.classList.add('show');
-             confirmModal.setAttribute('aria-hidden', 'false');
-           }
-           if (buyModal) buyModal.classList.remove('show');
-         })();
-       },
+      callback: function(response){
+      (async () => {
+        order.paystackRef = response.reference;
+        order.status = 'paid';
+    
+        // 🔒 Verify payment securely with your Netlify backend
+        const verifyRes = await fetch("/api/verifyPayment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ reference: response.reference })
+        });
+    
+        const verifyData = await verifyRes.json();
+    
+        if (!verifyData.data || verifyData.data.status !== "success") {
+          alert("⚠️ Payment verification failed! Please contact support.");
+          console.error("Verification failed:", verifyData);
+          return;
+        }
+    
+        try {
+          if (db) {
+            await addDoc(collection(db, 'orders'), {
+              ...order,
+              userId: currentUser ? currentUser.uid : null,
+              createdAt: serverTimestamp()
+            });
+          } else {
+            toast('Error: Please try again....');
+          }
+        } catch (e) {
+          console.warn('Could not save order to Firestore', e);
+          const ordersLocal = JSON.parse(localStorage.getItem('orders') || '[]');
+          ordersLocal.push(order);
+          localStorage.setItem('orders', JSON.stringify(ordersLocal));
+        }
+    
+        saveOrderAsHTML(order);
+    
+        if (confirmContent) {
+          confirmContent.innerHTML = `
+            ✅ Payment successful. Reference: <strong>${response.reference}</strong><br/>
+            Total: ${moneyFmt(order.total)}<br/>
+            We saved a copy of your order (downloaded).
+          `;
+        }
+        if (confirmModal) {
+          confirmModal.classList.add('show');
+          confirmModal.setAttribute('aria-hidden', 'false');
+        }
+        if (buyModal) buyModal.classList.remove('show');
+      })();
+    },
+    
     onClose: function(){
       flashMessage('Payment cancelled.');
     }
@@ -525,12 +520,12 @@ sendCustomize?.addEventListener('click', async ()=>{
   if(!payload.name || !payload.phone || !payload.email || !payload.details){ alert('Fill customization fields'); return; }
   try {
     if(db) await addDoc(collection(db,'customRequests'), payload);
-    else throw new Error('No DB - saved locally');
-    flashMessage('Customization request submitted.');
+    else throw new Error('Error ...');
+    alert('Customization request submitted.');
     if(customModal) customModal.classList.remove('show');
   } catch (e){
     const local = JSON.parse(localStorage.getItem('customRequests')||'[]'); local.push(payload); localStorage.setItem('customRequests', JSON.stringify(local));
-    flashMessage('Saved locally (will upload when server available).');
+    alert('Error saving order (Please try again ).');
     if(customModal) customModal.classList.remove('show');
   }
 });

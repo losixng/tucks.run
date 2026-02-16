@@ -4,7 +4,19 @@
   <meta charset="UTF-8" />
    <link rel="icon" alt="Logo" href="/logo.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>You're Offline • Comfort Continues</title>
+  <link rel="manifest" href="/manifest.json">
+   <link rel="icon" alt="Logo" href="/logo.png">
+<meta name="theme-color" content="linear-gradient(60deg,#F2C464 0%, #C6F4D6 100%)">
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log('Service Worker Registered'));
+    });
+  }
+</script>
+
+  <title>Tucks - You're Offline</title>
 
   <style>
     * {
