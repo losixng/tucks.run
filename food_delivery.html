@@ -149,7 +149,7 @@ body {
 <script>
   const isLoggedIn = 
   localStorage.getItem("userLoggedIn");
-  if (!isLoggedIn) {
+  if (!userisLoggedIn) {
     window.location.href = "/login.html"
   }
 </script>
@@ -228,7 +228,7 @@ body {
 </div>
 
 <div class="full">
-<button id="submitBtn">Submit Order</button>
+<button id="submitBtn">Submit Order (Upload Receipt)</button>
 <button type="button" id="walletBtn" style="margin-top:10px;background:linear-gradient(135deg,#00ffd5,#7a7cff)">
 💳 Pay With Wallet
 </button>
@@ -304,7 +304,8 @@ const DELIVERY = 250;
 const TRANSFER = 50;
 
 const PRODUCTS = [
-  { name:"Jollof Rice", price:200 },
+  { name:"Food pack", price:200 },
+{ name:"Jollof Rice", price:200 },
   { name:"Fried Rice", price:200 },
   { name:"White Rice & Stew", price:200 },
   { name:"Jollof Spaghetti", price:200 },
