@@ -18,12 +18,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0b0f1a; --card:#12172a; --accent:#00ffd5; --accent2:#7a7cff;
-  --danger:#ff5d5d; --text:#e8ebff; --muted:#9aa1ff;
+  --bg:#0b0f1a; --card:#12172a; --accent:#00ffd5; --accent2:white;
+  --danger:#ff5d5d; --text:#e8ebff; --muted:#e8ebff;
 }
 *{box-sizing:border-box;margin:0;padding:0;font-family:Poppins}
 body{
-  background: radial-gradient(1200px 600px at 10% -10%, #1b2150, transparent), var(--bg);
+  background:linear-gradient(60deg,rgb(0, 204, 255) 0%, rgb(128, 128, 128) 100%);
   color: var(--text);
   min-height:100vh;
   display:flex;
@@ -152,7 +152,7 @@ body {
       transform: translateX(-50%);
       width: 90%;
       max-width: 500px;
-      background: #7a7cff;
+      background: white;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
       border-radius: 40px;
       display: flex;
@@ -168,7 +168,7 @@ body {
       flex-direction: column;
       align-items: center;
       text-decoration: none;
-      color: #555;
+      color:black ;
       font-size: 0.8rem;
       transition: all 0.3s;
     }
@@ -196,6 +196,16 @@ body {
 
 
 </style>
+
+<script>
+  const isLoggedIn = 
+  localStorage.getItem("userLoggedIn");
+  if (!isLoggedIn) {
+    window.location.href = "/login.html"
+  }
+</script>
+
+
 </head>
 <body>
 <div class="container">
@@ -210,9 +220,9 @@ body {
   <div class="card account-card">
     <nav style="padding-bottom: 15px; font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; color: yellow;font-size: 25px;">Wallet Top-up Account</nav>
     <div class="car account-card">
-    <div><b>Account Name:</b> Ojo Miracle O.</div>
-    <div><b>Account Number: </b><strong  id="copy">9169174059</strong>   <strong onclick="copyText()" style="padding-left: 10px;">📂</strong></div>
-    <div><b>Bank:</b> Moniepoint</div>
+    <div><b>Account Name:</b> Ojo Abiodun</div>
+    <div><b>Account Number: </b><strong  id="copy">0128881529</strong>   <strong onclick="copyText()" style="padding-left: 10px;">📂</strong></div>
+    <div><b>Bank:</b> Smartcash</div>
     </div>
   </div>
 
@@ -266,6 +276,8 @@ body {
       <span>Profile</span>
     </a>
   </div>
+
+
 
 <script>
   function copyText() {
@@ -344,7 +356,7 @@ onAuthStateChanged(auth, async user=>{
     document.getElementById("couponInfo").innerHTML = `
       <b>Paste the Coupon in transaction narration:</b> ${coupon}<br>
       <b>Amount to send:</b> ₦${Number(amount).toLocaleString()}<br>
-      <b>Send to:</b> 9169174059 - Moniepoint - Ojo Miracle
+      <b>Send to:</b> 0128881529 - Smartcash - Ojo Abiodun
     `;
 
    

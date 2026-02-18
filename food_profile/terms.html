@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" alt="Logo" href="/logo.png">
 <meta name="theme-color" content="rgb(128, 128, 128)">
@@ -14,16 +14,17 @@
     });
   }
 </script>
-  <title>Tucks - Profile</title>
+  <title>Tucks - Terms & Conditions</title>
   <style>
-    /* ===== Global Reset ===== */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
-}
-/* Menu Toggle Checkbox */
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.7;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    /* Menu Toggle Checkbox */
 #menuToggle {
   display: none;
 }
@@ -108,139 +109,7 @@ nav a:hover {
   }
 }
 
-
-body {
-  background:linear-gradient(60deg,rgb(0, 204, 255) 0%, rgb(128, 128, 128) 100%);
-  color: #333;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ===== Header ===== */
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 18px;
-  background: linear-gradient(135deg, #9be15d, #f8ffae); /* green-yellow gradient */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
-
-.logo .site-name {
-  font-size: 1.3rem;
-  font-weight: bold;
-  color: #e74c3c; /* red/orange highlight */
-}
-
-.header input[type="search"] {
-  padding: 8px 12px;
-  border-radius: 20px;
-  border: 1px solid #ddd;
-  width: 40%;
-  outline: none;
-  transition: 0.3s;
-}
-
-.header input[type="search"]:focus {
-  border-color: #9be15d;
-  box-shadow: 0 0 8px rgba(155, 225, 93, 0.6);
-}
-
-.menu {
-  position: relative;
-}
-
-.menu button {
-  background: transparent;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-}
-
-.dropdown-menu {
-  display: none;
-  flex-direction: column;
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-  position: absolute;
-  right: 0;
-  top: 45px;
-  min-width: 180px;
-  overflow: hidden;
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-.dropdown-menu a {
-  padding: 10px 15px;
-  text-decoration: none;
-  color: #333;
-  transition: 0.3s;
-}
-
-.dropdown-menu a:hover {
-  background: #9be15d;
-  color: #fff;
-}
-
-.menu:hover .dropdown-menu {
-  display: flex;
-}
-
-/* ===== Profile Section ===== */
-main {
-  flex: 1;
-  padding: 20px;
-}
-
-h2 {
-  margin-bottom: 15px;
-  font-size: 1.4rem;
-  color: #444;
-}
-
-.profile-menu {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-}
-
-.profile-menu li {
-  padding: 20px 25px;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 25px;
-}
-
-.profile-menu li:hover {
-  background:rgb(0, 204, 255);
-  color: rgb(128, 128, 128);
-  transform: translateX(6px);
-}
-
-/* ===== Bottom Navigation ===== */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #fff;
-  display: flex;
-  justify-content: space-around;
-  padding: 12px 0;
-  border-top: 1px solid #ddd;
-  box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
-  animation: slideUp 0.5s ease;
-}
-body {
+    body {
       padding-bottom: 80px; /* space for nav */
     }
 
@@ -293,46 +162,39 @@ body {
       }
     }
 
-.bottom-nav a {
-  text-decoration: none;
-  color: #555;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-size: 0.85rem;
-  transition: 0.3s;
-}
-
-.bottom-nav a:hover {
-  color: #e67e22; /* orange */
-  transform: scale(1.1);
-}
-
-.bottom-nav i {
-  font-size: 1.4rem;
-  margin-bottom: 3px;
-}
-
-/* ===== Animations ===== */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-.title{
-  padding-left: 50px;
-  font-size: 30px;
-  padding-top: 30px;
-  color: orangered;
-}
-.ending{
-  padding-top: 50px;
-}
- /* Menu toggle */
+    header {
+      background: linear-gradient(to right, #ff7a00, #ffb347);
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    main {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h2 {
+      margin-top: 24px;
+      color: #ff7a00;
+    }
+    p {
+      margin: 12px 0;
+    }
+    ul {
+      margin: 12px 0 12px 20px;
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+      color: #555;
+    }
+     /* Menu toggle */
 .menu-icon {
   width: 30px;
   height: 24px;
@@ -401,69 +263,88 @@ body {
   transform: translateX(4px);
 }
 
-    
   </style>
-  
 </head>
 <body>
-
+  <!-- Floating Bottom Navigation -->
+  <div  class="bottom-nav">
+     
+  </div>
+  
 <div id="tips" style="background:#fff2ee;color:#ff5a5a;text-align:center;padding:10px 15px;font-weight:500;animation:fadeIn 1s ease;">Welcome to Market!</div>
 
 <!-- Floating Bottom Navigation -->
   <nav class="bottom-nav">
-    <a href="/food_delivery.html" class="nav-item">
-      
-      <span>Home</span>
-    </a>
-
-    <a href="/wallet.html" class="nav-item">
-      
-      <span>Wallet</span>
-    </a>
-
-    <a href="/help.html" class="nav-item">
-      
-      <span>Help</span>
-    </a>
-
-    <a href="/food_profile.html" class="nav-item">
      
-      <span>Profile</span>
-    </a>
   </nav>
 
-  <nav>
-    <h2 class="title">My Profile</h2>
-  </nav>
+<header><strong style="color: orangered;">market</strong> - Terms & Conditions</header>
 
-  <main>
-    <ul class="profile-menu">
-      <li onclick="navigateTo('/coming_soon.html')">Order your favourite products now</li>
-      <li onclick="navigateTo('/food_profile/install.html')">🤖 Install</li>
-      <li onclick="navigateTo('/help.html')">🆘 Help</li>
+<main>
+  <p>Welcome to <strong>Market </strong>. By using our website and services, you agree to the following Terms & Conditions. Please read them carefully.</p>
 
-     
-      <li onclick="navigateTo('/food_profile/reviews.html')">⭐ Reviews & Feedback</li>
-      <li onclick="navigateTo('/food_profile/terms.html')"> Terms & Conditions</li>
-      <li onclick="logout()">🚪 Logout</li>
-    </ul>
-  </main>
-  <nav class="ending"></nav>
+  <h2>1. Acceptance of Terms</h2>
+  <p>By using or purchasing from <strong>market</strong> , you agree to comply with these Terms. If you do not agree, please stop using our services.</p>
+
+  <h2>2. Use of Our Services</h2>
+  <ul>
+    <li>You must be responsible for your decisions or have parental/guardian consent to use our platform.</li>
+    <li>You agree not to misuse our website, interfere with its operation, or attempt to access restricted areas.</li>
+  </ul>
+
+  <h2>3. Products & Orders</h2>
+  <ul>
+    <li>All product descriptions and prices are subject to change without notice.</li>
+    <li>Placing an order does not guarantee availability. If a product is unavailable, we will notify you promptly.</li>
+    <li>We reserve the right to refuse or cancel any order for any reason.</li>
+  </ul>
+
+  <h2>4. Payments & Billing</h2>
+  <ul>
+    <li>All payments must be made in full before orders are processed.</li>
+    <li>Prices displayed are in Nigerian Naira (₦) unless otherwise stated.</li>
+    <li>Billing details must be accurate. Swift is not responsible for delays caused by incorrect information.</li>
+  </ul>
+
+  <h2>5. Shipping & Delivery</h2>
+  <ul>
+    <li>Delivery timelines are estimates and may vary due to factors beyond our control.</li>
+    <li>Risk of loss or damage passes to you once items are delivered to the provided address.</li>
+  </ul>
+
+  <h2 id="refund">6. Returns & Refunds</h2>
+  <ul>
+    <li>Returns are accepted only if items are unused, in original packaging, and within 7 days of delivery.</li>
+    <li>Certain items (e.g., customized outfits, personal accessories) are not eligible for return.</li>
+    <li>Refunds will be processed after inspection of returned items.</li>
+    <li>
+      After refunds processing it will take about 7 to 14 working days before refund is deposited in the user's account 
+    </li>
+  </ul>
+
+  <h2>7. User Accounts</h2>
+  <ul>
+    <li>You are responsible for maintaining the confidentiality of your account details.</li>
+    <li>Losix Team will not be liable for losses caused by unauthorized account use or activities with the website.</li>
+  </ul>
+
+  <h2>8. Limitation of Liability</h2>
+  <p>Losix Team is not responsible for indirect, incidental, or consequential damages resulting from the use of our website or products.</p>
+
+  <h2>9. Privacy</h2>
+  <p>Your personal information is protected according to our Privacy Policy. We do not sell or misuse customer data.</p>
+
+  <h2>10. Changes to Terms</h2>
+  <p>Losix Team may update these Terms at any time. Continued use of our website means you accept the revised Terms.</p>
+
+  <h2>11. Contact Us</h2>
+  <p>If you have questions about these Terms, please contact us at <a href="mailto: losix.ng@gmail.com">losix.ng@gmail.com</a>.</p>
   
-  
+  <h2>12.  Copyright</h2>
+  <p>We reserve all rights concerning this website and violation of any will not be allowed</p>
+</main>
+
+<footer>© 2026 Losix Team. All Rights Reserved.</footer>
  <script type="module" src="/script.js"></script>
-  <script>
-    function navigateTo(page) {
-      window.location.href = page;
-      flashMessage('loading....')
-    }
-
-    function logout() {
-      localStorage.clear();
-      sessionStorage.clear();
-      alert("Logged out.");
-      window.location.href = "index.html";
-    }
-  </script>
 </body>
 </html>

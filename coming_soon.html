@@ -1,0 +1,191 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Market & Wallet Coming Soon</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }body {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(-45deg, #0f172a, #1e3a8a, #334155, #2563eb);
+  background-size: 400% 400%;
+  animation: gradientMove 12s ease infinite;
+  overflow: hidden;
+  position: relative;
+  color: white;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Floating glowing circles */
+.circle {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.4;
+  animation: float 18s infinite ease-in-out;
+}
+
+.circle1 {
+  width: 400px;
+  height: 400px;
+  background: #3b82f6;
+  top: -120px;
+  left: -120px;
+}
+
+.circle2 {
+  width: 350px;
+  height: 350px;
+  background: #f97316;
+  bottom: -150px;
+  right: -100px;
+  animation-delay: 4s;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0,0); }
+  50% { transform: translate(60px,-60px); }
+}
+
+/* Glass card */
+.card {
+  position: relative;
+  z-index: 10;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(20px);
+  padding: 60px 45px;
+  border-radius: 30px;
+  text-align: center;
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+  animation: fadeInUp 1.5s ease forwards;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.icons {
+  font-size: 55px;
+  margin-bottom: 25px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  animation: bounce 3s infinite;
+}
+
+@keyframes bounce {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-18px); }
+}
+
+h1 {
+  font-size: 38px;
+  font-weight: 800;
+  margin-bottom: 20px;
+  background: linear-gradient(90deg, #ffffff, #93c5fd, #f97316);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s infinite linear;
+  background-size: 200% auto;
+}
+
+@keyframes shimmer {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+p {
+  font-size: 17px;
+  color: #e2e8f0;
+  margin-bottom: 35px;
+  line-height: 1.6;
+  animation: fadeText 2s ease;
+}
+
+@keyframes fadeText {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.btn {
+  display: inline-block;
+  padding: 15px 35px;
+  border-radius: 50px;
+  background: linear-gradient(90deg, #f97316, #fb923c);
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.4s ease;
+  box-shadow: 0 15px 30px rgba(249,115,22,0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,0.3);
+  transform: skewX(-25deg);
+  transition: 0.6s;
+}
+
+.btn:hover::before {
+  left: 120%;
+}
+
+.btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 20px 40px rgba(249,115,22,0.6);
+}
+
+footer {
+  position: absolute;
+  bottom: 20px;
+  font-size: 13px;
+  color: #cbd5e1;
+  animation: pulse 3s infinite;
+}
+
+@keyframes pulse {
+  0%,100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+  </style>
+</head>
+<body>  <div class="circle circle1"></div>
+  <div class="circle circle2"></div>  <div class="card">
+    <div class="icons">🛒 💳</div>
+    <h1>Shopping & Wallet System<br>Coming Soon</h1>
+    <p>
+      We're building a powerful Shopping and Wallet System to make your ordering faster,
+      smoother, and smarter. Secure payments. Seamless checkout. Better experience.
+    </p>
+    <a href="#" class="btn">Get Notified</a>
+  </div>  <footer>
+    © <span id="year"></span> Your Brand. All rights reserved.
+  </footer>  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script></body>
+</html>

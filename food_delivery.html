@@ -3,7 +3,18 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Tucks</title>
+<link rel="manifest" href="/manifest.json">
+  <link rel="icon" alt="Logo" href="/logo.png">
+<meta name="theme-color" content="rgb(128, 128, 128)">
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log('Service Worker Registered'));
+    });
+  }
+</script>
+  <title>Tucks Food Delivery</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
@@ -15,7 +26,7 @@
 *{box-sizing:border-box}
 body{
   margin:0;font-family:Poppins;
-  background:radial-gradient(1200px 600px at 10% -10%, #1b2150, transparent),var(--bg);
+  background:linear-gradient(60deg,rgb(0, 204, 255) 0%, rgb(128, 128, 128) 100%);
   color:var(--text);min-height:100vh;
   display:flex;justify-content:center;padding:20px
 }
@@ -89,7 +100,8 @@ body {
       transform: translateX(-50%);
       width: 90%;
       max-width: 500px;
-      background: #7a7cff;
+      background: white;
+      color: black;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
       border-radius: 40px;
       display: flex;
@@ -105,7 +117,7 @@ body {
       flex-direction: column;
       align-items: center;
       text-decoration: none;
-      color: #555;
+      color: black;
       font-size: 0.8rem;
       transition: all 0.3s;
     }
@@ -133,20 +145,31 @@ body {
 
 
 </style>
+
+<script>
+  const isLoggedIn = 
+  localStorage.getItem("userLoggedIn");
+  if (!isLoggedIn) {
+    window.location.href = "/login.html"
+  }
+</script>
+
+
 </head>
 
 <body>
 <div class="container">
 
-<h1>Food Order</h1>
+<h1>Food Delivery</h1>
 <div class="account">
   <h4 style="color:#00ffd5;">Ordering Details And Timing</h4>
-  * Order from 12 : 00 AM - 11 : 40 AM
- <br> Delivered at 12 : 00 PM (Lunch Delivery)
+  * Order from 12 : 00 AM - 12 : 00 PM
+ <br> Delivered at 12 : 30 PM (Lunch Delivery)
  <br>* Order from 12 : 30 PM - 6 : 10 PM
  <br> Delivered at 6 : 30 PM  (Dinner)
  <br>*On Saturday Delivery is by 9 AM , 12PM AND 6:30PM
  <br>*On Sunday Delivery is by 11:30 AM , 3PM AND 6:30PM
+  <br><strong style="color:#00ffd5;" >Note : Your order is packaged by Double Portion</strong>
  <br><strong style="color:#00ffd5;" >Note : Your order is delivered to your exact location or room</strong>
 </div>
 
@@ -167,9 +190,9 @@ body {
 
 <div class="account">
   <div><b>Account for receipt payment:</b></div>
-  <div>Ojo Miracle</div>
-  <div>Moniepoint</div>
-  <div><b>9169174059</b></div>
+  <div>Ojo Abiodun </div>
+  <div>Smartcash</div>
+  <div><b>0128881529</b></div>
   <div style="margin-top:6px">Delivery fee: ₦250 + ₦50 transfer</div>
   
 </div>
@@ -183,12 +206,12 @@ body {
 <div class="full">
 <table>
 <thead>
-<tr><th>Item</th><th>Qty</th><th>Price</th></tr>
+<tr><th>Item</th><th>No of servings</th><th>Price</th></tr>
 </thead>
 <tbody id="orderTable">
 <tr>
-<td><input class="item" list="productList"></td>
-<td><input class="qty" type="number" value="1" min="1"></td>
+<td><input class="item" list="productList" ></td>
+<td><input class="qty" type="number" value="1" min="1" placeholder="servings"></td>
 <td><input class="price" value="0" readonly></td>
 </tr>
 </tbody>
@@ -281,14 +304,22 @@ const DELIVERY = 250;
 const TRANSFER = 50;
 
 const PRODUCTS = [
-  { name:"Jollof Rice", price:2500 },
-  { name:"Fried Rice", price:2600 },
-  { name:"White Rice & Stew", price:2400 },
-  { name:"Chicken", price:1500 },
-  { name:"Beef", price:1000 },
-  { name:"Turkey", price:1800 },
-  { name:"Moi Moi", price:800 },
-  { name:"Soft Drink", price:500 }
+  { name:"Jollof Rice", price:200 },
+  { name:"Fried Rice", price:200 },
+  { name:"White Rice & Stew", price:200 },
+  { name:"Jollof Spaghetti", price:200 },
+{ name:"White Spaghetti & Stew", price:200 },
+  { name:"Chicken", price:1600 },
+  { name:"Mega Chicken", price:2000 },
+  { name:"Plantain (3 for 100)", price:100 },
+  { name:"Beef", price:100 },
+  { name:"Fish", price:200 },
+   { name:"Boiled egg", price:300 },
+  { name:"Fanta", price:550 },
+   { name:"Coke", price:550 },
+    
+     { name:"Berry blast", price:1500 },
+  { name:"Pepsi", price:550 }
 ];
 
 // ===== SHOW WALLET BALANCE ON FOOD DELIVERY PAGE =====
@@ -606,8 +637,8 @@ document.getElementById("walletBtn").addEventListener("click", async ()=>{
 });
 
 // ===== Timer logic =====
-const weekday=["11:00","15:40","18:50"];
-const sunday=["11:00","15:00","18:30"];
+const weekday=["12:30","18:50"];
+const sunday=["11:30","15:00","18:30"];
 const card=document.getElementById("formCard");
 const msg=document.getElementById("closedMsg");
 const hh=document.getElementById("hh");
