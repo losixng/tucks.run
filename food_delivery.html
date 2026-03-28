@@ -68,7 +68,7 @@ input,select{
 
 table{width:100%;border-collapse:collapse}
 th,td{border:1px solid #242b66;padding:10px;text-align:center}
-th{color:var(--accent)}
+th{color:rgb(0, 204, 255)}
 
 .total{margin-top:12px;font-weight:600}
 
@@ -161,18 +161,6 @@ body {
 <div class="container">
 
 <h1>Food Delivery</h1>
-<div class="account">
-  <h4 style="color:#00ffd5;">Ordering Details And Timing</h4>
-  * Order from 12 : 00 AM - 12 : 00 PM
- <br> Delivered at 12 : 30 PM (Lunch Delivery)
- <br>* Order from 12 : 30 PM - 6 : 10 PM
- <br> Delivered at 6 : 30 PM  (Dinner)
- <br>*On Saturday Delivery is by 9 AM , 12PM AND 6:30PM
- <br>*On Sunday Delivery is by 11:30 AM , 3PM AND 6:30PM
-  <br><strong style="color:#00ffd5;" >Note : Your order is packaged by Double Portion and 200 is added for packaging.</strong>
- <br><strong style="color:#00ffd5;" >Note : Your order is delivered to your exact location or room</strong>
-</div>
-
 
 <div class="countdown">
   <div id="cdTitle">Next order opens in</div>
@@ -201,7 +189,7 @@ body {
 
 <input id="name" placeholder="Name" required>
 <input id="phone" placeholder="Phone" required>
-<input class="full" id="location" placeholder="Location" required>
+<input class="full" id="location" placeholder="Room number,block,hostel" required>
 
 <div class="full">
 <table>
@@ -210,7 +198,7 @@ body {
 </thead>
 <tbody id="orderTable">
 <tr>
-<td><input class="item" list="productList" ></td>
+<td><input class="item" list="productList" placeholder="Jollof Rice" required></td>
 <td><input class="qty" type="number" value="1" min="1" placeholder="servings"></td>
 <td><input class="price" value="0" readonly></td>
 </tr>
@@ -222,13 +210,8 @@ body {
 
 <div class="full total" id="total">Total: ₦0</div>
 
-<div class="full" id="receiptBox">
-<label>Upload receipt</label>
-<input type="file" id="receipt" accept="image/*" required>
-</div>
-
 <div class="full">
-<button id="submitBtn">Submit Order (Upload Receipt)</button>
+
 <button type="button" id="walletBtn" style="margin-top:10px;background:linear-gradient(135deg,#00ffd5,#7a7cff)">
 💳 Pay With Wallet
 </button>
@@ -238,10 +221,23 @@ body {
 </div>
 </div>
 
+
 </form>
+
 </div>
 
 <div class="closed" id="closedMsg"></div>
+<div class="account">
+  <h4 style="color:grey;">Pre Ordering Details And Timing</h4>
+  <strong  style="color:grey;" > * Order from 12 : 00 AM - 12 : 00 PM
+ <br> Delivered at 12 : 30 PM (Lunch Delivery)
+ <br>* Order from 12 : 30 PM - 6 : 10 PM
+ <br> Delivered at 6 : 30 PM  (Dinner)
+ <br>*On Saturday Delivery is by 9 AM , 12PM AND 6:30PM
+ <br>*On Sunday Delivery is by 11:30 AM , 3PM AND 6:30PM</strong>
+  <br><strong style="color:grey;" >Note : Your order is packaged by Double Portion and 200 is added for packaging.</strong>
+ <br><strong style="color:grey;" >Note : Your order is delivered to your exact location or room</strong>
+</div>
 </div>
 
 <!-- Floating Bottom Navigation -->
@@ -353,7 +349,7 @@ async function loadWalletBalance(uid){
       setTimeout(()=> walletBalanceEl.style.transform = "scale(1)", 200);
     }
   } catch(err){
-    console.error("Failed to load wallet balance:", err);
+    alert("Failed to load wallet balance:", err);
   }
 }
 
@@ -381,7 +377,7 @@ window.viewLastCode = function () {
   const phone = document.getElementById("phone").value;
 
   if (!phone) {
-    alert("Please enter your phone number first.");
+    alert("Place an order first.");
     return;
   }
 
@@ -548,7 +544,8 @@ localStorage.setItem(`lastCode_${phone}`, deliveryCode);
 document.getElementById("walletBtn").addEventListener("click", async ()=>{
 
   if(!currentUser){
-    alert("Please login first.");
+    alert("Please login first.")
+     window.location.href = "/login.html";
     return;
   }
 
@@ -575,14 +572,16 @@ document.getElementById("walletBtn").addEventListener("click", async ()=>{
     const userSnap = await getDoc(userRef);
 
     if(!userSnap.exists()){
-      alert("Wallet not found.");
+      alert("Wallet not found.")
+      ;
       return;
     }
 
     const balance = Number(userSnap.data().walletBalance) || 0;
 
     if(balance < totalAmount){
-      alert("Insufficient wallet balance.");
+      alert("Insufficient wallet balance.")
+       window.location.href = "/wallet.html";
       return;
     }
 
@@ -673,7 +672,7 @@ setInterval(()=>{
   // ALWAYS show form
   card.classList.add("show");
   msg.textContent=""; // remove closed message
-  title.textContent="Next delivery in";
+  title.textContent="Next Pre-Order Delivery in";
 
   // Always count down to delivery time
   const diff=Math.max(0,w.d-now);

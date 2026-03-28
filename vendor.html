@@ -1,0 +1,426 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="manifest" href="/manifest.json">
+   <link rel="icon" alt="Logo" href="/logo.png">
+<meta name="theme-color" content="linear-gradient(60deg,#F2C464 0%, #C6F4D6 100%)">
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log('Service Worker Registered'));
+    });
+  }
+</script>
+
+  <title>Tucks — MY VAULT</title>
+  <style>
+    /* General */
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: wheat;
+      background-size:600% 600%;
+      animation:gradientFlow 10s ease infinite;
+      color:#fff;
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      padding:40px 16px;
+    }
+    @keyframes gradientFlow {
+      0%{background-position:0% 50%;}
+      50%{background-position:100% 50%;}
+      100%{background-position:0% 50%;}
+    }
+
+    .card {
+      background: rgba(255,255,255,0.98);
+      color: #222;
+      width:100%;
+      max-width: 1000px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      padding: 1.6rem;
+      margin: 12px 0;
+      animation: fadeInUp 0.6s ease;
+    }
+    @keyframes fadeInUp { from{opacity:0; transform: translateY(20px)} to{opacity:1; transform:none} }
+
+    .splash {
+      inset:0;
+      display:flex;
+      flex-direction:column;
+      gap:0.5rem;
+      align-items:center;
+      justify-content:center;
+      position:fixed;
+      top:0; left:0; right:0; bottom:0;
+      background: wheat;
+      z-index:30;
+      color: grey;
+      animation: fadeOutSplash 1.2s forwards;
+      animation-delay: 1s;
+    }
+    @keyframes fadeOutSplash { to { opacity:0; visibility:hidden } }
+
+    .login-box { display:none; text-align:center; }
+    input, textarea, select {
+      width:100%;
+      padding:0.8rem;
+      margin:0.5rem 0;
+      border-radius:8px;
+      border:1px solid #ccc;
+      font-family:inherit;
+    }
+    button {
+      padding:0.8rem 1rem;
+      border-radius:8px;
+      border:none;
+      cursor:pointer;
+      font-weight:600;
+      background:#6c63ff; color:#fff;
+      transition: transform .15s, background .15s;
+    }
+    button:hover { transform:translateY(-2px); background:#574b90; }
+    .btn-small { padding:0.45rem 0.6rem; border-radius:6px; font-size:0.9rem; }
+
+    .product-block {
+      border:1px solid #ddd;
+      background:#fff;
+      padding:1rem;
+      border-radius:8px;
+      margin:1rem 0;
+    }
+    .product-row { display:flex; gap:8px; flex-wrap:wrap; }
+    .product-row > * { flex:1 1 180px; }
+
+    @media (max-width:700px) {
+      body { padding:18px 10px; }
+    }
+
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.3);
+  visibility: hidden;
+  opacity: 0;
+  transition: 0.3s;
+}
+
+#overlay.show {
+  visibility: visible;
+  opacity: 1;
+}
+
+#toast {
+  visibility: hidden;
+  background: #333;
+  color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  opacity: 0;
+  transition: 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#toast.show {
+  visibility: visible;
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.spinner {
+  border: 4px solid rgba(255,255,255,0.3);
+  border-top: 4px solid #fff;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+  </style>
+</head>
+<body>
+  <!-- Splash -->
+  <div class="splash">
+    <h1 style="font-size:30px;margin:0">MY VAULT</h1>
+    <p style="opacity:0.9">imagined by Losix Team</p>
+  </div>
+
+  <!-- LOGIN CARD -->
+  <div class="card login-box" id="loginBox">
+    <h2>Login</h2>
+    <input type="email" id="email" placeholder="Input default username" />
+    <input type="password" id="password" placeholder=" Input default Password" />
+    <div style="display:flex;gap:8px;justify-content:center;margin-top:8px">
+      <button onclick="login()">Login</button>
+    </div>
+    <div id="loginMsg" style="margin-top:8px; display:none;"></div>
+    <br><strong  style="color: gray;font-size: 10px; text-decoration: none;" >Uploading products means you agree to our <a href="terms.html">terms and conditions</a></strong>
+    </div>
+
+  <!-- SUPPLIER UPLOAD -->
+  <div class="card upload-box" id="uploadBox" style="display:none;">
+    
+    <h2>Upload Products (Vendors)</h2>
+    
+    <input type="text" id="supplierName" placeholder="Business Name" required />
+
+    <label for="supplierLocation">Supplier Location</label>
+    <select id="supplierLocation" required>
+      <option value="">Select your location</option>
+      <option>Boys Main hostel</option>
+      <option>Boys Extension hostel</option>
+      <option>Girls Extension hostel</option>
+      <option>Queen Esther hostel</option>
+       <option>Guest House hostel</option>
+      <option>Girls Engineering hostel</option>
+      <option>Boys Engineering hostel</option>
+    </select>
+
+    <div id="productsContainer"></div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button onclick="addProductBlock()">+ Add Product</button>
+      <button onclick="uploadAllProducts()" id="uploadBtn">Upload All</button>
+
+      
+    </div>
+    <div id="successMsg" style="display:none;margin-top:8px;color:green;">✔ Products uploaded successfully!</div>
+  </div>
+
+<!-- Overlay -->
+<div id="overlay"></div>
+
+<!-- Toast -->
+<div id="toast">
+  <strong>Uploading...</strong>
+  <div class="spinner"></div>
+</div>
+
+
+
+ <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  
+  const firebaseConfig = {
+    apiKey: "AIzaSyDzwnmGgEcN63RcCHSNU6p_xXKxmeqzF6k",
+    authDomain: "losixmarket.firebaseapp.com",
+    projectId: "losixmarket",
+    storageBucket: "losixmarket.firebasestorage.app",
+    messagingSenderId: "301860246689",
+    appId: "1:301860246689:web:aabf0ab9af41081a91cce0",
+    measurementId: "G-ZPVVZ8GNP0"
+  };
+  
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  
+  const CLOUD_NAME = "dthxl4jcn";
+  const UPLOAD_PRESET = "losix_products";
+  
+  // TYPE → FILTER mapping
+  const TYPE_FILTERS = {
+    "cshirts": ["cshirts"],
+    "shirts": ["shirts"],
+    "trousers": ["black"],
+    "loafers": ["loafers"],
+    "slides": ["slides"],
+    "sneakers": ["sneakers"],
+    "accessoriesGadgets": ["accessoriesGadgets"],
+    "laptops": ["laptops"],
+    "phones": ["phones"],
+    "hairProducts": ["hairProducts"],
+    "accessoriesJewelry": ["accessoriesJewelry"],
+    "bracelets": ["bracelets"],
+    "chains": ["chains"],
+    "rings": ["rings"],
+    "watches": ["watches"],
+    "skinCare": ["skinCare"],
+    "thrift" : ["thrift"]
+  };
+  
+  // Splash fade
+  setTimeout(() => {
+    document.querySelector(".splash").style.display = "none";
+    document.getElementById("loginBox").style.display = "block";
+  }, 1000);
+  
+  // Login
+  async function login() {
+    const email = document.getElementById("email").value.trim();
+    const pass = document.getElementById("password").value.trim();
+    const msg = document.getElementById("loginMsg");
+    msg.style.display = "none";
+    
+    try {
+      const userCred = await signInWithEmailAndPassword(auth, email, pass);
+      msg.style.display = "block";
+      msg.style.color = "green";
+      msg.textContent = "✔ Login successful!";
+      setTimeout(() => showRoleUI(userCred.user.email), 800);
+    } catch {
+      msg.style.display = "block";
+      msg.style.color = "red";
+      msg.textContent = "❌ Invalid credentials or Poor Internet Connection ";
+    }
+  }
+  window.login = login;
+  
+  function showRoleUI(email) {
+    document.getElementById("loginBox").style.display = "none";
+    if (email.endsWith("@supplier.losix")) {
+      document.getElementById("uploadBox").style.display = "block";
+      addProductBlock();
+    } else {
+      window.location.href = "";
+    }
+  }
+  
+  // Add product block
+  function addProductBlock() {
+    const container = document.getElementById("productsContainer");
+    const div = document.createElement("div");
+    div.className = "product-block";
+    div.innerHTML = `
+      <div class="product-row">
+        <div><label>Product Name</label><input type="text" class="pname" placeholder="Product Name" /></div>
+        <div><label>Description</label><textarea class="pdesc" placeholder="Product specs,delivery time-range,refund status"></textarea></div>
+        <div><label>Price</label><input type="number" class="pprice" placeholder="Price" /></div>
+      </div>
+      <div class="product-row">
+        <div>
+          <label>Type</label>
+          <select class="ptype">
+            <option value="">Select type</option>
+            ${Object.keys(TYPE_FILTERS).map(t => `<option value="${t}">${t}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label>Filter (depends on type)</label>
+          <select class="pfilter">
+            <option value="">Select filter</option>
+          </select>
+        </div>
+        <div>
+          <label>Is product refundable?</label>
+          <select class="pcustom">
+            <option value="">Select</option>
+            <option>Refundable</option>
+            <option>Non-Refundable</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:8px">
+        <label>Upload max is 5 images</label>
+        <input type="file" class="pimages" accept="image/*" multiple />
+      </div>
+      <button style="background:#dc3545;margin-top:8px" onclick="this.parentElement.remove()">Remove</button>
+    `;
+    container.appendChild(div);
+    
+    // update filter options when type changes
+    const typeSelect = div.querySelector(".ptype");
+    const filterSelect = div.querySelector(".pfilter");
+    
+    typeSelect.addEventListener("change", () => {
+      const selectedType = typeSelect.value;
+      filterSelect.innerHTML = '<option value="">Select filter</option>';
+      if (TYPE_FILTERS[selectedType]) {
+        TYPE_FILTERS[selectedType].forEach(f => {
+          const opt = document.createElement("option");
+          opt.value = f;
+          opt.textContent = f;
+          filterSelect.appendChild(opt);
+        });
+      }
+    });
+  }
+  window.addProductBlock = addProductBlock;
+  
+  // Upload images to Cloudinary
+  async function uploadImages(files) {
+    const urls = [];
+    for (let i = 0; i < Math.min(files.length, 5); i++) {
+      const formData = new FormData();
+      formData.append("file", files[i]);
+      formData.append("upload_preset", UPLOAD_PRESET);
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: "POST", body: formData });
+      const data = await res.json();
+      if (data.secure_url) urls.push(data.secure_url);
+    }
+    return urls;
+  }
+  
+  // Upload all products
+  async function uploadAllProducts() {
+    const supplierName = document.getElementById("supplierName").value.trim();
+    const supplierLocation = document.getElementById("supplierLocation").value.trim();
+    
+    if (!supplierName) return alert("Enter supplier name");
+    if (!supplierLocation) return alert("Select your location");
+    
+    const blocks = document.querySelectorAll(".product-block");
+    if (blocks.length === 0) return alert("Add at least one product");
+    
+    for (const b of blocks) {
+      const name = b.querySelector(".pname").value.trim();
+      const desc = b.querySelector(".pdesc").value.trim();
+      const price = b.querySelector(".pprice").value.trim();
+      const custom = b.querySelector(".pcustom").value;
+      const type = b.querySelector(".ptype").value;
+      const filter = b.querySelector(".pfilter").value;
+      const files = b.querySelector(".pimages").files;
+      if (!name || !price || !type || !filter || files.length === 0) {
+        alert("Each product needs a name, price, type, filter, and at least one image");
+        return;
+      }
+      
+      const images = await uploadImages(files);
+      
+      await addDoc(collection(db, "products"), {
+        supplierName,
+        supplierLocation,
+        name,
+        description: desc,
+        price: Number(price),
+        customizable: custom,
+        type,
+        filter,
+        categories: "matching",
+        images,
+        createdAt: new Date()
+      });
+    }
+    
+    document.getElementById("successMsg").style.display = "block";
+    document.getElementById("productsContainer").innerHTML = "";
+    addProductBlock();
+  }
+  
+  window.uploadAllProducts = uploadAllProducts;
+</script>
+
+
+</body>
+</html>
