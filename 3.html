@@ -1,0 +1,91 @@
+<button id="uploadBtn">Upload</button>
+
+<!-- Overlay -->
+<div id="overlay"></div>
+
+<!-- Toast -->
+<div id="toast">
+  <strong>Uploading...</strong>
+  <div class="spinner"></div>
+</div>
+
+<style>
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.3);
+  visibility: hidden;
+  opacity: 0;
+  transition: 0.3s;
+}
+
+#overlay.show {
+  visibility: visible;
+  opacity: 1;
+}
+
+#toast {
+  visibility: hidden;
+  background: #333;
+  color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  opacity: 0;
+  transition: 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#toast.show {
+  visibility: visible;
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.spinner {
+  border: 4px solid rgba(255,255,255,0.3);
+  border-top: 4px solid #fff;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+</style>
+
+<script>
+const btn = document.getElementById("uploadBtn");
+const toast = document.getElementById("toast");
+const overlay = document.getElementById("overlay");
+
+btn.addEventListener("click", () => {
+  // Show toast
+  overlay.classList.add("show");
+  toast.classList.add("show");
+
+  // Call your existing function
+  uploadAllProducts();
+
+  // Hide after some time (replace with real logic later)
+  setTimeout(() => {
+    toast.classList.remove("show");
+    overlay.classList.remove("show");
+  }, 2500);
+});
+
+// Your original function stays separate
+function uploadAllProducts() {
+  console.log("Uploading products...");
+}
+</script>

@@ -201,12 +201,7 @@
       <button onclick="addProductBlock()">+ Add Product</button>
       <button onclick="uploadAllProducts()" id="uploadBtn">Upload All</button>
 
-      
-    </div>
-    <div id="successMsg" style="display:none;margin-top:8px;color:green;">✔ Products uploaded successfully!</div>
-  </div>
-
-<!-- Overlay -->
+      <!-- Overlay -->
 <div id="overlay"></div>
 
 <!-- Toast -->
@@ -214,7 +209,36 @@
   <strong>Uploading...</strong>
   <div class="spinner"></div>
 </div>
+    </div>
+    <div id="successMsg" style="display:none;margin-top:8px;color:green;">✔ Products uploaded successfully!</div>
+  </div>
 
+
+<script>
+const btn = document.getElementById("uploadBtn");
+const toast = document.getElementById("toast");
+const overlay = document.getElementById("overlay");
+
+btn.addEventListener("click", () => {
+  // Show toast
+  overlay.classList.add("show");
+  toast.classList.add("show");
+
+  // Call your existing function
+  uploadAllProducts();
+
+  // Hide after some time (replace with real logic later)
+  setTimeout(() => {
+    toast.classList.remove("show");
+    overlay.classList.remove("show");
+  }, 5000);
+});
+
+// Your original function stays separate
+function uploadAllProducts() {
+  console.log("Uploading products...");
+}
+</script>
 
 
  <script type="module">
