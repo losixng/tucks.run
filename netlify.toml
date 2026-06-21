@@ -4,3 +4,28 @@
 
 [functions]
   node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/api/verifyPayment"
+  to = "/.netlify/functions/verifyPayment"
+  status = 200
+
+[[redirects]]
+  from = "/api/listEvents"
+  to = "/.netlify/functions/listEvents"
+  status = 200
+
+[[redirects]]
+  from = "/api/publishEvent"
+  to = "/.netlify/functions/publishEvent"
+  status = 200
+
+[[redirects]]
+  from = "/api/purchaseTicket"
+  to = "/.netlify/functions/purchaseTicket"
+  status = 200
+
+[[redirects]]
+  from = "/api/verifyTicket"
+  to = "/.netlify/functions/verifyTicket"
+  status = 200

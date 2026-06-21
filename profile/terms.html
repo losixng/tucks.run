@@ -1,386 +1,354 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="/manifest.json">
-  <link rel="icon" alt="Logo" href="/logo.png">
-<meta name="theme-color" content="rgb(128, 128, 128)">
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/service-worker.js')
-        .then(() => console.log('Service Worker Registered'));
-    });
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tucks - Terms & Privacy</title>
+
+<style>
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f4f6f9;
+    color: #1e293b;
+    line-height: 1.7;
   }
-</script>
-  <title>Tucks - Terms & Conditions</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      line-height: 1.7;
-      background: #f9f9f9;
-      margin: 0;
-      padding: 0;
-      color: #333;
-    }
-    /* Menu Toggle Checkbox */
-#menuToggle {
-  display: none;
-}
 
-/* Hamburger */
-.menu-icon {
-  width: 30px;
-  height: 24px;
-  position: relative;
-  cursor: pointer;
-  transition: all 0.4s ease;
-}
-.menu-icon span {
-  position: absolute;
-  height: 3px;
-  width: 100%;
-  background: white;
-  border-radius: 3px;
-  transition: all 0.4s ease;
-}
-.menu-icon span:nth-child(1) { top: 0; }
-.menu-icon span:nth-child(2) { top: 10px; }
-.menu-icon span:nth-child(3) { top: 20px; }
-
-/* Animate to X */
-#menuToggle:checked + label .menu-icon span:nth-child(1) {
-  transform: rotate(45deg);
-  top: 10px;
-}
-#menuToggle:checked + label .menu-icon span:nth-child(2) {
-  opacity: 0;
-}
-#menuToggle:checked + label .menu-icon span:nth-child(3) {
-  transform: rotate(-45deg);
-  top: 10px;
-}
-
-/* Dropdown Menu */
-nav {
-  position: fixed;
-  top: 65px;
-  right: 15px;
-  width: 180px;
-  background: rgba(255,255,255,0.92);
-  backdrop-filter: blur(12px);
-  border-radius: 15px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-  padding: 12px;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-15px);
-  transition: all 0.3s ease;
-}
-
-/* Show when checked */
-#menuToggle:checked ~ nav {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
-}
-
-/* Menu links */
-nav a {
-  display: block;
-  padding: 10px;
-  text-decoration: none;
-  color: #ff6b6b;
-  font-weight: 500;
-  border-radius: 8px;
-  transition: background 0.3s ease, transform 0.2s;
-}
-nav a:hover {
-  background: rgba(255,107,107,0.15);
-  transform: translateX(4px);
-}
-
-/* Responsive */
-@media (max-width: 600px) {
-  nav {
-    width: 70%;
-    right: 15%;
+  header {
+    position: sticky;
+    top: 0;
+    background: #1d4ed8;
+    color: white;
+    padding: 18px;
+    text-align: center;
+    z-index: 1000;
   }
-}
 
-    body {
-      padding-bottom: 80px; /* space for nav */
+  header h1 {
+    margin: 0;
+    font-size: 24px;
+  }
+
+  .container {
+    max-width: 950px;
+    margin: 30px auto;
+    padding: 25px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  }
+
+  h1 {
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    margin-top: 35px;
+    font-size: 20px;
+    border-left: 5px solid #0f172a;
+    padding-left: 10px;
+  }
+
+  h3 {
+    margin-top: 20px;
+    font-size: 17px;
+    color: #334155;
+  }
+
+  p {
+    margin: 10px 0;
+  }
+
+  ul {
+    margin: 10px 0 10px 20px;
+  }
+
+  li {
+    margin-bottom: 8px;
+  }
+
+  .section {
+    margin-bottom: 60px;
+  }
+
+  .highlight {
+    background: #eef2ff;
+    border-left: 4px solid #0f172a;
+    padding: 12px;
+    border-radius: 6px;
+    margin: 15px 0;
+    font-weight: 500;
+  }
+
+  footer {
+    text-align: center;
+    padding: 20px;
+    color: #777;
+    font-size: 14px;
+  }
+
+  @media (max-width: 600px) {
+    .container {
+      margin: 10px;
+      padding: 18px;
     }
-
-    .bottom-nav {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90%;
-      max-width: 500px;
-      background: rgba(255, 255, 255, 0.85);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-      border-radius: 40px;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      padding: 10px 0;
-      backdrop-filter: blur(8px);
-      transition: all 0.3s ease-in-out;
-    }
-
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-decoration: none;
-      color: #555;
-      font-size: 0.8rem;
-      transition: all 0.3s;
-    }
-
-    .nav-item i {
-      font-size: 1.4rem;
-      margin-bottom: 4px;
-      transition: all 0.3s ease;
-    }
-
-    .nav-item:hover, .nav-item.active {
-      color: #ff5e57;
-    }
-
-    .nav-item:hover i, .nav-item.active i {
-      transform: scale(1.2);
-    }
-
-    @media (max-width: 600px) {
-      .bottom-nav {
-        width: 95%;
-        bottom: 15px;
-      }
-    }
-
-    header {
-      background: linear-gradient(to right, #ff7a00, #ffb347);
-      color: #fff;
-      padding: 20px;
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
-    }
-    main {
-      max-width: 900px;
-      margin: 30px auto;
-      padding: 20px;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    h2 {
-      margin-top: 24px;
-      color: #ff7a00;
-    }
-    p {
-      margin: 12px 0;
-    }
-    ul {
-      margin: 12px 0 12px 20px;
-    }
-    footer {
-      text-align: center;
-      padding: 20px;
-      font-size: 14px;
-      color: #555;
-    }
-     /* Menu toggle */
-.menu-icon {
-  width: 30px;
-  height: 24px;
-  position: relative;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.menu-icon span {
-  height: 3px;
-  background: white;
-  border-radius: 3px;
-  transition: all 0.4s ease;
-}
-
-/* Transform to X */
-#menuToggle:checked + label.menu-icon span:nth-child(1) {
-  transform: rotate(45deg) translateY(10px);
-}
-#menuToggle:checked + label.menu-icon span:nth-child(2) {
-  opacity: 0;
-}
-#menuToggle:checked + label.menu-icon span:nth-child(3) {
-  transform: rotate(-45deg) translateY(-10px);
-}
-
-/* Dropdown Menu */
-.menu-dropdown {
-  position: fixed;
-  top: 65px;
-  right: 15px;
-  width: 180px;
-  background: rgba(255,255,255,0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 15px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-  padding: 12px;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-15px);
-  transition: all 0.3s ease;
-}
-
-/* Show dropdown when checked */
-#menuToggle:checked ~ .menu-dropdown {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
-}
-
-/* Links */
-.menu-dropdown a {
-  display: block;
-  padding: 10px;
-  color: #ff6b6b;
-  font-weight: 500;
-  text-decoration: none;
-  border-radius: 8px;
-  transition: background 0.3s ease, transform 0.2s ease;
-}
-
-.menu-dropdown a:hover {
-  background: rgba(255,107,107,0.15);
-  transform: translateX(4px);
-}
-
-  </style>
+  }
+</style>
 </head>
+
 <body>
-  <!-- Floating Bottom Navigation -->
-  <div  class="bottom-nav">
-     <a href="/home.html" class="nav-item">
-      
-      <span>Home</span>
-    </a>
 
-    <a href="/cart.html" class="nav-item">
-      
-      <span>Cart</span>
-    </a>
+<header>
+  <h1>Tucks</h1>
+  <p>Terms & Conditions and Privacy Policy</p>
+</header>
 
-    <a href="/order.html" class="nav-item">
-      
-      <span>Orders</span>
-    </a>
+<div class="container">
 
-    <a href="/profile.html" class="nav-item">
-     
-      <span>Profile</span>
-    </a>
-  </div>
-  
-<div id="tips" style="background:#fff2ee;color:#ff5a5a;text-align:center;padding:10px 15px;font-weight:500;animation:fadeIn 1s ease;">Welcome to Market!</div>
+<!-- TERMS -->
+<div class="section">
+<h1>Terms and Conditions</h1>
 
-<!-- Floating Bottom Navigation -->
-  <nav class="bottom-nav">
-     <a href="/home.html" class="nav-item">
-      
-      <span>Home</span>
-    </a>
+<h2>1. Introduction</h2>
+<p>
+Welcome to <strong>Tucks</strong>. These Terms and Conditions govern your use of our platform, including both the customer-facing website and vendor portal.
+By accessing or using Tucks, you agree to comply with and be legally bound by these Terms. If you do not agree, you must not use the platform.
+</p>
 
-    <a href="/cart.html" class="nav-item">
-      
-      <span>Cart</span>
-    </a>
+<h2>2. Definitions</h2>
+<ul>
+<li><strong>"Platform"</strong> refers to the Tucks website and vendor portal</li>
+<li><strong>"Vendor"</strong> refers to any seller listing products on Tucks</li>
+<li><strong>"User"</strong> refers to customers using the platform</li>
+<li><strong>"Order"</strong> refers to a confirmed purchase made through Tucks</li>
+</ul>
 
-    <a href="/order.html" class="nav-item">
-      
-      <span>Orders</span>
-    </a>
+<h2>3. Platform Role</h2>
+<p>
+Tucks operates as a digital marketplace connecting users and vendors. While Tucks facilitates transactions and handles payments, vendors are solely responsible for the products they list, including their quality, accuracy, and delivery.
+</p>
 
-    <a href="/profile.html" class="nav-item">
-     
-      <span>Profile</span>
-    </a>
-  </nav>
+<h2>4. User Accounts</h2>
+<ul>
+<li>Users must provide accurate and complete registration details</li>
+<li>Users are responsible for maintaining the confidentiality of their login credentials</li>
+<li>Any activity under your account is your responsibility</li>
+<li>Tucks reserves the right to suspend accounts providing false information</li>
+</ul>
 
-<header><strong style="color: orangered;">market</strong> - Terms & Conditions</header>
+<h2>5. Vendor Accounts & Responsibilities</h2>
 
-<main>
-  <p>Welcome to <strong>Market </strong>. By using our website and services, you agree to the following Terms & Conditions. Please read them carefully.</p>
+<h3>5.1 Account Responsibility</h3>
+<ul>
+<li>Vendors are issued secure login credentials</li>
+<li>All actions performed through a vendor account are the vendor’s responsibility</li>
+<li>Unauthorized sharing of account access is prohibited</li>
+</ul>
 
-  <h2>1. Acceptance of Terms</h2>
-  <p>By using or purchasing from <strong>market</strong> , you agree to comply with these Terms. If you do not agree, please stop using our services.</p>
+<h3>5.2 Product Listing Standards</h3>
+<ul>
+<li>All product descriptions must be accurate, clear, and not misleading</li>
+<li>False advertising or exaggerated claims are strictly prohibited</li>
+<li>Images must represent the actual product being sold</li>
+</ul>
 
-  <h2>2. Use of Our Services</h2>
-  <ul>
-    <li>You must be responsible for your decisions or have parental/guardian consent to use our platform.</li>
-    <li>You agree not to misuse our website, interfere with its operation, or attempt to access restricted areas.</li>
-  </ul>
+<h3>5.3 Product Quality & Accuracy</h3>
+<p>
+Vendors must ensure that all goods delivered match the exact description, quality, and specifications listed on the platform. Any mismatch may result in penalties or removal.
+</p>
 
-  <h2>3. Products & Orders</h2>
-  <ul>
-    <li>All product descriptions and prices are subject to change without notice.</li>
-    <li>Placing an order does not guarantee availability. If a product is unavailable, we will notify you promptly.</li>
-    <li>We reserve the right to refuse or cancel any order for any reason.</li>
-  </ul>
+<h3>5.4 Pricing Integrity</h3>
+<ul>
+<li>Prices must be fair and clearly stated</li>
+<li>Hidden charges are not allowed</li>
+<li>Intentional price manipulation is prohibited</li>
+</ul>
 
-  <h2>4. Payments & Billing</h2>
-  <ul>
-    <li>All payments must be made in full before orders are processed.</li>
-    <li>Prices displayed are in Nigerian Naira (₦) unless otherwise stated.</li>
-    <li>Billing details must be accurate. Swift is not responsible for delays caused by incorrect information.</li>
-  </ul>
+<h3>5.5 Refund Obligations</h3>
+<div class="highlight">
+If a product is marked as refundable, the vendor is legally obligated to issue a refund after proper verification of the claim.
+</div>
+<ul>
+<li>Refund refusal may lead to account suspension or permanent ban</li>
+<li>Tucks may enforce refunds where necessary</li>
+</ul>
 
-  <h2>5. Shipping & Delivery</h2>
-  <ul>
-    <li>Delivery timelines are estimates and may vary due to factors beyond our control.</li>
-    <li>Risk of loss or damage passes to you once items are delivered to the provided address.</li>
-  </ul>
+<h3>5.6 Delivery Obligations</h3>
+<ul>
+<li>Vendors must deliver within the stated timeframe</li>
+<li>Delays must be communicated promptly</li>
+<li>Repeated delivery failures may result in penalties</li>
+</ul>
 
-  <h2 id="refund">6. Returns & Refunds</h2>
-  <ul>
-    <li>Returns are accepted only if items are unused, in original packaging, and within 7 days of delivery.</li>
-    <li>Certain items (e.g., customized outfits, personal accessories) are not eligible for return.</li>
-    <li>Refunds will be processed after inspection of returned items.</li>
-    <li>
-      After refunds processing it will take about 7 to 14 working days before refund is deposited in the user's account 
-    </li>
-  </ul>
+<h3>5.7 Vendor Fees</h3>
+<div class="highlight">
+All payments made by vendors to list, upload, or maintain products on Tucks are strictly NON-REFUNDABLE.
+</div>
 
-  <h2>7. User Accounts</h2>
-  <ul>
-    <li>You are responsible for maintaining the confidentiality of your account details.</li>
-    <li>Losix Team will not be liable for losses caused by unauthorized account use or activities with the website.</li>
-  </ul>
+<h2>6. Payments & Financial Handling</h2>
+<ul>
+<li>Tucks processes all payments made on the platform</li>
+<li>Payments must be completed before order confirmation</li>
+<li>Tucks may hold funds temporarily to resolve disputes</li>
+<li>Fraudulent or suspicious transactions may be reversed</li>
+</ul>
 
-  <h2>8. Limitation of Liability</h2>
-  <p>Losix Team is not responsible for indirect, incidental, or consequential damages resulting from the use of our website or products.</p>
+<h2>7. Orders & Fulfillment</h2>
+<ul>
+<li>Orders are only confirmed after successful payment</li>
+<li>Vendors are responsible for fulfilling orders</li>
+<li>Users must provide accurate delivery details</li>
+<li>Failed deliveries due to incorrect user information are not the responsibility of Tucks</li>
+</ul>
 
-  <h2>9. Privacy</h2>
-  <p>Your personal information is protected according to our Privacy Policy. We do not sell or misuse customer data.</p>
+<h2>8. Refunds, Returns & Disputes</h2>
+<ul>
+<li>Refund eligibility depends on vendor policy</li>
+<li>Tucks may investigate disputes between users and vendors</li>
+<li>Users must provide valid evidence for claims</li>
+<li>Tucks reserves the right to make final decisions on disputes</li>
+</ul>
 
-  <h2>10. Changes to Terms</h2>
-  <p>Losix Team may update these Terms at any time. Continued use of our website means you accept the revised Terms.</p>
+<h2>9. Prohibited Activities</h2>
+<p>The following actions are strictly prohibited:</p>
+<ul>
+<li>Uploading false or deceptive product listings</li>
+<li>Fraudulent transactions or scams</li>
+<li>Attempting to bypass Tucks payment system</li>
+<li>Manipulating reviews, ratings, or platform data</li>
+<li>Engaging in illegal activities through the platform</li>
+</ul>
 
-  <h2>11. Contact Us</h2>
-  <p>If you have questions about these Terms, please contact us at <a href="mailto: losix.ng@gmail.com">losix.ng@gmail.com</a>.</p>
-  
-  <h2>12.  Copyright</h2>
-  <p>We reserve all rights concerning this website and violation of any will not be allowed</p>
-</main>
+<h2>10. Penalties & Enforcement</h2>
+<p>Tucks may enforce the following actions for violations:</p>
+<ul>
+<li>Warnings</li>
+<li>Temporary suspension</li>
+<li>Permanent account ban</li>
+<li>Removal of products</li>
+<li>Withholding of vendor funds where necessary</li>
+</ul>
 
-<footer>© 2025 Losix Team. All Rights Reserved.</footer>
- <script type="module" src="/script.js"></script>
+<h2>11. Account Suspension & Termination</h2>
+<p>
+Tucks reserves the right to suspend or terminate accounts without prior notice where serious violations occur, including fraud, repeated complaints, or abuse of the platform.
+</p>
+
+<h2>12. Limitation of Liability</h2>
+<p>Tucks shall not be held liable for:</p>
+<ul>
+<li>Product defects caused by vendors</li>
+<li>Delivery delays outside reasonable control</li>
+<li>Losses arising from vendor misconduct</li>
+</ul>
+<p>
+However, Tucks will take reasonable steps to ensure fair resolution of disputes.
+</p>
+
+<h2>13. Intellectual Property</h2>
+<ul>
+<li>All platform design, branding, and systems belong to Tucks</li>
+<li>Vendors retain ownership of their product content</li>
+<li>Vendors grant Tucks the right to display and promote their listings</li>
+</ul>
+
+<h2>14. Privacy & Data Protection</h2>
+<p>
+Your use of Tucks is also governed by our Privacy Policy, which explains how your data is collected and used.
+</p>
+
+<h2>15. Modifications to Terms</h2>
+<p>
+Tucks reserves the right to update these Terms at any time. Continued use of the platform constitutes acceptance of the updated Terms.
+</p>
+
+<h2>16. Governing Law</h2>
+<p>
+These Terms and Conditions shall be governed by and interpreted in accordance with the laws of Nigeria.
+</p>
+</div>
+
+<!-- PRIVACY POLICY -->
+<div class="section">
+<h1>Privacy Policy</h1>
+
+<h2>1. Introduction</h2>
+<p>Tucks respects your privacy and is committed to protecting your personal data.</p>
+
+<h2>2. Information We Collect</h2>
+
+<h3>From Users</h3>
+<ul>
+<li>Name</li>
+<li>Email address</li>
+<li>Phone number</li>
+<li>Delivery address</li>
+<li>Payment information</li>
+</ul>
+
+<h3>From Vendors</h3>
+<ul>
+<li>Business name</li>
+<li>Contact details</li>
+<li>Bank/payment details</li>
+<li>Product information</li>
+</ul>
+
+<h2>3. How We Use Information</h2>
+<ul>
+<li>Process orders and payments</li>
+<li>Manage accounts</li>
+<li>Communicate updates and support</li>
+<li>Improve platform functionality</li>
+<li>Prevent fraud and ensure security</li>
+</ul>
+
+<h2>4. Payment Information</h2>
+<p>
+Payments are processed securely by Tucks. Sensitive financial data is handled with strict security measures and is not shared except where necessary.
+</p>
+
+<h2>5. Data Sharing</h2>
+<ul>
+<li>With vendors for order fulfillment</li>
+<li>With service providers</li>
+<li>With legal authorities when required</li>
+</ul>
+
+<h2>6. Data Security</h2>
+<p>
+We take reasonable measures to protect your data, but no system is completely secure.
+</p>
+
+<h2>7. User Rights</h2>
+<ul>
+<li>Access your data</li>
+<li>Request corrections</li>
+<li>Request deletion</li>
+</ul>
+
+<h2>8. Cookies</h2>
+<p>
+Tucks uses cookies to improve user experience and track platform usage.
+</p>
+
+<h2>9. Data Retention</h2>
+<p>
+We retain data only as long as necessary for operations and legal compliance.
+</p>
+
+<h2>10. Changes to Policy</h2>
+<p>
+We may update this Privacy Policy at any time. Continued use of the platform means acceptance.
+</p>
+</div>
+
+</div>
+
+<footer>
+© 2026 Tucks. All rights reserved.
+</footer>
+
 </body>
 </html>

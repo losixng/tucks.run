@@ -18,12 +18,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0b0f1a; --card:#12172a; --accent:#00ffd5; --accent2:#7a7cff;
-  --danger:#ff5d5d; --text:#e8ebff; --muted:#9aa1ff;
+  --bg:#0b0f1a; --card:#12172a; --accent:#00ffd5; --accent2:white;
+  --danger:#ff5d5d; --text:#e8ebff; --muted:#e8ebff;
 }
 *{box-sizing:border-box;margin:0;padding:0;font-family:Poppins}
 body{
-  background: radial-gradient(1200px 600px at 10% -10%, #1b2150, transparent), var(--bg);
+  background:linear-gradient(60deg,rgb(0, 204, 255) 0%, rgb(128, 128, 128) 100%);
   color: var(--text);
   min-height:100vh;
   display:flex;
@@ -152,7 +152,7 @@ body {
       transform: translateX(-50%);
       width: 90%;
       max-width: 500px;
-      background: #7a7cff;
+      background: white;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
       border-radius: 40px;
       display: flex;
@@ -168,7 +168,7 @@ body {
       flex-direction: column;
       align-items: center;
       text-decoration: none;
-      color: #555;
+      color:black ;
       font-size: 0.8rem;
       transition: all 0.3s;
     }
@@ -196,6 +196,16 @@ body {
 
 
 </style>
+
+<script>
+  const isLoggedIn = 
+  localStorage.getItem("userLoggedIn");
+  if (!isLoggedIn) {
+    window.location.replace = "/login.html"
+  }
+</script>
+
+
 </head>
 <body>
 <div class="container">
@@ -266,6 +276,8 @@ body {
       <span>Profile</span>
     </a>
   </div>
+
+
 
 <script>
   function copyText() {
@@ -383,5 +395,15 @@ document.querySelectorAll(".faq-question").forEach(btn => {
 
 
 </script>
+</script>
+
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <a href="/home.html" class="nav-item"><i class='bx bxs-home'></i><span>Home</span></a>
+    <a href="/cart.html" class="nav-item"><i class='bx bx-cart'></i><span>Cart</span></a>
+    <a href="/order.html" class="nav-item"><i class='bx bx-history'></i><span>Orders</span></a>
+    <a href="/profile.html" class="nav-item"><i class='bx bxs-user-circle'></i><span>Profile</span></a>
+  </nav>
+  <div class="bottom-nav-shadow" aria-hidden="true"></div>
+
 </body>
 </html>

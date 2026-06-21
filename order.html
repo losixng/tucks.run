@@ -3,277 +3,1570 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" alt="Logo" href="/tucks/logo.png">
-  <title>Tucks User Dashboard</title>
-
-  <!-- Firebase -->
+  <link rel="icon" alt="Logo" href="/logo.png">
+  <meta name="theme-color" content="#2563eb">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- GSAP for animations -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-
+  <title>Tucks Orders</title>
   <style>
-    body { margin:0; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:linear-gradient(60deg,rgb(0, 204, 255) 0%, rgb(128, 128, 128) 100%); overflow-x:hidden; }
-    .header { padding:20px; background:linear-gradient(90deg,#ff6b6b,#ff8e53); color:white; text-align:center; font-size:28px; font-weight:bold; letter-spacing:1px; position:relative; }
-    .customer-level { position:absolute; right:20px; top:50%; transform:translateY(-50%); padding:10px 15px; border-radius:50px; background:linear-gradient(45deg,#facc15,#f472b6); color:white; font-weight:bold; box-shadow:0 4px 15px rgba(0,0,0,0.2); animation:glow 2s infinite alternate; cursor:pointer; transition:0.3s; }
-    .customer-level:hover { transform:translateY(-50%) scale(1.2) rotate(5deg); }
-    @keyframes glow { from { box-shadow:0 0 10px #facc15; } to { box-shadow:0 0 25px #f472b6; } }
-    .container { padding:20px; max-width:1200px; margin:auto; }
-    .card { background:rgba(255,255,255,0.95); padding:20px; border-radius:25px; box-shadow:0px 6px 20px rgba(0,0,0,0.15); margin-bottom:25px; transition:0.4s; cursor:pointer; }
-    .card:hover { transform:translateY(-10px) rotateX(5deg) rotateY(3deg); box-shadow:0px 12px 30px rgba(0,0,0,0.35); }
-    .stats-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:20px; text-align:center; margin-bottom:20px; }
-    .stat-box { background:linear-gradient(120deg,#4f46e5,#3b82f6); color:white; padding:20px; border-radius:20px; font-size:20px; font-weight:bold; position:relative; overflow:hidden; transition:0.3s; }
-    .stat-box:hover { transform:scale(1.1) rotateZ(5deg); box-shadow:0 10px 25px rgba(0,0,0,0.35); }
-    .orders-list { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:20px; }
-    .order-box { background:#fff; padding:15px; border-radius:20px; box-shadow:0 6px 18px rgba(0,0,0,0.1); cursor:pointer; transition:0.3s; position:relative; overflow:hidden; }
-    .order-box:hover { transform:scale(1.08) rotateZ(-2deg); box-shadow:0 14px 35px rgba(0,0,0,0.3); }
-    .chat-box { height:250px; overflow-y:auto; border-radius:15px; padding:15px; background:#eef3ff; margin-top:15px; }
-    .chat-message { background:linear-gradient(135deg,#4f46e5,#3b82f6); color:white; padding:10px; border-radius:15px; margin-bottom:10px; box-shadow:0 2px 8px rgba(0,0,0,0.2); position:relative; opacity:0; }
-    .chat-message.user { background:linear-gradient(135deg,#f472b6,#facc15); align-self:flex-end; }
-    .no-chat-input { background:#ffeded; padding:12px; text-align:center; color:#c70000; border-radius:15px; margin-top:10px; font-size:14px; font-weight:bold; }
-    canvas { max-height:300px; }
-
-    /* Animated Encouragement Characters */
-    .encouragement { display:flex; justify-content:center; align-items:center; margin-top:50px; flex-direction:column; }
-    .encouragement img { width:80px; height:80px; animation:float 2s ease-in-out infinite alternate; cursor:pointer; transition:0.3s; }
-    .encouragement img:hover { transform:scale(1.3) rotate(-25deg); }
-    .encouragement p { font-size:18px; color:#4f46e5; font-weight:bold; margin-top:10px; animation:fadeIn 2s ease-in-out infinite alternate; text-align:center; }
-    @keyframes float { 0%{transform:translateY(0);} 50%{transform:translateY(-20px) rotate(3deg);} 100%{transform:translateY(0);} }
-    @keyframes fadeIn { 0%{opacity:0.6; transform:translateY(5px);} 50%{opacity:1; transform:translateY(-5px);} 100%{opacity:0.8; transform:translateY(0);} }
-  
-  .bottom-nav {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90%;
-      max-width: 500px;
-      background: rgba(255, 255, 255, 0.85);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-      border-radius: 40px;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      padding: 10px 0;
-      backdrop-filter: blur(8px);
-      transition: all 0.3s ease-in-out;
-      text-decoration: none;
+    :root {
+      --accent: #2563eb;
+      --accent-2: #1d4ed8;
+      --accent-soft: #eff6ff;
+      --accent-glow: rgba(37, 99, 235, 0.28);
+      --surface: #ffffff;
+      --surface-2: #f8fafc;
+      --line: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --bg: #eef2f6;
+      --warn: #b45309;
+      --danger: #b91c1c;
+      --success: #166534;
+      --radius: 16px;
+      --nav-height: 68px;
+      --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+      --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .nav-item {
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: 'Outfit', system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(ellipse 80% 50% at 20% -10%, rgba(37, 99, 235, 0.08), transparent),
+        radial-gradient(ellipse 60% 40% at 90% 10%, rgba(16, 185, 129, 0.06), transparent),
+        linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+      min-height: 100vh;
+      padding-bottom: calc(var(--nav-height) + 28px + env(safe-area-inset-bottom, 0px));
+      overflow-x: hidden;
+    }
+
+    .bg-orbs {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .bg-orbs::before,
+    .bg-orbs::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.35;
+      animation: orbFloat 20s ease-in-out infinite;
+    }
+    .bg-orbs::before { width: 360px; height: 360px; background: #93c5fd; top: -80px; left: -60px; }
+    .bg-orbs::after { width: 320px; height: 320px; background: #6ee7b7; bottom: 15%; right: -80px; animation-delay: -10s; animation-direction: reverse; }
+    .orb { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.25; animation: orbFloat 16s ease-in-out infinite; }
+    .orb-1 { width: 240px; height: 240px; background: #bfdbfe; top: 35%; left: 55%; animation-delay: -5s; }
+    .orb-2 { width: 180px; height: 180px; background: #fde68a; top: 65%; left: 8%; animation-delay: -8s; }
+
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(40px, -30px) scale(1.08); }
+      66% { transform: translate(-25px, 20px) scale(0.95); }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-100%); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    a { color: inherit; }
+    button, input, select { font: inherit; }
+
+    .shell {
+      position: relative;
+      z-index: 1;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: blur(10px);
+      animation: slideDown 0.6s var(--ease-out);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      font-weight: 800;
+      letter-spacing: 0;
+      color: var(--text);
+      min-width: 0;
+    }
+    .brand img {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      object-fit: cover;
+      flex: none;
+    }
+    .brand strong { display: block; line-height: 1.05; }
+    .brand span { display: block; font-size: 0.84rem; color: var(--muted); font-weight: 600; }
+
+    .topbar-meta {
+      display: flex;
+      align-items: flex-end;
+      gap: 18px;
+      text-align: right;
+      color: var(--muted);
+      font-size: 0.92rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .topbar-meta strong { display: block; color: var(--text); font-size: 1rem; }
+
+    .auth-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 800;
+      transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+      box-shadow: 0 10px 24px rgba(37,99,235,.18);
+    }
+    .auth-link:hover { transform: translateY(-1px); opacity: 0.95; }
+    .auth-link.is-signed-in {
+      background: #fff;
+      color: var(--accent);
+      box-shadow: none;
+    }
+
+    .page {
+      padding: 18px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: linear-gradient(135deg, #ffffff 0%, #f8fcfb 100%);
+      padding: 22px;
+      box-shadow: 0 18px 44px rgba(15,23,42,0.06);
+      animation: fadeInUp 0.55s var(--ease-out);
+    }
+    .hero-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(1.45rem, 3vw, 2.2rem);
+      line-height: 1.08;
+    }
+    .hero p {
+      margin: 10px 0 0;
+      max-width: 860px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .ghost-btn,
+    .refund-btn,
+    .copy-btn,
+    .item-chip {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+    }
+    .ghost-btn:hover,
+    .refund-btn:hover,
+    .copy-btn:hover,
+    .item-chip:hover { transform: translateY(-1px); border-color: #b5c3d3; }
+    .ghost-btn, .copy-btn { background: #f8fafc; }
+    .refund-btn {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .refund-btn[aria-disabled="true"] {
+      background: #cbd5e1;
+      border-color: #cbd5e1;
+      color: #475569;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--surface);
+      padding: 16px;
+      min-height: 96px;
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      animation: fadeInUp 0.55s var(--ease-out);
+    }
+    .metric small { color: var(--muted); font-weight: 600; }
+    .metric strong { font-size: 1.15rem; line-height: 1.15; }
+    .metric .hint { color: var(--muted); font-size: 0.84rem; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.95fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .band {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--surface);
+      overflow: hidden;
+      box-shadow: 0 12px 30px rgba(15,23,42,0.04);
+      animation: fadeInUp 0.55s var(--ease-out);
+    }
+    .band-head {
+      display: flex;
       align-items: center;
-      text-decoration: none;
-      color: #555;
-      font-size: 0.8rem;
-      transition: all 0.3s;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--line);
+      flex-wrap: wrap;
+    }
+    .band-head h2 {
+      margin: 0;
+      font-size: 1.02rem;
+      line-height: 1.2;
+    }
+    .band-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+    .band-body { padding: 18px; }
+
+    .filters {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: minmax(0, 1.4fr) minmax(210px, 0.6fr);
+      align-items: start;
+    }
+    .search-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface-2);
+      padding: 0 14px;
+      min-height: 50px;
+    }
+    .search-wrap i { color: var(--muted); font-size: 1.1rem; }
+    .search-wrap input {
+      border: none;
+      outline: none;
+      background: transparent;
+      width: 100%;
+      min-width: 0;
+      padding: 14px 0;
+      color: var(--text);
+    }
+    .sort-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .sort-wrap label {
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .sort-wrap select {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface-2);
+      padding: 13px 14px;
+      color: var(--text);
+      outline: none;
+      min-height: 50px;
     }
 
-    .nav-item i {
-      font-size: 1.4rem;
+    .segmented,
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .segmented button,
+    .chip-row button {
+      border: 1px solid var(--line);
+      background: var(--surface-2);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: background .15s ease, border-color .15s ease, transform .15s ease;
+    }
+    .segmented button:hover,
+    .chip-row button:hover { transform: translateY(-1px); }
+    .segmented button.active,
+    .chip-row button.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .insight-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+    .chart-box {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--surface-2);
+      padding: 14px;
+      min-height: 280px;
+    }
+    .chart-box h3 {
+      margin: 0 0 10px;
+      font-size: 0.98rem;
+    }
+    .chart-box canvas {
+      width: 100% !important;
+      height: 220px !important;
+    }
+
+    .feed {
+      display: grid;
+      gap: 16px;
+    }
+    .group {
+      display: grid;
+      gap: 12px;
+    }
+    .group-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 0 4px;
+    }
+    .group-head h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+    .group-head span { color: var(--muted); font-size: 0.9rem; }
+
+    .tx-card {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--surface);
+      padding: 14px;
+      cursor: pointer;
+      text-align: left;
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+      transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+      animation: popIn 0.28s var(--ease-out);
+    }
+    .tx-card:hover,
+    .tx-card.active {
+      transform: translateY(-1px);
+      border-color: #9bb6d2;
+      box-shadow: 0 8px 20px rgba(15,23,42,.05);
+    }
+    .tx-thumb {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      object-fit: cover;
+      background: #e2e8f0;
+      border: 1px solid var(--line);
+      flex: none;
+    }
+    .tx-fallback {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #fff;
+      font-weight: 800;
+      border: 1px solid transparent;
+      flex: none;
+    }
+    .tx-main {
+      min-width: 0;
+      display: grid;
+      gap: 6px;
+    }
+    .tx-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+    .tx-title strong {
+      font-size: 1rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+    .tx-sub {
+      color: var(--muted);
+      font-size: 0.9rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      line-height: 1.4;
+    }
+    .tx-sub span { display: inline-flex; align-items: center; gap: 4px; }
+    .tx-right {
+      display: grid;
+      justify-items: end;
+      gap: 8px;
+      text-align: right;
+      min-width: 0;
+    }
+    .tx-right strong {
+      font-size: 1.03rem;
+      white-space: nowrap;
+    }
+    .tx-right .date {
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .badge.pending { background: rgba(180, 83, 9, 0.12); color: var(--warn); }
+    .badge.success, .badge.paid, .badge.completed, .badge.delivered { background: rgba(22, 101, 52, 0.12); color: var(--success); }
+    .badge.failed, .badge.cancelled, .badge.refunded { background: rgba(185, 28, 28, 0.12); color: var(--danger); }
+    .badge.neutral { background: rgba(100, 116, 139, 0.12); color: #334155; }
+
+    .detail-shell {
+      position: sticky;
+      top: 88px;
+      display: grid;
+      gap: 16px;
+    }
+    .detail-panel {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--surface);
+      overflow: hidden;
+      box-shadow: 0 12px 30px rgba(15,23,42,0.05);
+      animation: fadeInUp 0.55s var(--ease-out);
+    }
+    .detail-cover {
+      min-height: 148px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #fff;
+      padding: 18px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .detail-cover h2 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+    .detail-cover p {
+      margin: 6px 0 0;
+      color: rgba(255,255,255,0.82);
+      font-size: 0.92rem;
+    }
+    .detail-body { padding: 18px; display: grid; gap: 14px; }
+    .detail-empty {
+      border: 1px dashed #cbd5e1;
+      border-radius: 18px;
+      background: #f8fafc;
+      padding: 18px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .detail-item {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+      background: var(--surface-2);
+    }
+    .detail-item small {
+      display: block;
+      color: var(--muted);
+      font-weight: 700;
       margin-bottom: 4px;
-      transition: all 0.3s ease;
+    }
+    .detail-item strong {
+      display: block;
+      word-break: break-word;
+      line-height: 1.35;
+    }
+    .product-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .item-chip {
+      padding: 8px 12px;
+      background: var(--surface-2);
+      font-size: 0.88rem;
+    }
+    .item-chip.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .detail-note {
+      border-top: 1px solid var(--line);
+      padding-top: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 0.92rem;
+    }
+    .detail-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
     }
 
-    .nav-item:hover, .nav-item.active {
-      color: #ff5e57;
+    .empty-state,
+    .auth-state {
+      border: 1px dashed #cbd5e1;
+      background: rgba(255,255,255,0.75);
+      border-radius: 20px;
+      padding: 18px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .empty-state strong,
+    .auth-state strong { color: var(--text); }
+
+    .bottom-nav {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      width: min(94%, 540px);
+      height: 68px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      z-index: 50;
+    }
+    .nav-item {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+    .nav-item i { font-size: 1.35rem; line-height: 1; }
+    .nav-item.active { color: var(--accent); }
+
+    @media (max-width: 1120px) {
+      .layout { grid-template-columns: 1fr; }
+      .detail-shell { position: static; }
     }
 
-    .nav-item:hover i, .nav-item.active i {
-      transform: scale(1.2);
+    @media (max-width: 920px) {
+      .metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .insight-grid { grid-template-columns: 1fr; }
     }
 
-    @media (max-width: 600px) {
-      .bottom-nav {
-        width: 95%;
-        bottom: 15px;
-      }
+    @media (max-width: 620px) {
+      .topbar { align-items: flex-start; }
+      .topbar-meta { width: 100%; justify-content: space-between; text-align: left; }
+      .page { padding: 14px; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .tx-card { grid-template-columns: 44px minmax(0, 1fr); }
+      .tx-right { grid-column: 1 / -1; justify-items: start; text-align: left; }
+      .detail-grid { grid-template-columns: 1fr; }
+      .bottom-nav { width: 96%; }
     }
- 
   </style>
 </head>
 <body>
-<div class="header">
-  My Orders Dashboard
-  <div class="customer-level" id="customerLevel">Bronze</div>
-</div>
-<div class="container" id="dashboard" style="display:none;">
-  <div class="stats-row">
-    <div class="stat-box" id="totalOrders">0 Orders</div>
-    <div class="stat-box" id="totalSpent">₦0 Spent</div>
-    <div class="stat-box" id="customerScore">Rating : 0</div>
+  <div class="bg-orbs" aria-hidden="true"></div>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="/home.html">
+        <img src="/logo.png" alt="Tucks logo">
+        <span>
+          <strong>Tucks Orders</strong>
+          <span>Transaction ledger</span>
+        </span>
+      </a>
+      <div class="topbar-meta">
+        <div>
+          <strong id="accountLevel">Member</strong>
+          <span id="accountScore">Score: 0</span>
+        </div>
+        <a id="authPrompt" class="auth-link" href="/login.html"><i class='bx bx-log-in'></i><span>Login</span></a>
+        <div>
+          <strong id="lastSynced">--</strong>
+          <span>Last sync</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="page">
+      <section class="hero">
+        <div class="hero-top">
+          <div>
+            <div class="eyebrow"><i class='bx bx-receipt'></i> Transaction history</div>
+            <h1>Past orders, grouped like a clean statement and tuned for shopping support.</h1>
+            <p>
+              Use this page to review everything you have bought, sort by time or value, check weekly and monthly spend,
+              and open any product for its ID, payment reference, and refund route.
+            </p>
+          </div>
+          <div class="hero-actions">
+            <a class="ghost-btn" href="/cart.html"><i class='bx bx-cart'></i> Cart</a>
+            <a class="ghost-btn" href="/profile/refund.html"><i class='bx bx-revision'></i> Refunds</a>
+          </div>
+        </div>
+
+        <div class="metrics" id="metricGrid">
+          <div class="metric"><small>Total orders</small><strong id="metricOrders">0</strong><span class="hint">All loaded transactions</span></div>
+          <div class="metric"><small>Total spent</small><strong id="metricSpent">NGN 0</strong><span class="hint">Lifetime purchase value</span></div>
+          <div class="metric"><small>This week</small><strong id="metricWeek">NGN 0</strong><span class="hint">Last 7 days</span></div>
+          <div class="metric"><small>This month</small><strong id="metricMonth">NGN 0</strong><span class="hint">Current month</span></div>
+          <div class="metric"><small>Average order</small><strong id="metricAvg">NGN 0</strong><span class="hint">Per checkout</span></div>
+          <div class="metric"><small>Top category</small><strong id="metricTopCategory">--</strong><span class="hint">Most purchased group</span></div>
+        </div>
+      </section>
+
+      <section class="band">
+        <div class="band-head">
+          <div>
+            <h2>Spending insights</h2>
+            <p>Quick view of how your orders are spread across months and categories.</p>
+          </div>
+        </div>
+        <div class="band-body">
+          <div class="insight-grid">
+            <div class="chart-box">
+              <h3>Monthly spend</h3>
+              <canvas id="spendChart"></canvas>
+            </div>
+            <div class="chart-box">
+              <h3>Top categories</h3>
+              <canvas id="categoryChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div id="appRoot" class="layout" style="display:none;">
+        <section class="band">
+          <div class="band-head">
+            <div>
+              <h2>Transaction feed</h2>
+              <p id="feedSummary">Loading transactions...</p>
+            </div>
+          </div>
+          <div class="band-body">
+            <div class="feed" id="feedList"></div>
+          </div>
+        </section>
+
+        <aside class="detail-shell">
+          <section class="detail-panel" id="detailPanel">
+            <div class="detail-cover">
+              <div>
+                <h2 id="detailTitle">Select a transaction</h2>
+                <p id="detailSubtitle">Tap any order in the feed to see product IDs, totals, and refund details.</p>
+              </div>
+              <span class="badge neutral" id="detailStatus">Awaiting selection</span>
+            </div>
+            <div class="detail-body" id="detailBody">
+              <div class="detail-empty">
+                Your selected order will open here. Use the feed to inspect the product, payment reference, and refund route.
+              </div>
+            </div>
+          </section>
+        </aside>
+      </div>
+
+      <section class="band" id="emptyState" style="display:none;">
+        <div class="band-body">
+          <div class="auth-state">
+            <strong>No transaction history yet.</strong>
+            <div style="height:8px"></div>
+            <span id="emptyMessage">Log in or place an order to populate this page.</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <a href="/home.html" class="nav-item"><i class='bx bx-home'></i><span>Home</span></a>
+      <a href="/cart.html" class="nav-item"><i class='bx bx-cart'></i><span>Cart</span></a>
+      <a href="/order.html" class="nav-item active"><i class='bx bx-history'></i><span>Orders</span></a>
+      <a href="/profile.html" class="nav-item"><i class='bx bx-user'></i><span>Profile</span></a>
+    </nav>
   </div>
-  <div class="card">
-    <h2>Orders per Month</h2>
-    <h6>Track your orders here and plan your monthly budget</h6>
-    <canvas id="ordersChart"></canvas>
-  </div>
-  <div class="card">
-    <h2>Favourite Products</h2>
-    <h6>See your favorite and recurring orders</h6>
-    <canvas id="favChart"></canvas>
-  </div>
-  <div class="card">
-    <h2>Your Orders</h2>
-    See past transactions and orders here
-    <div class="orders-list" id="ordersList"></div>
-  </div>
- 
-</div>
-<div class="container" id="encouragementSection" style="display:none;">
-  <div class="encouragement">
-    <img src="https://cdn-icons-png.flaticon.com/512/194/194938.png" alt="Animated character">
-    <p>Looks like you haven't logged in or placed many orders yet! Start shopping now!</p>
-    <strong><a href="/tucks/home.html" style="text-decoration: none;">Click Here To Order Now</a></strong>
-  </div>
-</div>
 
-<nav class="bottom-nav">
-    <a href="/tucks/home.html"class="nav-item" >
-      
-      <span>Home</span>
-    </a>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDzwnmGgEcN63RcCHSNU6p_xXKxmeqzF6k",
+      authDomain: "losixmarket.firebaseapp.com",
+      projectId: "losixmarket",
+      storageBucket: "losixmarket.firebasestorage.app",
+      messagingSenderId: "301860246689",
+      appId: "1:301860246689:web:aabf0ab9af41081a91cce0",
+      measurementId: "G-ZPVVZ8GNP0"
+    };
 
-    <a href="/tucks/cart.html" class="nav-item">
-      
-      <span>Cart</span>
-    </a>
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
 
-    <a href="/tucks/order.html" class="nav-item active">
-      
-      <span>Orders</span>
-    </a>
+    const state = {
+      orders: [],
+      selectedId: null,
+      selectedItemId: null
+    };
 
-    <a href="/tucks/profile.html" class="nav-item">
-     
-      <span>Profile</span>
-    </a>
-  </nav>
- 
+    const ui = {};
+    let spendChart = null;
+    let categoryChart = null;
+    let activeUser = null;
+    let firestoreUnsubscribers = [];
 
-
-<script>
-  const firebaseConfig =
-   { 
-    apiKey: "AIzaSyDzwnmGgEcN63RcCHSNU6p_xXKxmeqzF6k",
-  authDomain: "losixmarket.firebaseapp.com",
-  projectId: "losixmarket",
-  storageBucket: "losixmarket.firebasestorage.app",
-  messagingSenderId: "301860246689",
-  appId: "1:301860246689:web:aabf0ab9af41081a91cce0",
-  measurementId: "G-ZPVVZ8GNP0"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-  const auth = firebase.auth();
-
-  document.addEventListener('DOMContentLoaded',()=>{
-    auth.onAuthStateChanged(user=>{
-      if(user){
-        document.getElementById('dashboard').style.display='block';
-        document.getElementById('encouragementSection').style.display='none';
-        loadUserData(user.uid);
-      } else {
-        document.getElementById('dashboard').style.display='none';
-        document.getElementById('encouragementSection').style.display='flex';
-        alert('User not logged in');
-      }
-    });
-  });
-
-  async function loadUserData(uid){
-    try{
-      const userDoc = await db.collection('users').doc(uid).get();
-      const userData = userDoc.exists ? userDoc.data() : {};
-      const stats = userData.stats || {};
-      const score = userData.customerScore || 0;
-
-      document.getElementById('totalOrders').innerText=`${stats.totalOrders||0} Orders`;
-      document.getElementById('totalSpent').innerText=`₦${(stats.totalSpent||0).toLocaleString()} Spent`;
-      document.getElementById('customerScore').innerText=`Score: ${score}`;
-
-      const levelEl = document.getElementById('customerLevel');
-      if(score<20) levelEl.innerText='Bronze';
-      else if(score<50) levelEl.innerText='Silver';
-      else if(score<100) levelEl.innerText='Gold';
-      else levelEl.innerText='Platinum';
-
-      db.collection('orders').where('userId','==',uid).orderBy('createdAt','desc').onSnapshot(snapshot=>{
-        const ordersList = document.getElementById('ordersList');
-        ordersList.innerHTML='';
-        if(snapshot.empty){
-          document.getElementById('encouragementSection').style.display='flex';
+    document.addEventListener("DOMContentLoaded", () => {
+      bindUI();
+      auth.onAuthStateChanged(user => {
+        activeUser = user || null;
+        if (user) {
+          watchUserData(user.uid, user.email || "");
         } else {
-          document.getElementById('encouragementSection').style.display='none';
+          stopFirestoreWatchers();
+          ui.accountLevel.textContent = "Guest";
+          ui.accountScore.textContent = "Score: 0";
+          setAuthPrompt(false);
         }
-        snapshot.forEach(doc=>{
-          const o=doc.data();
-          const box=document.createElement('div');
-          box.className='order-box';
-          box.innerHTML=`<h3>Order ${doc.id}</h3><p>Total: ₦${o.total||0}</p>`;
-          box.onclick=()=>showChat(doc.id);
-          ordersList.appendChild(box);
-          gsap.fromTo(box,{y:30,opacity:0,scale:0.8},{y:0,opacity:1,scale:1,duration:0.6, ease:"bounce.out"});
+        syncOrdersView();
+      });
+      window.addEventListener("storage", (event) => {
+        if (event.key === "orders") {
+          syncOrdersView();
+        }
+      });
+    });
+
+    function bindUI() {
+      ui.appRoot = document.getElementById("appRoot");
+      ui.emptyState = document.getElementById("emptyState");
+      ui.emptyMessage = document.getElementById("emptyMessage");
+      ui.feedList = document.getElementById("feedList");
+      ui.feedSummary = document.getElementById("feedSummary");
+      ui.detailTitle = document.getElementById("detailTitle");
+      ui.detailSubtitle = document.getElementById("detailSubtitle");
+      ui.detailStatus = document.getElementById("detailStatus");
+      ui.detailBody = document.getElementById("detailBody");
+      ui.lastSynced = document.getElementById("lastSynced");
+      ui.accountLevel = document.getElementById("accountLevel");
+      ui.accountScore = document.getElementById("accountScore");
+      ui.authPrompt = document.getElementById("authPrompt");
+    }
+
+    function watchUserData(uid, email) {
+      stopFirestoreWatchers();
+      try {
+        db.collection("users").doc(uid).get().then(doc => {
+          const data = doc.exists ? doc.data() : {};
+          const score = Number(data.customerScore || 0);
+          ui.accountScore.textContent = "Score: " + score;
+          ui.accountLevel.textContent = scoreToLevel(score);
+          setAuthPrompt(true);
+        }).catch(() => {
+          ui.accountLevel.textContent = "Member";
+          ui.accountScore.textContent = "Score: 0";
+          setAuthPrompt(true);
+        });
+      } catch (err) {
+        ui.accountLevel.textContent = "Member";
+        ui.accountScore.textContent = "Score: 0";
+        setAuthPrompt(true);
+      }
+
+      const normalizedEmail = String(email || "").trim();
+      const ordersQueries = [
+        db.collection("orders").where("userId", "==", uid).orderBy("createdAt", "desc")
+      ];
+      const walletQueries = [
+        db.collection("walletPayments").where("userId", "==", uid).orderBy("createdAt", "desc")
+      ];
+
+      if (normalizedEmail) {
+        ordersQueries.push(db.collection("orders").where("payer.email", "==", normalizedEmail).orderBy("createdAt", "desc"));
+        walletQueries.push(db.collection("walletPayments").where("customer.email", "==", normalizedEmail).orderBy("createdAt", "desc"));
+      }
+
+      const firestoreOrderSnapshots = [];
+      const firestoreWalletSnapshots = [];
+
+      const sync = () => syncOrdersView(
+        firestoreOrderSnapshots.flat(),
+        firestoreWalletSnapshots.flat()
+      );
+
+      ordersQueries.forEach((query, index) => {
+        firestoreUnsubscribers.push(query.onSnapshot(snapshot => {
+          const latest = snapshot.docs.map(doc => normalizeOrder({ id: doc.id, ...doc.data() }, "orders"));
+          firestoreOrderSnapshots[index] = latest;
+          sync();
+        }, () => {
+          sync();
+        }));
+      });
+
+      walletQueries.forEach((query, index) => {
+        firestoreUnsubscribers.push(query.onSnapshot(snapshot => {
+          const latest = snapshot.docs.map(doc => normalizeOrder({ id: doc.id, ...doc.data() }, "walletPayments"));
+          firestoreWalletSnapshots[index] = latest;
+          sync();
+        }, () => {
+          sync();
+        }));
+      });
+    }
+
+    function stopFirestoreWatchers() {
+      firestoreUnsubscribers.forEach(unsub => {
+        try {
+          if (typeof unsub === "function") unsub();
+        } catch (err) {
+          // ignore stale watcher cleanup errors
+        }
+      });
+      firestoreUnsubscribers = [];
+    }
+
+    function loadLocalOrders() {
+      try {
+        const raw = JSON.parse(localStorage.getItem("orders") || "[]");
+        if (!Array.isArray(raw)) return [];
+        return raw.map(item => normalizeOrder(item, "localStorage"));
+      } catch (err) {
+        return [];
+      }
+    }
+
+    function getUserEmails(user) {
+      const emails = [];
+      const primary = String(user?.email || "").trim().toLowerCase();
+      if (primary) emails.push(primary);
+      const display = String(user?.displayName || "").trim().toLowerCase();
+      if (display) emails.push(display);
+      return emails;
+    }
+
+    function orderMatchesActiveUser(order, user) {
+      if (!user) return true;
+      const uid = String(user.uid || "").trim();
+      const emails = new Set(getUserEmails(user));
+      const orderUids = [
+        order.userId,
+        order.payerUid,
+        order.customerId
+      ].map(value => String(value || "").trim()).filter(Boolean);
+      if (uid && orderUids.includes(uid)) return true;
+
+      const orderEmails = [
+        order.payerEmail,
+        order.payer?.email,
+        order.customer?.email,
+        order.deliveryCustomer?.email,
+        order.email
+      ].map(value => String(value || "").trim().toLowerCase()).filter(Boolean);
+
+      return orderEmails.some(email => emails.has(email));
+    }
+
+    function syncOrdersView(firestoreOrders = [], firestoreWallet = []) {
+      const localOrders = loadLocalOrders();
+      const merged = mergeOrders(firestoreOrders, firestoreWallet, localOrders);
+      const visibleOrders = merged.filter(order => orderMatchesActiveUser(order, activeUser));
+      state.orders = visibleOrders;
+
+      if (!state.orders.length) {
+        if (activeUser) {
+          showEmpty("No orders were found for this account yet. Once you complete a purchase, it will appear here with product IDs and refund links.", true);
+        } else if (localOrders.length) {
+          showEmpty("Your payment was found locally, but no matching account is signed in yet. Log in with the same email to sync it to your profile.", true);
+        } else {
+          showEmpty("Log in or place an order to populate this page. Successful purchases from this browser will also appear here from local storage.", false);
+        }
+        return;
+      }
+
+      showApp();
+      setAuthPrompt(!!activeUser);
+      refreshView();
+      ui.lastSynced.textContent = new Date().toLocaleString();
+    }
+
+    function showApp() {
+      ui.appRoot.style.display = "grid";
+      ui.emptyState.style.display = "none";
+    }
+
+    function showEmpty(message, isSignedIn) {
+      ui.appRoot.style.display = "none";
+      ui.emptyState.style.display = "block";
+      ui.emptyMessage.textContent = message;
+      ui.lastSynced.textContent = "--";
+      setAuthPrompt(!!isSignedIn);
+    }
+
+    function mergeOrders(...lists) {
+      const out = [];
+      const seen = new Set();
+      lists.flat().forEach(order => {
+        if (!order) return;
+        const key = order.id || order.orderId || order.transactionId || JSON.stringify([order.createdAt, order.total, order.product?.id]);
+        if (seen.has(key)) return;
+        seen.add(key);
+        out.push(order);
+      });
+      return out;
+    }
+
+    function normalizeOrder(raw, source) {
+      const items = normalizeItems(raw);
+      const primary = items[0] || raw.product || {};
+      const createdAt = parseDate(raw.createdAt || raw.updatedAt || raw.date || raw.timestamp);
+      const total = safeNumber(
+        raw.total ??
+        raw.amount ??
+        raw.subtotal ??
+        (safeNumber(raw.price) * Math.max(1, safeNumber(raw.qty))) ??
+        0
+      ) || safeNumber(raw.shippingFee) + safeNumber(raw.transactionFee) + safeNumber(raw.miscFee) + safeNumber(raw.paystackFee) + safeNumber(raw.price);
+      const status = normalizeStatus(raw.status);
+      const category = getCategory(primary || raw.product || raw, raw);
+      const productIds = items.map(item => item.id).filter(Boolean);
+
+      return {
+        ...raw,
+        id: raw.id || raw.orderId || raw.transactionId || "tx-" + createdAt.getTime().toString(36),
+        source,
+        items,
+        primary,
+        createdAt,
+        total: total || 0,
+        status,
+        category,
+        productIds,
+        refundEligible: isRefundable(raw, primary),
+      };
+    }
+
+    function normalizeItems(order) {
+      if (Array.isArray(order.items) && order.items.length) {
+        return order.items.map(item => ({
+          ...item,
+          id: item.id || item.productId || item.sku || "",
+          name: item.name || item.productName || "Product",
+          price: safeNumber(item.price || item.productPrice),
+          qty: safeNumber(item.qty || item.quantity || 1) || 1,
+          category: item.category || item.type || item.supplierCategory || item.productCategory || "",
+          images: Array.isArray(item.images) ? item.images : (item.image ? [item.image] : [])
+        }));
+      }
+      if (order.product) {
+        return [{
+          ...order.product,
+          id: order.product.id || order.productId || "",
+          name: order.product.name || "Product",
+          price: safeNumber(order.product.price),
+          qty: safeNumber(order.qty || 1) || 1,
+          category: order.product.category || order.product.type || order.product.supplierCategory || order.category || "",
+          images: Array.isArray(order.product.images) ? order.product.images : (order.product.image ? [order.product.image] : [])
+        }];
+      }
+      return [];
+    }
+
+    function getCategory(item, order) {
+      const category = [
+        item?.category,
+        item?.type,
+        item?.supplierCategory,
+        item?.productCategory,
+        order?.category
+      ].find(Boolean);
+      return String(category || "Other").trim() || "Other";
+    }
+
+    function normalizeStatus(status) {
+      const value = String(status || "pending").toLowerCase();
+      if (value.includes("deliver")) return "delivered";
+      if (value.includes("refund")) return "refunded";
+      if (value.includes("cancel")) return "cancelled";
+      if (value.includes("fail")) return "failed";
+      if (value.includes("paid") || value.includes("complete")) return "paid";
+      if (value.includes("success")) return "completed";
+      return "pending";
+    }
+
+    function isRefundable(order, primary) {
+      const rawFlag = order.refundable;
+      const productFlag = primary?.refundable;
+      const status = normalizeStatus(order.status);
+      if (rawFlag === false || productFlag === false) return false;
+      if (String(productFlag).toLowerCase().includes("non")) return false;
+      return ["paid", "completed", "delivered"].includes(status);
+    }
+
+    function refreshView() {
+      const list = state.orders.slice().sort((a, b) => b.createdAt - a.createdAt);
+      renderMetrics(list);
+      renderCharts(list);
+      renderFeed(list);
+      if (!state.selectedId || !list.some(order => order.id === state.selectedId)) {
+        const first = list[0];
+        if (first) selectOrder(first, first.items[0]?.id || "");
+      } else {
+        const current = list.find(order => order.id === state.selectedId);
+        if (current) renderDetail(current);
+      }
+      ui.feedSummary.textContent = list.length
+        ? `${list.length} transaction${list.length === 1 ? "" : "s"} shown`
+        : "No transactions available yet.";
+    }
+
+    function renderMetrics(list) {
+      const now = new Date();
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - 6);
+      weekStart.setHours(0,0,0,0);
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+      const spent = list.reduce((sum, order) => sum + safeNumber(order.total), 0);
+      const week = list.filter(order => order.createdAt >= weekStart).reduce((sum, order) => sum + safeNumber(order.total), 0);
+      const month = list.filter(order => order.createdAt >= monthStart).reduce((sum, order) => sum + safeNumber(order.total), 0);
+      const avg = list.length ? spent / list.length : 0;
+
+      const categories = {};
+      list.forEach(order => {
+        const key = order.category || "Other";
+        categories[key] = (categories[key] || 0) + safeNumber(order.total);
+      });
+      const topCategory = Object.entries(categories).sort((a, b) => b[1] - a[1])[0]?.[0] || "--";
+
+      document.getElementById("metricOrders").textContent = String(list.length);
+      document.getElementById("metricSpent").textContent = moneyFmt(spent);
+      document.getElementById("metricWeek").textContent = moneyFmt(week);
+      document.getElementById("metricMonth").textContent = moneyFmt(month);
+      document.getElementById("metricAvg").textContent = moneyFmt(avg);
+      document.getElementById("metricTopCategory").textContent = topCategory;
+    }
+
+    function renderCharts(list) {
+      const months = Array(12).fill(0);
+      const categories = {};
+      list.forEach(order => {
+        months[order.createdAt.getMonth()] += safeNumber(order.total);
+        const key = order.category || "Other";
+        categories[key] = (categories[key] || 0) + safeNumber(order.total);
+      });
+
+      const monthLabels = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      const categoryEntries = Object.entries(categories).sort((a, b) => b[1] - a[1]).slice(0, 6);
+      const categoryLabels = categoryEntries.map(entry => entry[0]);
+      const categoryValues = categoryEntries.map(entry => entry[1]);
+
+      if (window.Chart) {
+        if (spendChart) {
+          spendChart.data.datasets[0].data = months;
+          spendChart.update();
+        } else {
+          spendChart = new Chart(document.getElementById("spendChart"), {
+            type: "bar",
+            data: {
+              labels: monthLabels,
+              datasets: [{
+                label: "Spend",
+                data: months,
+                backgroundColor: "#2563eb",
+                borderRadius: 8
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } },
+              scales: {
+                y: { beginAtZero: true, grid: { color: "#e2e8f0" } },
+                x: { grid: { display: false } }
+              }
+            }
+          });
+        }
+
+        if (categoryChart) {
+          categoryChart.data.labels = categoryLabels;
+          categoryChart.data.datasets[0].data = categoryValues;
+          categoryChart.update();
+        } else {
+          categoryChart = new Chart(document.getElementById("categoryChart"), {
+            type: "doughnut",
+            data: {
+              labels: categoryLabels,
+              datasets: [{
+                data: categoryValues,
+                backgroundColor: ["#2563eb", "#1d4ed8", "#3b82f6", "#60a5fa", "#22c55e", "#f59e0b"]
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { position: "bottom" } }
+            }
+          });
+        }
+      }
+    }
+
+    function renderFeed(list) {
+      const grouped = groupOrders(list);
+      ui.feedList.innerHTML = "";
+
+      if (!list.length) {
+        ui.feedList.innerHTML = `
+          <div class="empty-state">
+            <strong>No matching transactions.</strong>
+            <div style="height:8px"></div>
+            Try clearing a filter or search term to bring the history back.
+          </div>
+        `;
+        return;
+      }
+
+      grouped.forEach(group => {
+        const groupEl = document.createElement("section");
+        groupEl.className = "group";
+        groupEl.innerHTML = `
+          <div class="group-head">
+            <h3>${escapeHtml(group.label)}</h3>
+            <span>${group.items.length} item${group.items.length === 1 ? "" : "s"} | ${moneyFmt(group.total)}</span>
+          </div>
+        `;
+
+        group.items.forEach(order => {
+          const item = order.items[0] || order.primary || {};
+          const image = (item.images && item.images[0]) || item.image || "";
+          const initials = getInitials(item.name || order.category || "O");
+          const badgeClass = order.status || "neutral";
+          const primaryLabel = item.name || order.product?.name || "Order item";
+          const subText = [
+            order.category ? `Category: ${order.category}` : "Category: Other",
+            order.productIds.length ? `${order.productIds.length} product ID${order.productIds.length === 1 ? "" : "s"}` : "No product ID",
+            order.source === "walletPayments" ? "Wallet payment" : "Order"
+          ].join(" | ");
+
+          const card = document.createElement("button");
+          card.type = "button";
+          card.className = "tx-card" + (order.id === state.selectedId ? " active" : "");
+          card.setAttribute("aria-label", `Open ${primaryLabel}`);
+          card.innerHTML = `
+            ${image ? `<img class="tx-thumb" src="${escapeAttr(image)}" alt="">` : `<div class="tx-fallback">${escapeHtml(initials)}</div>`}
+            <div class="tx-main">
+              <div class="tx-title">
+                <strong>${escapeHtml(primaryLabel)}</strong>
+                <span class="badge ${badgeClass}">${escapeHtml(formatStatusLabel(order.status))}</span>
+              </div>
+              <div class="tx-sub">
+                <span><i class='bx bx-time-five'></i> ${escapeHtml(formatShortDate(order.createdAt))}</span>
+                <span><i class='bx bx-category'></i> ${escapeHtml(subText)}</span>
+              </div>
+            </div>
+            <div class="tx-right">
+              <strong>${escapeHtml(moneyFmt(order.total))}</strong>
+              <div class="date">${escapeHtml(order.id)}</div>
+            </div>
+          `;
+          card.addEventListener("click", () => selectOrder(order, item.id || ""));
+          groupEl.appendChild(card);
+        });
+
+        ui.feedList.appendChild(groupEl);
+      });
+    }
+
+    function groupOrders(list) {
+      const buckets = {
+        Today: [],
+        "This week": [],
+        "This month": [],
+        Older: []
+      };
+
+      const now = new Date();
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - 6);
+      weekStart.setHours(0,0,0,0);
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+      list.forEach(order => {
+        const date = order.createdAt;
+        if (isSameDay(date, now)) buckets.Today.push(order);
+        else if (date >= weekStart) buckets["This week"].push(order);
+        else if (date >= monthStart) buckets["This month"].push(order);
+        else buckets.Older.push(order);
+      });
+
+      return Object.entries(buckets)
+        .filter(([, items]) => items.length)
+        .map(([label, items]) => ({
+          label,
+          items,
+          total: items.reduce((sum, order) => sum + safeNumber(order.total), 0)
+        }));
+    }
+
+    function selectOrder(order, itemId) {
+      state.selectedId = order.id;
+      state.selectedItemId = itemId || order.items[0]?.id || "";
+      renderFeed(state.orders);
+      renderDetail(order);
+    }
+
+    function renderDetail(order) {
+      const selectedItem = resolveSelectedItem(order);
+      const itemImages = selectedItem?.images || [];
+      const image = itemImages[0] || selectedItem?.image || "";
+
+      ui.detailTitle.textContent = selectedItem?.name || order.primary?.name || "Transaction details";
+      ui.detailSubtitle.textContent = order.category + " | " + formatLongDate(order.createdAt);
+      ui.detailStatus.textContent = formatStatusLabel(order.status);
+      ui.detailStatus.className = `badge ${order.status || "neutral"}`;
+
+      const refundUrl = buildRefundUrl(order, selectedItem);
+      const refundEnabled = order.refundEligible;
+
+      const productChips = (order.items.length ? order.items : [selectedItem || order.primary || {}]).map(item => {
+        const active = String(item.id || "") === String(state.selectedItemId || "");
+        return `<button type="button" class="item-chip${active ? " active" : ""}" data-item-id="${escapeAttr(item.id || "")}">${escapeHtml(item.name || "Product")}${item.id ? ` | ${escapeHtml(item.id)}` : ""}</button>`;
+      }).join("");
+
+      ui.detailBody.innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-item">
+            <small>Order ID</small>
+            <strong>${escapeHtml(order.id)}</strong>
+          </div>
+          <div class="detail-item">
+            <small>Payment reference</small>
+            <strong>${escapeHtml(order.paystackRef || order.transactionId || "N/A")}</strong>
+          </div>
+          <div class="detail-item">
+            <small>Product ID</small>
+            <strong>${escapeHtml(selectedItem?.id || order.productIds[0] || "N/A")}</strong>
+          </div>
+          <div class="detail-item">
+            <small>Total paid</small>
+            <strong>${escapeHtml(moneyFmt(order.total))}</strong>
+          </div>
+          <div class="detail-item">
+            <small>Shipping</small>
+            <strong>${escapeHtml(moneyFmt(order.shippingFee || 0))}</strong>
+          </div>
+          <div class="detail-item">
+            <small>Transaction fee</small>
+            <strong>${escapeHtml(moneyFmt(order.transactionFee || order.paystackFee || 0))}</strong>
+          </div>
+          <div class="detail-item">
+            <small>Status</small>
+            <strong>${escapeHtml(formatStatusLabel(order.status))}</strong>
+          </div>
+          <div class="detail-item">
+            <small>Source</small>
+            <strong>${escapeHtml(order.source)}</strong>
+          </div>
+        </div>
+
+        <div class="detail-item" style="background:#fff;">
+          <small>Ordered items</small>
+          <div class="product-list" id="detailItemList">${productChips}</div>
+        </div>
+
+        <div class="detail-item">
+          <small>Selected item details</small>
+          <strong>${escapeHtml(selectedItem?.name || "No product selected")}</strong>
+          <div style="height:8px"></div>
+          <div style="color:var(--muted);line-height:1.55;font-size:0.92rem;">
+            ${selectedItem?.category ? `Category: <strong style="color:var(--text)">${escapeHtml(selectedItem.category)}</strong><br>` : ""}
+            ${selectedItem?.qty ? `Quantity: <strong style="color:var(--text)">${escapeHtml(selectedItem.qty)}</strong><br>` : ""}
+            ${selectedItem?.price ? `Unit price: <strong style="color:var(--text)">${escapeHtml(moneyFmt(selectedItem.price))}</strong><br>` : ""}
+            ${selectedItem?.size ? `Size: <strong style="color:var(--text)">${escapeHtml(selectedItem.size)}</strong><br>` : ""}
+            ${selectedItem?.color ? `Colour: <strong style="color:var(--text)">${escapeHtml(selectedItem.color)}</strong><br>` : ""}
+            ${selectedItem?.fit ? `Fit: <strong style="color:var(--text)">${escapeHtml(selectedItem.fit)}</strong><br>` : ""}
+            ${order.customer?.name ? `Customer: <strong style="color:var(--text)">${escapeHtml(order.customer.name)}</strong><br>` : ""}
+            ${order.shippingMethod ? `Shipping method: <strong style="color:var(--text)">${escapeHtml(order.shippingMethod)}</strong>` : ""}
+          </div>
+        </div>
+
+        <div class="detail-actions">
+          <button type="button" class="copy-btn" data-copy-id="${escapeAttr(selectedItem?.id || order.productIds[0] || "")}"><i class='bx bx-copy'></i> Copy product ID</button>
+          <button type="button" class="copy-btn" data-copy-id="${escapeAttr(order.id)}"><i class='bx bx-copy'></i> Copy order ID</button>
+          <a class="refund-btn" href="${escapeAttr(refundUrl)}" ${refundEnabled ? "" : 'aria-disabled="true" tabindex="-1"'}><i class='bx bx-revision'></i> Request refund</a>
+        </div>
+
+        <div class="detail-note">
+          ${refundEnabled
+            ? "This order is marked as refund-ready. Use the product ID above when you open the refund form."
+            : "This order is not currently marked refund-ready. If that is unexpected, check the product policy and contact support."}
+          <div style="height:8px"></div>
+          Product IDs from this order: ${escapeHtml(order.productIds.length ? order.productIds.join(", ") : "N/A")}
+        </div>
+      `;
+
+      ui.detailBody.querySelectorAll(".item-chip").forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.selectedItemId = btn.dataset.itemId || "";
+          renderDetail(order);
+          renderFeed(state.orders);
         });
       });
 
-      const ordersPerMonth = stats.ordersPerMonth||Array(12).fill(0);
-      new Chart(document.getElementById('ordersChart'),{type:'bar',data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],datasets:[{label:'Orders',data:ordersPerMonth,backgroundColor:'#4f46e5'}]},options:{responsive:true,animation:{duration:1200}}});
-      const favProducts = stats.productCount||{};
-      new Chart(document.getElementById('favChart'),{type:'pie',data:{labels:Object.keys(favProducts),datasets:[{data:Object.values(favProducts),backgroundColor:['#4f46e5','#3b82f6','#f472b6','#facc15','#10b981']}]},options:{responsive:true,animation:{duration:1200}}});
-
-    } catch(e){
-      alert('Error loading user data:');
-      loadSampleData();
-    }
-  }
-
-  function loadSampleData(){
-    document.getElementById('totalOrders').innerText='No Orders';
-    document.getElementById('totalSpent').innerText='₦000000 Spent';
-    document.getElementById('customerScore').innerText='Ranking: ... ';
-    document.getElementById('customerLevel').innerText='🤖';
-
-    const ordersList = document.getElementById('ordersList');
-    ordersList.innerHTML='';
-    ['PLACE YOUR ORDER','PLACE YOUR ORDER '].forEach(id=>{
-      const box=document.createElement('div');
-      box.className='order-box';
-      box.innerHTML=`<h3>Order ${id}</h3>`;
-      ordersList.appendChild(box);
-      gsap.fromTo(box,{y:30,opacity:0,scale:0.8},{y:0,opacity:1,scale:1,duration:0.6, ease:"bounce.out"});
-    });
-
-    document.getElementById('encouragementSection').style.display='flex';
-
-    new Chart(document.getElementById('ordersChart'),{type:'bar',data:{labels:['Jan','Feb','Mar','Apr','May','Jun'],datasets:[{label:'Orders',data:[3,5,2,6,1,4],backgroundColor:'#4f46e5'}]},options:{responsive:true,animation:{duration:1200}}});
-    new Chart(document.getElementById('favChart'),{type:'pie',data:{labels:['Shoes','Shirt','Perfume'],datasets:[{data:[6,3,2],backgroundColor:['#4f46e5','#3b82f6','#f472b6']}]},options:{responsive:true,animation:{duration:1200}}});
-  }
-
-  async function showChat(orderId){
-    document.getElementById('chatSection').style.display='block';
-    const chatBox=document.getElementById('chatMessages');
-    chatBox.innerHTML='';
-    const chatRef=db.collection('orderChats').doc(orderId);
-    chatRef.onSnapshot(snap=>{
-      chatBox.innerHTML='';
-      if(!snap.exists()) return;
-      const messages = snap.data().messages || [];
-      messages.forEach(m=>{
-        const div=document.createElement('div');
-        div.className='chat-message';
-        if(m.senderId===auth.currentUser.uid) div.classList.add('user');
-        div.innerText=`${m.senderName||m.senderId}: ${m.message}`;
-        chatBox.appendChild(div);
-        gsap.fromTo(div,{opacity:0,y:20,scale:0.8,rotation:-5},{opacity:1,y:0,scale:1,rotation:0,duration:0.6, ease:"bounce.out"});
+      ui.detailBody.querySelectorAll("[data-copy-id]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const value = btn.dataset.copyId || "";
+          if (!value) return;
+          try {
+            await navigator.clipboard.writeText(value);
+            btn.textContent = "Copied";
+            setTimeout(() => renderDetail(order), 900);
+          } catch {
+            alert("Copy failed. Please copy the ID manually: " + value);
+          }
+        });
       });
-      chatBox.scrollTop=chatBox.scrollHeight;
-    });
-  }
-</script>
+
+      if (itemImages.length) {
+        const firstImage = itemImages[0];
+        const preview = document.createElement("div");
+        preview.className = "detail-item";
+        preview.style.gridColumn = "1 / -1";
+        preview.innerHTML = `
+          <small>Product preview</small>
+          <img src="${escapeAttr(firstImage)}" alt="" style="width:100%;max-height:240px;object-fit:cover;border-radius:14px;border:1px solid var(--line);display:block;">
+        `;
+        ui.detailBody.prepend(preview);
+      }
+    }
+
+    function resolveSelectedItem(order) {
+      if (!order.items.length) return order.primary || {};
+      const found = order.items.find(item => String(item.id || "") === String(state.selectedItemId || ""));
+      return found || order.items[0];
+    }
+
+    function buildRefundUrl(order, item) {
+      const params = new URLSearchParams();
+      params.set("orderId", order.id || "");
+      if (item?.id) params.set("productId", item.id);
+      if (order.paystackRef) params.set("reference", order.paystackRef);
+      if (order.total != null) params.set("amount", String(order.total));
+      return "/profile/refund.html?" + params.toString();
+    }
+
+    function formatStatusLabel(status) {
+      const value = normalizeStatus(status);
+      const labels = {
+        paid: "Completed",
+        completed: "Completed",
+        pending: "Pending",
+        delivered: "Delivered",
+        refunded: "Refunded",
+        cancelled: "Cancelled",
+        failed: "Failed"
+      };
+      return labels[value] || "Pending";
+    }
+
+    function scoreToLevel(score) {
+      if (score < 20) return "Bronze";
+      if (score < 50) return "Silver";
+      if (score < 100) return "Gold";
+      return "Platinum";
+    }
+
+    function parseDate(value) {
+      if (!value) return new Date();
+      if (value.toDate) return value.toDate();
+      if (value.seconds) return new Date(value.seconds * 1000);
+      if (typeof value === "string" || typeof value === "number") return new Date(value);
+      if (value instanceof Date) return value;
+      return new Date();
+    }
+
+    function safeNumber(value) {
+      const num = Number(value);
+      return Number.isFinite(num) ? num : 0;
+    }
+
+    function moneyFmt(value) {
+      return "NGN " + safeNumber(value).toLocaleString("en-NG");
+    }
+
+    function setAuthPrompt(isSignedIn) {
+      if (!ui.authPrompt) return;
+      if (isSignedIn) {
+        ui.authPrompt.href = "/profile.html";
+        ui.authPrompt.classList.add("is-signed-in");
+        ui.authPrompt.innerHTML = "<i class='bx bx-user'></i><span>Profile</span>";
+      } else {
+        ui.authPrompt.href = "/login.html";
+        ui.authPrompt.classList.remove("is-signed-in");
+        ui.authPrompt.innerHTML = "<i class='bx bx-log-in'></i><span>Login</span>";
+      }
+    }
+
+    function formatShortDate(date) {
+      return new Intl.DateTimeFormat("en-GB", {
+        day: "2-digit",
+        month: "short"
+      }).format(date);
+    }
+
+    function formatLongDate(date) {
+      return new Intl.DateTimeFormat("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      }).format(date);
+    }
+
+    function isSameDay(a, b) {
+      return a.getFullYear() === b.getFullYear() &&
+        a.getMonth() === b.getMonth() &&
+        a.getDate() === b.getDate();
+    }
+
+    function getInitials(name) {
+      const words = String(name || "").trim().split(/\s+/).filter(Boolean);
+      if (!words.length) return "TX";
+      return words.slice(0, 2).map(word => word[0]).join("").toUpperCase();
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"'`]/g, ch => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#39;",
+        "`": "&#96;"
+      }[ch]));
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replace(/"/g, "&quot;");
+    }
+  </script>
 </body>
 </html>

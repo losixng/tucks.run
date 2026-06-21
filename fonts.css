@@ -1,0 +1,10 @@
+/* Uniform font settings for Tucks pages */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+
+html, body, input, textarea, select, button, a, p, div, span {
+  font-family: 'Outfit', system-ui, sans-serif !important;
+}
+
+body {
+  font-family: 'Outfit', system-ui, sans-serif !important;
+}

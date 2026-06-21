@@ -100,6 +100,7 @@ const bmName = document.getElementById('buyerName');
 const bmPhone = document.getElementById('buyerPhone');
 const bmEmail = document.getElementById('buyerEmail');
 const bmAddress = document.getElementById('buyerAddress');
+const bmNote = document.getElementById('buyerNote');
 const bmShipping = document.getElementById('buyerShipping');
 const sumProduct = document.getElementById('sumProduct');
 const sumShipping = document.getElementById('sumShipping');
@@ -232,18 +233,28 @@ async function initProducts(){
       snapshot.forEach(doc => {
         const data = doc.data() || {};
         // normalize fields and ensure id exists (use doc.id fallback)
+        const videos = Array.isArray(data.videos) ? data.videos.slice(0,5) : [];
+        const images = Array.isArray(data.images) ? data.images.slice(0,5) : (data.image ? [data.image] : []);
         products.push({
           id: data.id || doc.id,
           name: data.name || '',
           desc: data.desc || data.description || '',
           price: Number(data.price || 0),
-          image: (data.images && data.images[0]) || data.image || '',
-          images: Array.isArray(data.images) ? data.images.slice(0,5) : (data.image ? [data.image] : []),
-          instock: typeof data.instock === 'boolean' ? data.instock : (typeof data.inStock === 'boolean' ? data.inStock : true),
+          image: videos.length ? videos[0] : (images.length ? images[0] : ''),
+          imageKind: videos.length ? 'video' : 'image',
+          images: images,
+          videos: videos,
+          instock: window.evaluateProductStock ? window.evaluateProductStock(data) : (typeof data.instock === 'boolean' ? data.instock : (typeof data.inStock === 'boolean' ? data.inStock : true)),
           type: (data.type||'').toLowerCase(),
+          supplierEmail: data.supplierEmail || '',
+          supplierName: data.supplierName || '',
           categories: Array.isArray(data.categories) ? data.categories : (data.categories ? [data.categories] : []),
-          filters: Array.isArray(data.filters) ? data.filters : (data.filters ? [data.filters] : [])
-        });
+          filters: Array.isArray(data.filters) ? data.filters : (data.filters ? [data.filters] : []),
+          stockQty: Number(data.stockQty || 0),
+          supplierCategory: data.supplierCategory || '',
+          sizeVariants: Array.isArray(data.sizeVariants) ? data.sizeVariants : [],
+          colorVariants: Array.isArray(data.colorVariants) ? data.colorVariants : [],
+          variantMatrix: Array.isArray(data.variantMatrix) ? data.variantMatrix : [],        });
       });
 
       if(products.length > 0){
@@ -289,11 +300,20 @@ function renderGrid(list, containerEl, activeFilter){
   filtered.forEach(p=>{
     const card = document.createElement('div');
     card.className = 'card';
-    const bg = (Array.isArray(p.images) && p.images[0]) ? p.images[0] : (p.image || '');
-    card.style.backgroundImage = `url(${bg})`;
+    card.id = 'product-' + p.id;
     if(!p.instock) card.setAttribute('aria-disabled','true');
 
+    let cardContent = '';
+    if(p.videos && p.videos.length) {
+      cardContent = `<video style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" muted autoplay loop><source src="${p.videos[0]}" type="video/mp4"></video>`;
+    } else {
+      const bg = (p.images && p.images[0]) ? p.images[0] : '';
+      card.style.backgroundImage = `url(${bg})`;
+      cardContent = '';
+    }
+
     card.innerHTML = `
+      ${cardContent}
       <div class="card-overlay">
         <div class="card-title">${p.name}</div>
         <div class="card-desc">${(p.desc||'').slice(0,70)}</div>
@@ -365,10 +385,11 @@ lbCustomize?.addEventListener('click', ()=> {
 lbAdd?.addEventListener('click', ()=> { if(currentItem) { addToCart(currentItem); closeLightbox(); } });
 lbShare?.addEventListener('click', async ()=> {
   if(!currentItem) return;
-  const shareUrl = location.origin + location.pathname + `?product=${encodeURIComponent(currentItem.name)}`;
+  const shareUrl = window.productShareHelper ? window.productShareHelper.getProductPageUrl(currentItem) : location.origin + location.pathname + `?product=${encodeURIComponent(currentItem.id)}#product-${encodeURIComponent(currentItem.id)}`;
   try {
-    if(navigator.share) await navigator.share({ title: currentItem.name, text: currentItem.desc||'', url: shareUrl });
-    else { await navigator.clipboard.writeText(`${currentItem.name}\n${currentItem.desc||''}\n${shareUrl}`); toast('Product info copied'); }
+    const shareText = window.productShareHelper ? window.productShareHelper.generateShareText(currentItem) : `${currentItem.name}\n${currentItem.desc||''}\n${shareUrl}`;
+    if(navigator.share) await navigator.share({ title: currentItem.name, text: shareText, url: shareUrl });
+    else { await navigator.clipboard.writeText(shareText); toast('Product info copied'); }
   } catch(e) { console.warn(e); toast('Could not share'); }
 });
 lbCustomize?.addEventListener('click', ()=> {
@@ -385,13 +406,15 @@ function recalcTotals(){
   if(!currentItem) return null;
   const price = Number(currentItem.price) || 0;
   const shipping = bmShipping && bmShipping.value === 'GIG' ? 5000 : 3000;
-  const txn = 100;
+  const misc = 100;
+  const paystackFee = Math.ceil((price + shipping + misc) * 0.015);
+  const txn = misc + paystackFee;
   const total = price + shipping + txn;
   if(sumProduct) sumProduct.textContent = moneyFmt(price);
   if(sumShipping) sumShipping.textContent = moneyFmt(shipping);
-  if(sumTxn) sumTxn.textContent = moneyFmt(txn);
+  if(sumTxn) sumTxn.textContent = moneyFmt(txn) + ' (Transaction & Misc)';
   if(sumTotal) sumTotal.textContent = moneyFmt(total);
-  return { price, shipping, txn, total };
+  return { price, shipping, misc, paystackFee, txn, total };
 }
 bmShipping?.addEventListener('change', recalcTotals);
 
@@ -405,6 +428,7 @@ lbBuy?.addEventListener('click', ()=> {
   if(bmPhone) bmPhone.value = currentUser?.phoneNumber || '';
   if(bmShipping) bmShipping.value = 'NURTW';
   recalcTotals();
+  window.ProductOptions?.prepareForProduct(currentItem);
   if(buyModal) { buyModal.classList.add('show'); buyModal.setAttribute('aria-hidden','false'); }
 });
 
@@ -414,17 +438,25 @@ payNow?.addEventListener('click', async ()=>{
   if(!currentItem) return;
   const name = bmName?.value?.trim(); const phone = bmPhone?.value?.trim();
   const email = bmEmail?.value?.trim(); const address = bmAddress?.value?.trim();
+  const note = bmNote?.value?.trim() || '';
   if(!name || !phone || !email || !address) { alert('Please fill name, phone, email and address'); return; }
+  const optionSelection = window.ProductOptions?.validateAndGetSelection?.();
+  if (optionSelection === false) return;
   const totals = recalcTotals();
   if(!totals) return;
 
   const order = {
     userId: currentUser ? currentUser.uid : null,
     customer: { name, phone, email, address },
-    product: { id: currentItem.id, name: currentItem.name, price: Number(currentItem.price), images: currentItem.images || (currentItem.image ? [currentItem.image] : []) },
+    size: optionSelection?.size || '',
+    color: optionSelection?.color || '',
+    measurements: optionSelection?.measurements || null,
+    note,
+    product: { id: currentItem.id, name: currentItem.name, price: Number(currentItem.price), images: currentItem.images || (currentItem.image ? [currentItem.image] : []), supplierEmail: currentItem.supplierEmail, supplierName: currentItem.supplierName },
     shippingMethod: bmShipping.value,
-     clothingSize: size,
     shippingFee: totals.shipping,
+    miscFee: totals.misc,
+    paystackFee: totals.paystackFee,
     transactionFee: totals.txn,
     customizeFee: 0,
     total: totals.total,
@@ -446,17 +478,17 @@ payNow?.addEventListener('click', async ()=>{
         order.paystackRef = response.reference;
         order.status = 'paid';
     
-        // 🔒 Verify payment securely with your Netlify backend
+        // Verify payment securely with backend
         const verifyRes = await fetch("/api/verifyPayment", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ reference: response.reference })
+          body: JSON.stringify({ reference: response.reference, amount: Math.round(order.total * 100), email: email })
         });
     
         const verifyData = await verifyRes.json();
     
-        if (!verifyData.data || verifyData.data.status !== "success") {
-          alert("⚠️ Payment verification failed! Please contact support.");
+        if (!verifyData.status || verifyData.status !== "success" || !verifyData.data || verifyData.data.amount !== Math.round(order.total * 100)) {
+          alert("Payment verification failed! Amount mismatch or invalid reference. Please contact support.");
           console.error("Verification failed:", verifyData);
           return;
         }
@@ -468,6 +500,9 @@ payNow?.addEventListener('click', async ()=>{
               userId: currentUser ? currentUser.uid : null,
               createdAt: serverTimestamp()
             });
+            if (window.ProductOptions?.decrementStockAfterOrder) {
+              await window.ProductOptions.decrementStockAfterOrder(db, currentItem, optionSelection);
+            }
           } else {
             toast('Error: Please try again....');
           }
@@ -513,8 +548,9 @@ function saveOrderAsHTML(order){
     <p>${imagesHtml}</p>
     <p><strong>Price:</strong> ₦${order.product.price}</p>
     <p><strong>Shipping:</strong> ${order.shippingMethod} (₦${order.shippingFee})</p>
-    <p><strong>Transaction fee:</strong> ₦${order.transactionFee}</p>
-    <p><strong>Total:</strong> ₦${order.total}</p>
+    <p><strong>Transaction fee:</strong> ?${order.transactionFee}</p>
+    ${order.note ? `<p><strong>Note:</strong> ${order.note}</p>` : ''}
+    <p><strong>Total:</strong> ?${order.total}</p>
     <p><strong>Reference:</strong> ${order.paystackRef || 'N/A'}</p>
     <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
   <footer><strong  style="padding-top:20px; color: #111;">Issued by Losix Team</strong></footer>
@@ -562,4 +598,5 @@ function addToCart(product) {
 /* ============ MISC UI ============ */
 closeConfirm?.addEventListener('click', ()=> confirmModal.classList.remove('show'));
 document.addEventListener('keydown', e=> { if(e.key === 'Escape'){ closeLightbox(); if(buyModal) buyModal.classList.remove('show'); if(customModal) customModal.classList.remove('show'); if(confirmModal) confirmModal.classList.remove('show'); if(authModal) authModal.classList.remove('show'); }});
+
 

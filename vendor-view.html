@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/logo.png" alt="Tucks logo">
+  <meta name="theme-color" content="#2563eb">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(() => console.log('Service Worker Registered'));
+      });
+    }
+  </script>
+  <title>Tucks - Vendor Applications</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="clothes/clothes-theme.css">
+  <link rel="stylesheet" href="clothes/vendor-theme.css">
+</head>
+<body class="vendor-page">
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+  </div>
+  <div class="vendor-shell page-wrap">
+    <header class="site-header" style="margin-bottom:16px">
+      <a href="/vendor.html" class="logo">
+        <img src="/logo.png" alt="Tucks" class="logo-img" width="36" height="36">
+        <span class="logo-text">Tucks</span>
+      </a>
+      <div style="font-size:0.85rem;font-weight:700;color:var(--accent)">View Vendor Applications</div>
+    </header>
+
+    <div class="card vendor-card" id="loginSection">
+      <h2>Enter Password</h2>
+      <p class="sub">Only a user with the correct password can view the vendor registration details.</p>
+      <div class="form-row">
+        <label for="viewPassword">Password</label>
+        <input id="viewPassword" type="password" placeholder="Enter password" autocomplete="current-password">
+      </div>
+      <div class="vendor-actions">
+        <button class="btn" id="unlockBtn">Unlock</button>
+        <a class="btn ghost" href="/vendor.html">Back</a>
+      </div>
+      <div id="loginError" style="margin-top:12px; display:none; color:#b91c1c;"></div>
+    </div>
+
+    <div class="card vendor-card" id="applicationsSection" style="display:none;">
+      <h2>Vendor Registrations</h2>
+      <div id="applicationsList" class="vendor-grid-2"></div>
+      <div class="vendor-actions" style="margin-top:18px">
+        <button class="btn ghost" id="lockBtn">Hide details</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { getVendorApplications, renderVendorApplications } from '/vendor-registration.js';
+
+    const passwordInput = document.getElementById('viewPassword');
+    const unlockBtn = document.getElementById('unlockBtn');
+    const lockBtn = document.getElementById('lockBtn');
+    const loginError = document.getElementById('loginError');
+    const loginSection = document.getElementById('loginSection');
+    const applicationsSection = document.getElementById('applicationsSection');
+    const applicationsList = document.getElementById('applicationsList');
+    const PASSWORD = 'damilola';
+
+    unlockBtn.addEventListener('click', async () => {
+      const password = passwordInput.value.trim();
+      if (password !== PASSWORD) {
+        loginError.textContent = 'Incorrect password. Try again.';
+        loginError.style.display = 'block';
+        return;
+      }
+
+      loginError.style.display = 'none';
+      unlockBtn.disabled = true;
+      unlockBtn.textContent = 'Loading…';
+
+      try {
+        const applications = await getVendorApplications();
+        loginSection.style.display = 'none';
+        applicationsSection.style.display = 'block';
+        renderVendorApplications(applicationsList, applications);
+      } catch (error) {
+        loginError.textContent = 'Unable to load applications. Try again later.';
+        loginError.style.display = 'block';
+        console.error(error);
+      } finally {
+        unlockBtn.disabled = false;
+        unlockBtn.textContent = 'Unlock';
+      }
+    });
+
+    lockBtn.addEventListener('click', () => {
+      applicationsSection.style.display = 'none';
+      loginSection.style.display = 'block';
+      passwordInput.value = '';
+      loginError.style.display = 'none';
+      applicationsList.innerHTML = '';
+    });
+  </script>
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <a href="/home.html" class="nav-item"><i class='bx bxs-home'></i><span>Home</span></a>
+    <a href="/cart.html" class="nav-item"><i class='bx bx-cart'></i><span>Cart</span></a>
+    <a href="/order.html" class="nav-item"><i class='bx bx-history'></i><span>Orders</span></a>
+    <a href="/profile.html" class="nav-item"><i class='bx bxs-user-circle'></i><span>Profile</span></a>
+  </nav>
+  <div class="bottom-nav-shadow" aria-hidden="true"></div>
+</body>
+</html>

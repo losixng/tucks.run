@@ -19,7 +19,7 @@
 body {
   margin: 0;
   font-family: "Poppins", sans-serif;
-  background: linear-gradient(135deg, #fff3ef, #ffe7e0);
+  background:  #f8fafc;
   color: #333;
   overflow-x: hidden;
 }
@@ -108,9 +108,6 @@ nav a:hover {
   }
 }
 
-body {
-      padding-bottom: 80px; /* space for nav */
-    }
 
     .bottom-nav {
       position: fixed;
@@ -164,7 +161,7 @@ body {
 header {
   text-align: center;
   padding: 60px 20px 30px;
-  background: linear-gradient(120deg, #ff5e3a, #ff9966);
+  background:#1d4ed8;
   color: white;
   border-bottom-left-radius: 50% 10%;
   border-bottom-right-radius: 50% 10%;
@@ -195,7 +192,7 @@ section {
 }
 
 h2 {
-  color: #ff5e3a;
+  color: #1d4ed8;
   margin-bottom: 10px;
 }
 
@@ -208,12 +205,12 @@ h2 {
 }
 
 .contact-card {
-  background: linear-gradient(135deg, #fff6f3, #fff);
-  border: 1px solid rgba(255,94,58,0.2);
+  background: #1d4ed8;
+  border: 1px solid white;
   border-radius: 14px;
   padding: 12px 18px;
   text-decoration: none;
-  color: #333;
+  color: white;
   font-weight: 500;
   display: flex;
   align-items: center;
@@ -225,8 +222,8 @@ h2 {
   height: 24px;
 }
 .contact-card:hover {
-  background: #ff5e3a;
-  color: white;
+  background:#64748b;
+  color: #1d4ed8;
   transform: scale(1.05);
 }
 
@@ -238,7 +235,7 @@ h2 {
   margin-top: 15px;
 }
 .share-btn {
-  background: linear-gradient(135deg, #ff5e3a, #ff9966);
+  background: #1d4ed8;
   color: white;
   border: none;
   border-radius: 25px;
@@ -248,29 +245,35 @@ h2 {
 }
 .share-btn:hover {
   transform: scale(1.1);
-  box-shadow: 0 4px 15px rgba(255, 94, 58, 0.4);
+  box-shadow: 0 4px 15px #64748b;
 }
 
 .faq-item {
   margin-top: 15px;
 }
+ .faq-item:hover {
+  transform: scale(1.0);
+  box-shadow: 0 4px 15px #64748b;
+}
+
 .faq-question {
   width: 100%;
   text-align: left;
-  background: rgba(255, 100, 50, 0.1);
+  background: #1d4fd860;
   border: none;
   border-radius: 10px;
   padding: 14px;
   font-weight: 600;
   cursor: pointer;
-  color: #ff5e3a;
+  color: white;
   transition: 0.3s;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 .faq-question:hover {
-  background: rgba(255, 100, 50, 0.2);
+  background:  #64748b;
+  
 }
 .faq-answer {
   max-height: 0;
@@ -283,8 +286,8 @@ h2 {
   max-height: 300px;
   opacity: 1;
   padding: 12px 10px;
-  background: #fff;
-  border-left: 4px solid #ff5e3a;
+  background:  #1d4fd860;
+  border-left: 4px solid  #64748b;
   margin-top: 6px;
   border-radius: 8px;
   color: #444;
@@ -299,17 +302,17 @@ h2 {
 }
 .policy a {
   text-decoration: none;
-  color: #ff5e3a;
+  color:   #64748b;
   font-weight: 500;
 }
 
 footer {
   text-align: center;
   padding: 20px;
-  color: #777;
-  background: #fffaf7;
+  color:white;
+  background: #1d4ed8;
   font-size: 14px;
-  border-top: 1px solid #ffd4c7;
+  border-top: 1px solid  #64748b;
 }
 
 @media (max-width: 600px) {
@@ -388,34 +391,11 @@ footer {
 </style>
 </head>
 <body>
-  <!-- Floating Bottom Navigation -->
-  <div  class="bottom-nav">
-    <a href="/home.html" class="nav-item">
-      
-      <span>Home</span>
-    </a>
-
-    <a href="/cart.html" class="nav-item">
-      
-      <span>Cart</span>
-    </a>
-
-    <a href="/order.html" class="nav-item">
-      
-      <span>Orders</span>
-    </a>
-
-    <a href="/profile.html" class="nav-item">
-     
-      <span>Profile</span>
-    </a>
-  </div>
-
-<div id="tips" style="background:#fff2ee;color:#ff5a5a;text-align:center;padding:10px 15px;font-weight:500;animation:fadeIn 1s ease;">Welcome to Market!</div>
+ 
 
 <header>
   <h1>Need Help? We're Here for You 💬</h1>
-  <p>Everything you need to make your <strong style="color: red;">market</strong> experience easy and enjoyable.</p>
+  <p>Everything you need to make your <strong style="color: #0f172a;">TUCKS</strong> experience easy and enjoyable.</p>
 </header>
 
 <main>
@@ -438,33 +418,12 @@ footer {
       </a>
     </div>
   </section>
-<!-- Floating Bottom Navigation -->
-  <nav class="bottom-nav">
-    <a href="/home.html" class="nav-item active">
-      <i class="fa-solid fa-house"></i>
-      <span>Home</span>
-    </a>
 
-    <a href="/fits.html" class="nav-item">
-      <i class="fa-solid fa-shirt"></i>
-      <span>Fits</span>
-    </a>
-
-    <a href="/giftoria.html" class="nav-item">
-      <i class="fa-solid fa-gift"></i>
-      <span>Giftoria</span>
-    </a>
-
-    <a href="/profile.html" class="nav-item">
-      <i class="fa-solid fa-user"></i>
-      <span>Profile</span>
-    </a>
-  </nav>
 
   <!-- Share Section -->
   <section>
     <h2>🔗 Share Losix</h2>
-    <p>Love what we do? Spread the word! Share <strong style="color: red;">market</strong> with your friends and family.</p>
+    <p>Love what we do? Spread the word! Share <strong style="color:#0f172a;">TUCKS</strong> with your friends and family.</p>
     <div class="share-buttons">
       <button class="share-btn" onclick="shareWhatsApp()">WhatsApp</button>
       <button class="share-btn" onclick="shareFacebook()">Facebook</button>
@@ -497,17 +456,19 @@ footer {
   <!-- Policy Section -->
   <section class="policy">
     <h2>📜 Policies & Support</h2>
+    
     <ul>
       <li><a href="/profile/refund.html">Refund Policy</a></li>
       <li><a href="/profile/terms.html">Terms of Service</a></li>
       <li><a href="/profile/terms.html">Shipping Policy</a></li>
       <li><a href="/profile/terms.html">Privacy Policy</a></li>
     </ul>
+    
   </section>
 </main>
 
 <footer>
-  <p>© 2025 Losix Team | Always here to help ❤️</p>
+  <p>© 2026 Losix Team | Always here to help ❤️</p>
 </footer>
  <script type="module" src="/script.js"></script>
 <script>

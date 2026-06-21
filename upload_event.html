@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/logo.png" alt="Tucks logo">
+  <meta name="theme-color" content="#2563eb">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(() => console.log('Service Worker Registered'));
+      });
+    }
+  </script>
+  <title>Upload Event | Tucks</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="clothes/clothes-theme.css">
+  <link rel="stylesheet" href="clothes/vendor-theme.css">
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script type="module" src="events.js"></script>
+  <style>
+    body.vendor-page {
+      background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 24%),
+                  radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.12), transparent 24%),
+                  #f8fbff;
+      min-height: 100vh;
+      color: #111827;
+    }
+    .vendor-shell {
+      padding: 28px 20px 40px;
+      max-width: 980px;
+    }
+    .vendor-card {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      box-shadow: 0 28px 80px rgba(15, 23, 42, 0.09);
+      padding: clamp(24px, 2.4vw, 36px);
+    }
+    .vendor-card h2 {
+      font-size: clamp(1.8rem, 2.5vw, 2.4rem);
+      letter-spacing: -0.03em;
+    }
+    .vendor-card .sub {
+      max-width: 760px;
+      margin-bottom: 22px;
+      font-size: 0.98rem;
+      line-height: 1.8;
+      color: #475569;
+    }
+    .info-panel {
+      border-left: 4px solid #2563eb;
+      background: #eff6ff;
+      padding: 16px 18px;
+      border-radius: 14px;
+      margin: 20px 0 10px;
+      color: #0f172a;
+    }
+    .info-panel strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 1rem;
+    }
+    .floating-field {
+      position: relative;
+      margin-top: 20px;
+      min-height: 84px;
+    }
+    .floating-field label {
+      position: absolute;
+      left: 18px;
+      top: 18px;
+      pointer-events: none;
+      color: #64748b;
+      background: transparent;
+      transition: transform 0.25s ease, color 0.25s ease, font-size 0.25s ease;
+      transform-origin: left top;
+      font-weight: 600;
+      font-size: 0.97rem;
+    }
+    .floating-field input,
+    .floating-field textarea,
+    .floating-field select {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      background: #f8fbff;
+      color: #0f172a;
+      padding: 20px 18px 14px;
+      border-radius: 18px;
+      font-family: inherit;
+      font-size: 0.96rem;
+      outline: none;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease, background 0.25s ease;
+    }
+    .floating-field input:hover,
+    .floating-field textarea:hover,
+    .floating-field select:hover {
+      transform: translateY(-1px);
+      background: #ffffff;
+    }
+    .floating-field input:focus,
+    .floating-field textarea:focus,
+    .floating-field select:focus {
+      border-color: #2563eb;
+      box-shadow: 0 18px 40px rgba(37, 99, 235, 0.12);
+      background: #ffffff;
+    }
+    .floating-field input:focus + label,
+    .floating-field input:not(:placeholder-shown) + label,
+    .floating-field textarea:focus + label,
+    .floating-field textarea:not(:placeholder-shown) + label,
+    .floating-field select:focus + label {
+      transform: translateY(-12px) scale(0.88);
+      color: #2563eb;
+    }
+    .floating-field input::placeholder,
+    .floating-field textarea::placeholder {
+      color: transparent;
+    }
+    .vendor-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+    .vendor-grid-2 > .floating-field {
+      margin-top: 0;
+    }
+    .vendor-grid-2 .floating-field {
+      min-height: 88px;
+    }
+    .vendor-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 24px;
+    }
+    .vendor-actions .btn {
+      min-width: 170px;
+    }
+    @media (max-width: 720px) {
+      .vendor-grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="vendor-page">
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+  </div>
+  <div class="vendor-shell page-wrap">
+    <header class="site-header" style="margin-bottom:16px">
+      <a href="/tickets.html" class="logo">
+        <img src="/logo.png" alt="Tucks" class="logo-img" width="36" height="36">
+        <span class="logo-text">Tucks</span>
+      </a>
+      <div style="font-size:0.85rem;font-weight:700;color:var(--accent)">Upload Event</div>
+    </header>
+
+    <div class="card vendor-card">
+      <h2>Publish Your Event</h2>
+      <p class="sub">Create parties, art plays, workshops, and ticketed experiences. A 500 NGN upload fee applies (plus Paystack processing charges).</p>
+
+      <div class="info-panel">
+        <strong>💡 Upload Fee</strong>
+        500 NGN + Paystack charges will be deducted. Your event appears immediately after successful payment.
+      </div>
+
+      <form id="publishEventForm">
+        <div class="vendor-grid-2">
+          <div class="floating-field">
+            <input name="organizerName" type="text" placeholder=" " required />
+            <label>Organizer name</label>
+          </div>
+          <div class="floating-field">
+            <input name="organizerEmail" type="email" placeholder=" " required />
+            <label>Email address</label>
+          </div>
+        </div>
+
+        <div class="floating-field">
+          <input name="title" type="text" placeholder=" " required />
+          <label>Event title</label>
+        </div>
+
+        <div class="floating-field">
+          <textarea name="description" placeholder=" " rows="4" required></textarea>
+          <label>Event description</label>
+        </div>
+
+        <div class="vendor-grid-2">
+          <div class="floating-field">
+            <select name="category" required>
+              <option value="">Select category</option>
+              <option value="party">Party</option>
+              <option value="theatre">Theatre</option>
+              <option value="art">Art</option>
+              <option value="music">Music</option>
+              <option value="workshop">Workshop</option>
+              <option value="other">Other</option>
+            </select>
+            <label>Category</label>
+          </div>
+          <div class="floating-field">
+            <input name="location" type="text" placeholder=" " required />
+            <label>Location or venue</label>
+          </div>
+        </div>
+
+        <div class="vendor-grid-2">
+          <div class="floating-field">
+            <input name="date" type="date" placeholder=" " required />
+            <label>Event date</label>
+          </div>
+          <div class="floating-field">
+            <input name="time" type="time" placeholder=" " required />
+            <label>Event time</label>
+          </div>
+        </div>
+
+        <div class="vendor-grid-2">
+          <div class="floating-field">
+            <input name="ticketPrice" type="number" min="0" step="50" placeholder=" " required />
+            <label>Ticket price (NGN)</label>
+          </div>
+          <div class="floating-field">
+            <input name="capacity" type="number" min="1" step="1" placeholder=" " />
+            <label>Capacity (optional)</label>
+          </div>
+        </div>
+
+        <div class="floating-field">
+          <input id="mediaInput" name="media" type="file" accept="image/*,video/*" multiple />
+          <label>Upload images/videos (optional, up to 5)</label>
+          <div id="mediaPreview" class="media-preview" style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"></div>
+        </div>
+
+        <div id="publishStatus" class="alertBox" style="margin-top:20px;"></div>
+
+        <div class="vendor-actions">
+          <button id="publishBtn" type="submit" class="btn">Pay 500 NGN & Publish</button>
+          <a href="/tickets.html" class="btn ghost">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initEventUpload } from "/events.js";
+    document.addEventListener("DOMContentLoaded", () => {
+      initEventUpload();
+    });
+  </script>
+
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <a href="/home.html" class="nav-item"><i class='bx bxs-home'></i><span>Home</span></a>
+    <a href="/cart.html" class="nav-item"><i class='bx bx-cart'></i><span>Cart</span></a>
+    <a href="/order.html" class="nav-item"><i class='bx bx-history'></i><span>Orders</span></a>
+    <a href="/profile.html" class="nav-item"><i class='bx bxs-user-circle'></i><span>Profile</span></a>
+  </nav>
+  <div class="bottom-nav-shadow" aria-hidden="true"></div>
+</body>
+</html>

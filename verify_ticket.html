@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verify Ticket | Tucks</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/html5-qrcode@2.3.7/minified/html5-qrcode.min.js"></script>
+  <script type="module" src="events.js"></script>
+</head>
+<body>
+  <main class="card">
+    <h2>Verify Ticket</h2>
+    <p style="text-align:center; margin:0 0 18px; opacity:0.85;">Scan the ticket QR or enter the ticket ID manually.</p>
+    <div id="verifyStatus" class="alertBox"></div>
+    <div id="scannerContainer" class="scanner-box"></div>
+    <input id="manualTicketId" type="text" placeholder="Enter ticket ID" />
+    <button id="verifyButton" class="btn">Verify Ticket</button>
+    <div id="verifyResult"></div>
+  </main>
+
+  <script type="module">
+    import { initTicketVerifier } from "/events.js";
+    document.addEventListener("DOMContentLoaded", () => {
+      initTicketVerifier();
+    });
+  </script>
+
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <a href="/home.html" class="nav-item"><i class='bx bxs-home'></i><span>Home</span></a>
+    <a href="/cart.html" class="nav-item"><i class='bx bx-cart'></i><span>Cart</span></a>
+    <a href="/order.html" class="nav-item"><i class='bx bx-history'></i><span>Orders</span></a>
+    <a href="/profile.html" class="nav-item"><i class='bx bxs-user-circle'></i><span>Profile</span></a>
+  </nav>
+  <div class="bottom-nav-shadow" aria-hidden="true"></div>
+</body>
+</html>

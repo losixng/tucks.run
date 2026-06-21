@@ -1,492 +1,1205 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="manifest" href="/manifest.json">
-  <link rel="icon" alt="Logo" href="/logo.png">
-<meta name="theme-color" content="rgb(128, 128, 128)">
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/service-worker.js')
-        .then(() => console.log('Service Worker Registered'));
-    });
-  }
-</script>
+  <link rel="icon" href="/logo.png" type="image/png">
+  <meta name="theme-color" content="#2563eb">
   <title>Tucks - Profile</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* ===== Global Reset ===== */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
-}
-/* Menu Toggle Checkbox */
-#menuToggle {
-  display: none;
-}
+    :root {
+      --accent: #2563eb;
+      --accent-2: #1d4ed8;
+      --accent-soft: #eff6ff;
+      --accent-glow: rgba(37, 99, 235, 0.28);
+      --surface: #ffffff;
+      --surface-2: #f8fafc;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --radius: 18px;
+      --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+      --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --nav-height: 68px;
+    }
 
-/* Hamburger */
-.menu-icon {
-  width: 30px;
-  height: 24px;
-  position: relative;
-  cursor: pointer;
-  transition: all 0.4s ease;
-}
-.menu-icon span {
-  position: absolute;
-  height: 3px;
-  width: 100%;
-  background: white;
-  border-radius: 3px;
-  transition: all 0.4s ease;
-}
-.menu-icon span:nth-child(1) { top: 0; }
-.menu-icon span:nth-child(2) { top: 10px; }
-.menu-icon span:nth-child(3) { top: 20px; }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
 
-/* Animate to X */
-#menuToggle:checked + label .menu-icon span:nth-child(1) {
-  transform: rotate(45deg);
-  top: 10px;
-}
-#menuToggle:checked + label .menu-icon span:nth-child(2) {
-  opacity: 0;
-}
-#menuToggle:checked + label .menu-icon span:nth-child(3) {
-  transform: rotate(-45deg);
-  top: 10px;
-}
+    body {
+      font-family: 'Outfit', system-ui, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      padding-bottom: calc(var(--nav-height) + 24px + env(safe-area-inset-bottom, 0px));
+      overflow-x: hidden;
+      background: var(--surface-2);
+    }
 
-/* Dropdown Menu */
-nav {
-  position: fixed;
-  top: 65px;
-  right: 15px;
-  width: 180px;
-  background: rgba(255,255,255,0.92);
-  backdrop-filter: blur(12px);
-  border-radius: 15px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-  padding: 12px;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-15px);
-  transition: all 0.3s ease;
-}
+    .bg-orbs {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% -10%, rgba(37, 99, 235, 0.08), transparent),
+        radial-gradient(ellipse 60% 40% at 90% 10%, rgba(16, 185, 129, 0.06), transparent),
+        linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    }
+    .bg-orbs::before,
+    .bg-orbs::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.35;
+      animation: orbFloat 20s ease-in-out infinite;
+    }
+    .bg-orbs::before {
+      width: 360px;
+      height: 360px;
+      background: #93c5fd;
+      top: -80px;
+      left: -60px;
+    }
+    .bg-orbs::after {
+      width: 320px;
+      height: 320px;
+      background: #6ee7b7;
+      bottom: 15%;
+      right: -80px;
+      animation-delay: -10s;
+      animation-direction: reverse;
+    }
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(70px);
+      opacity: 0.25;
+      animation: orbFloat 16s ease-in-out infinite;
+    }
+    .orb-1 { width: 240px; height: 240px; background: #bfdbfe; top: 20%; left: 55%; animation-delay: -5s; }
+    .orb-2 { width: 180px; height: 180px; background: #fde68a; top: 68%; left: 8%; animation-delay: -8s; }
 
-/* Show when checked */
-#menuToggle:checked ~ nav {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
-}
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(40px, -30px) scale(1.08); }
+      66% { transform: translate(-25px, 20px) scale(0.95); }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-100%); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes shimmer {
+      0% { transform: translateX(-100%) skewX(-12deg); }
+      100% { transform: translateX(200%) skewX(-12deg); }
+    }
+    @keyframes floatBadge {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    @keyframes navFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.0); }
+      50% { box-shadow: 0 0 0 10px rgba(37, 99, 235, 0.08); }
+    }
+    @keyframes wordReveal {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+        filter: blur(3px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+    }
+    @keyframes caretBlink {
+      0%, 48% { opacity: 1; }
+      49%, 100% { opacity: 0; }
+    }
 
-/* Menu links */
-nav a {
-  display: block;
-  padding: 10px;
-  text-decoration: none;
-  color: #ff6b6b;
-  font-weight: 500;
-  border-radius: 8px;
-  transition: background 0.3s ease, transform 0.2s;
-}
-nav a:hover {
-  background: rgba(255,107,107,0.15);
-  transform: translateX(4px);
-}
+    .page-wrap {
+      position: relative;
+      z-index: 1;
+    }
 
-/* Responsive */
-@media (max-width: 600px) {
-  nav {
-    width: 70%;
-    right: 15%;
-  }
-}
+    .site-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--surface);
+      padding: 12px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      box-shadow: 0 1px 0 var(--border);
+      border-bottom: 1px solid var(--border);
+      animation: slideDown 0.6s var(--ease-out);
+    }
+    .logo {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -0.02em;
+      flex-shrink: 0;
+      transition: opacity 0.25s;
+      text-decoration: none;
+    }
+    .logo:hover { opacity: 0.85; }
 
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+    }
+    .icon-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      text-decoration: none;
+      transition: transform 0.25s var(--ease-out), background 0.25s, color 0.25s, border-color 0.25s;
+    }
+    .icon-button:hover {
+      transform: translateY(-2px);
+      color: var(--accent);
+      border-color: rgba(37, 99, 235, 0.25);
+      background: var(--accent-soft);
+    }
 
-body {
-  background:linear-gradient(60deg,#F2C464 0%, #C6F4D6 100%);
-  color: #333;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
+    #profileMenuToggle { display: none; }
+    .menu-icon {
+      width: 28px;
+      height: 24px;
+      position: relative;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: block;
+    }
+    .menu-icon span {
+      position: absolute;
+      left: 0;
+      height: 2.5px;
+      width: 100%;
+      background: var(--text);
+      border-radius: 2px;
+      transition: transform 0.35s var(--ease-out), opacity 0.25s, top 0.35s var(--ease-out);
+    }
+    .menu-icon span:nth-child(1) { top: 0; }
+    .menu-icon span:nth-child(2) { top: 10.75px; }
+    .menu-icon span:nth-child(3) { top: 21.5px; }
+    #profileMenuToggle:checked + .menu-icon span:nth-child(1) { transform: rotate(45deg); top: 10.75px; }
+    #profileMenuToggle:checked + .menu-icon span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    #profileMenuToggle:checked + .menu-icon span:nth-child(3) { transform: rotate(-45deg); top: 10.75px; }
 
-/* ===== Header ===== */
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 18px;
-  background: linear-gradient(135deg, #9be15d, #f8ffae); /* green-yellow gradient */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
+    .menu-dropdown {
+      position: fixed;
+      top: 62px;
+      right: 16px;
+      width: 220px;
+      background: var(--surface);
+      backdrop-filter: blur(16px);
+      border-radius: 16px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+      padding: 10px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-12px) scale(0.96);
+      transition: opacity 0.35s var(--ease-out), transform 0.35s var(--ease-out);
+      z-index: 998;
+      border: 1px solid var(--border);
+    }
+    #profileMenuToggle:checked ~ .menu-dropdown {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+    }
+    .menu-dropdown a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 12px;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.92rem;
+      text-decoration: none;
+      border-radius: 10px;
+      transition: background 0.25s, color 0.25s;
+    }
+    .menu-dropdown a:hover {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
 
-.logo .site-name {
-  font-size: 1.3rem;
-  font-weight: bold;
-  color: #e74c3c; /* red/orange highlight */
-}
+    #tips {
+      background: var(--accent-soft);
+      color: var(--accent-2);
+      text-align: center;
+      padding: 10px 16px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      animation: fadeInUp 0.7s var(--ease-out) 0.15s both;
+      border-bottom: 1px solid var(--border);
+    }
 
-.header input[type="search"] {
-  padding: 8px 12px;
-  border-radius: 20px;
-  border: 1px solid #ddd;
-  width: 40%;
-  outline: none;
-  transition: 0.3s;
-}
+    .hero {
+      padding: 28px 20px 12px;
+      max-width: 1180px;
+      margin: 0 auto;
+      animation: fadeInUp 0.8s var(--ease-out) 0.2s both;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+      animation: floatBadge 3s ease-in-out infinite;
+    }
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.03em;
+      line-height: 1.08;
+      max-width: 100%;
+    }
+    .hero h1 .hero-word {
+      display: inline-block;
+      opacity: 0;
+      animation: wordReveal 0.6s var(--ease-out) forwards;
+      will-change: transform, opacity, filter;
+    }
+    .hero h1 .hero-word + .hero-word { margin-left: 0.18em; }
+    .hero h1 .hero-word:not(.journey) {
+      color: var(--text);
+      text-shadow: 0 4px 14px rgba(37, 99, 235, 0.28);
+    }
+    .hero h1 .journey {
+      color: var(--accent);
+      text-shadow: 0 4px 14px rgba(0, 0, 0, 0.38);
+    }
+    .hero h1::after {
+      content: "";
+      display: inline-block;
+      width: 2px;
+      height: 0.95em;
+      margin-left: 0.16em;
+      transform: translateY(0.08em);
+      background: var(--accent);
+      animation: caretBlink 1s steps(1, end) infinite;
+      opacity: 0.9;
+    }
+    .hero p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 0.96rem;
+      max-width: 560px;
+      line-height: 1.55;
+    }
 
-.header input[type="search"]:focus {
-  border-color: #9be15d;
-  box-shadow: 0 0 8px rgba(155, 225, 93, 0.6);
-}
+    .profile-shell {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 10px 20px 32px;
+      display: grid;
+      gap: 18px;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    }
 
-.menu {
-  position: relative;
-}
+    .panel {
+      position: relative;
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(226, 232, 240, 0.92);
+      border-radius: 24px;
+      box-shadow: 0 16px 42px rgba(15, 23, 42, 0.08);
+      backdrop-filter: blur(14px);
+      overflow: hidden;
+      animation: fadeInUp 0.8s var(--ease-out) both;
+    }
+    .panel::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.4) 50%, transparent 60%);
+      transform: translateX(-100%) skewX(-12deg);
+      pointer-events: none;
+    }
+    .panel:hover::after { animation: shimmer 0.75s ease forwards; }
 
-.menu button {
-  background: transparent;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-}
+    .profile-card {
+      padding: 20px;
+    }
+    .profile-top {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .avatar {
+      width: 76px;
+      height: 76px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+      color: var(--accent-2);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 1.7rem;
+      letter-spacing: -0.04em;
+      flex-shrink: 0;
+      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.18);
+      animation: pulseGlow 4s ease-in-out infinite;
+    }
+    .profile-title {
+      min-width: 0;
+      flex: 1;
+    }
+    .profile-title h2 {
+      margin: 0 0 6px;
+      font-size: 1.4rem;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+    }
+    .profile-title p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      word-break: break-word;
+    }
 
-.dropdown-menu {
-  display: none;
-  flex-direction: column;
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-  position: absolute;
-  right: 0;
-  top: 45px;
-  min-width: 180px;
-  overflow: hidden;
-  animation: fadeIn 0.3s ease-in-out;
-}
+    .status-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 16px 0 0;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+    }
+    .status-pill--accent {
+      background: var(--accent-soft);
+      color: var(--accent-2);
+      border-color: rgba(37, 99, 235, 0.18);
+    }
 
-.dropdown-menu a {
-  padding: 10px 15px;
-  text-decoration: none;
-  color: #333;
-  transition: 0.3s;
-}
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .info-card {
+      border-radius: 18px;
+      padding: 14px;
+      background: linear-gradient(180deg, #fff, #f8fbff);
+      border: 1px solid var(--border);
+    }
+    .info-card .label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+    .info-card .value {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--text);
+      word-break: break-word;
+      line-height: 1.35;
+    }
+    .info-card .sub {
+      display: block;
+      margin-top: 6px;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      line-height: 1.4;
+    }
 
-.dropdown-menu a:hover {
-  background: #9be15d;
-  color: #fff;
-}
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .button {
+      appearance: none;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      border-radius: 14px;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 12px 16px;
+      transition: transform 0.25s var(--ease-out), box-shadow 0.25s, background 0.25s, color 0.25s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .button:hover { transform: translateY(-2px); }
+    .button-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #fff;
+      box-shadow: 0 12px 26px rgba(37, 99, 235, 0.24);
+    }
+    .button-primary:hover { box-shadow: 0 16px 30px rgba(37, 99, 235, 0.3); }
+    .button-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .button-secondary:hover {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: rgba(37, 99, 235, 0.22);
+    }
 
-.menu:hover .dropdown-menu {
-  display: flex;
-}
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .section-head h3 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .section-head span {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
 
-/* ===== Profile Section ===== */
-main {
-  flex: 1;
-  padding: 20px;
-}
+    .quick-links {
+      padding: 20px;
+    }
+    .link-list {
+      display: grid;
+      gap: 10px;
+    }
+    .link-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 15px;
+      border-radius: 16px;
+      text-decoration: none;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--border);
+      transition: transform 0.25s var(--ease-out), border-color 0.25s, background 0.25s, color 0.25s;
+    }
+    .link-item:hover {
+      transform: translateY(-2px);
+      border-color: rgba(37, 99, 235, 0.22);
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .link-item .left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .link-item i {
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .link-item strong {
+      font-size: 0.95rem;
+      line-height: 1.25;
+    }
+    .link-item small {
+      display: block;
+      margin-top: 2px;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      line-height: 1.35;
+    }
 
-h2 {
-  margin-bottom: 15px;
-  font-size: 1.4rem;
-  color: #444;
-}
+    .guest-card {
+      padding: 20px;
+      margin-top: 18px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(239,246,255,0.96));
+    }
+    .guest-card h3 {
+      margin: 0 0 8px;
+      font-size: 1.15rem;
+    }
+    .guest-card p {
+      margin: 0;
+      color: var(--text-muted);
+      line-height: 1.55;
+      font-size: 0.95rem;
+    }
 
-.profile-menu {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-}
+    .account-note {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 1px dashed rgba(100, 116, 139, 0.28);
+      color: var(--text-muted);
+      font-size: 0.86rem;
+      line-height: 1.45;
+    }
 
-.profile-menu li {
-  padding: 20px 25px;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 25px;
-}
+    .logout-wrap {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
 
-.profile-menu li:hover {
-  background: linear-gradient(135deg, #f8ffae, #9be15d);
-  color: #fff;
-  transform: translateX(6px);
-}
-
-/* ===== Bottom Navigation ===== */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #fff;
-  display: flex;
-  justify-content: space-around;
-  padding: 12px 0;
-  border-top: 1px solid #ddd;
-  box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
-  animation: slideUp 0.5s ease;
-}
-body {
-      padding-bottom: 80px; /* space for nav */
+    .empty-state {
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px dashed rgba(37, 99, 235, 0.24);
+      background: rgba(239, 246, 255, 0.7);
+      color: var(--text-muted);
+      line-height: 1.6;
+      font-size: 0.95rem;
     }
 
     .bottom-nav {
       position: fixed;
-      bottom: 20px;
       left: 50%;
-      transform: translateX(-50%);
-      width: 90%;
-      max-width: 500px;
-      background: rgba(255, 255, 255, 0.85);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-      border-radius: 40px;
-      display: flex;
-      justify-content: space-around;
+      right: auto;
+      bottom: 12px;
+      z-index: 999;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       align-items: center;
-      padding: 10px 0;
-      backdrop-filter: blur(8px);
-      transition: all 0.3s ease-in-out;
+      gap: 8px;
+      width: min(calc(100% - 24px), 520px);
+      max-width: 520px;
+      transform: translateX(-50%);
+      margin: 0 auto;
+      padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+      background: rgba(255, 255, 255, 0.98);
+      border-radius: 28px;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.14);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      animation: navFadeIn 0.5s var(--ease-out) both;
+      transition: transform 0.32s var(--ease-out), opacity 0.32s var(--ease-out), box-shadow 0.32s var(--ease-out);
+      will-change: transform, opacity;
+    }
+
+    .bottom-nav.hidden {
+      opacity: 0;
+      transform: translate(-50%, 112%);
+      pointer-events: none;
+    }
+
+    .bottom-nav-shadow {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 26px;
+      pointer-events: none;
+      background: linear-gradient(to top, rgba(15, 23, 42, 0.18), transparent);
+      opacity: 0;
+      transition: opacity 0.32s ease;
+      z-index: 890;
+    }
+
+    .bottom-nav-shadow.visible {
+      opacity: 1;
     }
 
     .nav-item {
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
+      gap: 2px;
+      min-width: 0;
+      min-height: 52px;
+      padding: 8px 6px;
+      border-radius: 18px;
       text-decoration: none;
-      color: #555;
-      font-size: 0.8rem;
-      transition: all 0.3s;
+      color: var(--text-muted);
+      font-size: clamp(0.6rem, 2.2vw, 0.72rem);
+      font-weight: 600;
+      line-height: 1.1;
+      transition: color 0.25s, background 0.25s, transform 0.25s;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .nav-item i {
-      font-size: 1.4rem;
-      margin-bottom: 4px;
-      transition: all 0.3s ease;
+      font-size: clamp(1.2rem, 4.5vw, 1.45rem);
+      line-height: 1;
+      flex-shrink: 0;
+      transition: color 0.25s;
     }
 
-    .nav-item:hover, .nav-item.active {
-      color: #ff5e57;
+    .nav-item span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
     }
 
-    .nav-item:hover i, .nav-item.active i {
-      transform: scale(1.2);
+    .nav-item:hover {
+      color: var(--accent);
+      background: var(--accent-soft);
     }
 
-    @media (max-width: 600px) {
-      .bottom-nav {
-        width: 95%;
-        bottom: 15px;
+    .nav-item.active {
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .nav-item.active i {
+      color: var(--accent);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 960px) {
+      .profile-shell {
+        grid-template-columns: 1fr;
       }
     }
 
-.bottom-nav a {
-  text-decoration: none;
-  color: #555;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-size: 0.85rem;
-  transition: 0.3s;
-}
+    @media (max-width: 639px) {
+      .site-header { padding: 10px 12px; gap: 10px; }
+      .logo { font-size: 1.25rem; }
+      .hero { padding-inline: 16px; width: 100%; }
+      .hero h1 {
+        font-size: clamp(1.03rem, 5vw, 1.45rem);
+        line-height: 1.08;
+        white-space: nowrap;
+        letter-spacing: -0.05em;
+        overflow: hidden;
+      }
+      .hero h1 .hero-word + .hero-word { margin-left: 0.15em; }
+      .profile-shell { padding-inline: 16px; }
+      .menu-dropdown { width: min(78vw, 240px); right: 12px; }
+      .profile-top { align-items: flex-start; }
+      .profile-card { padding: 14px; }
+      .avatar { width: 58px; height: 58px; border-radius: 16px; font-size: 1.35rem; }
+      .profile-top { gap: 12px; margin-bottom: 12px; }
+      .profile-title h2 { font-size: 1.15rem; }
+      .profile-title p { font-size: 0.84rem; line-height: 1.4; }
+      .status-row { gap: 6px; margin-top: 12px; }
+      .status-pill { padding: 6px 10px; font-size: 0.73rem; }
+      .info-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 14px; }
+      .info-card { padding: 11px; border-radius: 14px; }
+      .info-card .label { font-size: 0.68rem; margin-bottom: 6px; }
+      .info-card .value { font-size: 0.86rem; line-height: 1.25; }
+      .info-card .sub { display: none; }
+      .cta-row, .logout-wrap { flex-direction: column; margin-top: 14px; }
+      .button { width: 100%; padding: 11px 14px; font-size: 0.9rem; }
+      .account-note { margin-top: 12px; padding: 10px 12px; font-size: 0.8rem; }
+    }
 
-.bottom-nav a:hover {
-  color: #e67e22; /* orange */
-  transform: scale(1.1);
-}
+    @media (min-width: 640px) {
+      body {
+        padding-bottom: calc(var(--nav-height) + 32px + env(safe-area-inset-bottom, 0px));
+      }
 
-.bottom-nav i {
-  font-size: 1.4rem;
-  margin-bottom: 3px;
-}
+      .bottom-nav {
+        left: 50%;
+        right: auto;
+        bottom: max(16px, env(safe-area-inset-bottom, 16px));
+        width: min(480px, calc(100% - 32px));
+        max-width: 480px;
+        transform: translateX(-50%);
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        padding: 8px 10px;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 4px;
+      }
 
-/* ===== Animations ===== */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+      .nav-item {
+        min-height: 56px;
+        border-radius: 14px;
+        font-size: 0.72rem;
+      }
+    }
 
-@keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-.title{
-  padding-left: 50px;
-  font-size: 30px;
-  padding-top: 30px;
-  color: orangered;
-}
-.ending{
-  padding-top: 50px;
-}
- /* Menu toggle */
-.menu-icon {
-  width: 30px;
-  height: 24px;
-  position: relative;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
+    @media (min-width: 1024px) {
+      .bottom-nav {
+        width: min(560px, calc(100% - 48px));
+        max-width: 560px;
+        bottom: max(20px, env(safe-area-inset-bottom, 20px));
+      }
+    }
 
-.menu-icon span {
-  height: 3px;
-  background: white;
-  border-radius: 3px;
-  transition: all 0.4s ease;
-}
-
-/* Transform to X */
-#menuToggle:checked + label.menu-icon span:nth-child(1) {
-  transform: rotate(45deg) translateY(10px);
-}
-#menuToggle:checked + label.menu-icon span:nth-child(2) {
-  opacity: 0;
-}
-#menuToggle:checked + label.menu-icon span:nth-child(3) {
-  transform: rotate(-45deg) translateY(-10px);
-}
-
-/* Dropdown Menu */
-.menu-dropdown {
-  position: fixed;
-  top: 65px;
-  right: 15px;
-  width: 180px;
-  background: rgba(255,255,255,0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 15px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-  padding: 12px;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-15px);
-  transition: all 0.3s ease;
-}
-
-/* Show dropdown when checked */
-#menuToggle:checked ~ .menu-dropdown {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
-}
-
-/* Links */
-.menu-dropdown a {
-  display: block;
-  padding: 10px;
-  color: #ff6b6b;
-  font-weight: 500;
-  text-decoration: none;
-  border-radius: 8px;
-  transition: background 0.3s ease, transform 0.2s ease;
-}
-
-.menu-dropdown a:hover {
-  background: rgba(255,107,107,0.15);
-  transform: translateX(4px);
-}
-
-    
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
   </style>
-  
 </head>
 <body>
-<header style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,#ff6b6b,#ff8e53);padding:10px 15px;position:sticky;top:0;z-index:999;box-shadow:0 3px 15px rgba(0,0,0,0.1);">
-  <div class="logo" style="font-size:1.6rem;font-weight:700;color:white;text-shadow:0 0 8px rgba(255,255,255,0.5);letter-spacing:1px;">market</div>
-  <div class="search-container" style="display:flex;align-items:center;flex:1;margin:0 10px;position:relative;">
-    <input type="text" id="searchInput" placeholder="Search products..." style="width:100%;padding:10px 40px 10px 15px;border-radius:25px;border:none;outline:none;background:rgba(255,255,255,0.2);color:white;font-size:1rem;transition:all 0.3s;"/>
-    <button id="searchBtn" style="position:absolute;right:10px;background:transparent;border:none;color:white;font-size:1.2rem;cursor:pointer;">🔍</button>
-    <div id="suggestionBox" style="position:absolute;top:100%;width:100%;background:orangered;border-radius:8px;box-shadow:0 4px 15px rgba(0,0,0,0.1);max-height:250px;overflow-y:auto;display:none;z-index:1000;"></div>
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
   </div>
-  <input type="checkbox" id="menuToggle">
-  <label for="menuToggle">
-    <div class="menu-icon">
-      <span></span><span></span><span></span>
-    </div>
-  </label>
 
-  <nav>
-    <a href="/auctions.html">Auctions</a>
-    <a href="/profile/help.html">Help</a>
-    <a href="/fits.html">Fits</a>
-    <a href="/giftoria.html">Giftoria</a>
-    <a href="profile/cart.html">Cart</a>
-    <a href="/profile/partner.html">Partner With Us</a>
-  </nav>
-</header>
-<div id="tips" style="background:#fff2ee;color:#ff5a5a;text-align:center;padding:10px 15px;font-weight:500;animation:fadeIn 1s ease;">Welcome to Market!</div>
+  <div class="page-wrap">
+    <header class="site-header">
+      <a class="logo" href="/home.html">Tucks</a>
+      <div class="header-actions">
+        <a class="icon-button" href="/cart.html" aria-label="Open cart">
+          <i class='bx bx-cart'></i>
+        </a>
+        <a class="icon-button" href="/order.html" aria-label="View orders">
+          <i class='bx bx-history'></i>
+        </a>
+        <input type="checkbox" id="profileMenuToggle">
+        <label for="profileMenuToggle" class="menu-icon" aria-label="Open menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </label>
+      </div>
 
-<!-- Floating Bottom Navigation -->
-  <nav class="bottom-nav">
+      <div class="menu-dropdown">
+        <a href="/profile/help.html"><i class='bx bx-help-circle'></i> Help</a>
+        <a href="/profile/install.html"><i class='bx bx-download'></i> Install</a>
+        <a href="/profile/refund.html"><i class='bx bx-revision'></i> Refunds</a>
+        <a href="/profile/reviews.html"><i class='bx bx-star'></i> Reviews</a>
+        <a href="/profile/terms.html"><i class='bx bx-file'></i> Terms</a>
+      </div>
+    </header>
+
+    
+    <section class="hero">
+      <div class="hero-badge"><i class='bx bx-user-circle'></i> Your account</div>
+      <h1 aria-label="With you in every step of the journey.">
+        <span class="hero-word" style="animation-delay: 0.15s;">With</span>
+        <span class="hero-word" style="animation-delay: 0.3s;">you</span>
+        <span class="hero-word" style="animation-delay: 0.45s;">in</span>
+        <span class="hero-word" style="animation-delay: 0.6s;">every</span>
+        <span class="hero-word" style="animation-delay: 0.75s;">step</span>
+        <span class="hero-word" style="animation-delay: 0.9s;">of</span>
+        <span class="hero-word" style="animation-delay: 1.05s;">the</span>
+        <span class="hero-word journey" style="animation-delay: 1.2s;">journey.</span>
+      </h1>
+      </section>
+
+    <main class="profile-shell">
+      <section class="panel profile-card" aria-live="polite">
+        <div class="profile-top">
+          <div class="avatar" id="avatar">T</div>
+          <div class="profile-title">
+            <h2 id="displayName">Guest</h2>
+            <p id="displaySubtitle">You are not signed in yet. Log in to see your account details and personalized shopping info.</p>
+          </div>
+        </div>
+
+        <div class="status-row">
+          <span class="status-pill status-pill--accent" id="authStatus"><i class='bx bx-user-check'></i> Guest mode</span>
+          <span class="status-pill" id="memberSince"><i class='bx bx-time-five'></i> Member since -</span>
+          <span class="status-pill" id="accountMode"><i class='bx bx-shield-quarter'></i> Secure account</span>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-card">
+            <span class="label">Email</span>
+            <div class="value" id="emailValue">Not signed in</div>
+            <span class="sub">Use the same email to keep your orders in sync.</span>
+          </div>
+          <div class="info-card">
+            <span class="label">User ID</span>
+            <div class="value" id="uidValue">Unavailable</div>
+            <span class="sub">A unique ID used to identify your account securely.</span>
+          </div>
+          <div class="info-card">
+            <span class="label">Last sign-in</span>
+            <div class="value" id="lastSignInValue">-</div>
+            <span class="sub">A quick snapshot of your most recent login.</span>
+          </div>
+        </div>
+
+        <div class="cta-row" id="guestActions">
+          <a class="button button-primary" href="/login.html"><i class='bx bx-log-in'></i> Log In</a>
+          <a class="button button-secondary" href="/signup.html"><i class='bx bx-user-plus'></i> Create Account</a>
+        </div>
+
+        <div class="logout-wrap hidden" id="loggedInActions">
+          <button class="button button-primary" type="button" id="logoutBtn"><i class='bx bx-log-out'></i> Log Out</button>
+        </div>
+
+        <div class="account-note" id="accountNote">
+          Sign in to unlock a more personal experience, including your stored account details and a faster path back to your cart and orders.
+        </div>
+      </section>
+
+      <section>
+        <section class="panel quick-links">
+          <div class="section-head">
+            <h3>Quick Actions</h3>
+            <span>Tap to move faster</span>
+          </div>
+          <div class="link-list">
+            <a class="link-item" href="/cart.html">
+              <div class="left">
+                <i class='bx bx-cart'></i>
+                <div>
+                  <strong>My Cart</strong>
+                  <small>Review saved items before checkout.</small>
+                </div>
+              </div>
+              <i class='bx bx-chevron-right'></i>
+            </a>
+            <a class="link-item" href="/order.html">
+              <div class="left">
+                <i class='bx bx-history'></i>
+                <div>
+                  <strong>Orders</strong>
+                  <small>Check your recent purchases and status.</small>
+                </div>
+              </div>
+              <i class='bx bx-chevron-right'></i>
+            </a>
+            <a class="link-item" href="/profile/help.html">
+              <div class="left">
+                <i class='bx bx-help-circle'></i>
+                <div>
+                  <strong>Help Center</strong>
+                  <small>Get support if something feels off.</small>
+                </div>
+              </div>
+              <i class='bx bx-chevron-right'></i>
+            </a>
+          </div>
+        </section>
+
+        <section class="panel guest-card" id="guestCard">
+          <h3>Not logged in yet?</h3>
+          <p>Log in to make this page feel like yours. You&apos;ll see your account status and a cleaner path back into shopping.</p>
+          <div class="cta-row" style="margin-top: 16px;">
+            <a class="button button-primary" href="/login.html"><i class='bx bx-log-in'></i> Go to Login</a>
+          </div>
+        </section>
+
+        <section class="panel quick-links" style="margin-top: 18px;">
+          <div class="section-head">
+            <h3>More</h3>
+            <span>Policies and extras</span>
+          </div>
+          <div class="link-list">
+            <a class="link-item" href="/profile/install.html">
+              <div class="left">
+                <i class='bx bx-download'></i>
+                <div>
+                  <strong>Install App</strong>
+                  <small>Add Tucks to your device for a smoother experience.</small>
+                </div>
+              </div>
+              <i class='bx bx-chevron-right'></i>
+            </a>
+            <a class="link-item" href="/profile/refund.html">
+              <div class="left">
+                <i class='bx bx-revision'></i>
+                <div>
+                  <strong>Refunds</strong>
+                  <small>Read the refund and return guidance.</small>
+                </div>
+              </div>
+              <i class='bx bx-chevron-right'></i>
+            </a>
+            <a class="link-item" href="/profile/reviews.html">
+              <div class="left">
+                <i class='bx bx-star'></i>
+                <div>
+                  <strong>Reviews</strong>
+                  <small>See feedback from other shoppers.</small>
+                </div>
+              </div>
+              <i class='bx bx-chevron-right'></i>
+            </a>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <nav class="bottom-nav" aria-label="Main navigation">
     <a href="/home.html" class="nav-item">
-      
+      <i class='bx bxs-home'></i>
       <span>Home</span>
     </a>
-
     <a href="/cart.html" class="nav-item">
-      
+      <i class='bx bx-cart'></i>
       <span>Cart</span>
     </a>
-
     <a href="/order.html" class="nav-item">
-      
+      <i class='bx bx-history'></i>
       <span>Orders</span>
     </a>
-
-    <a href="/profile.html" class="nav-item">
-     
+    <a href="/profile.html" class="nav-item active">
+      <i class='bx bxs-user-circle'></i>
       <span>Profile</span>
     </a>
   </nav>
+  <div class="bottom-nav-shadow" aria-hidden="true"></div>
 
-  <nav>
-    <h2 class="title">My Profile</h2>
-  </nav>
+  <script type="module">
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-  <main>
-    <ul class="profile-menu">
-      <li onclick="navigateTo('/food.html')">Order your food now</li>
-      <li onclick="navigateTo('/profile/install.html')">🤖 Install</li>
-      <li onclick="navigateTo('/profile/help.html')">🆘 Help</li>
-      <li onclick="navigateTo('/profile/refund.html')">🔁 Get A Refund </li>
-      <li onclick="navigateTo('/profile/cart.html')">🛒 My Cart</li>
-      <li onclick="navigateTo('/profile/reviews.html')">⭐ Reviews & Feedback</li>
-      <li onclick="navigateTo('/profile/terms.html')"> Terms & Conditions</li>
-      <li onclick="logout()">🚪 Logout</li>
-    </ul>
-  </main>
-  <nav class="ending"></nav>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDzwnmGgEcN63RcCHSNU6p_xXKxmeqzF6k",
+      authDomain: "losixmarket.firebaseapp.com",
+      projectId: "losixmarket",
+      storageBucket: "losixmarket.firebasestorage.app",
+      messagingSenderId: "301860246689",
+      appId: "1:301860246689:web:aabf0ab9af41081a91cce0",
+      measurementId: "G-ZPVVZ8GNP0"
+    };
+
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const els = {
+      avatar: document.getElementById('avatar'),
+      displayName: document.getElementById('displayName'),
+      displaySubtitle: document.getElementById('displaySubtitle'),
+      authStatus: document.getElementById('authStatus'),
+      memberSince: document.getElementById('memberSince'),
+      accountMode: document.getElementById('accountMode'),
+      emailValue: document.getElementById('emailValue'),
+      uidValue: document.getElementById('uidValue'),
+      lastSignInValue: document.getElementById('lastSignInValue'),
+      guestActions: document.getElementById('guestActions'),
+      loggedInActions: document.getElementById('loggedInActions'),
+      guestCard: document.getElementById('guestCard'),
+      accountNote: document.getElementById('accountNote'),
+      logoutBtn: document.getElementById('logoutBtn')
+    };
+
+    function formatDate(input) {
+      if (!input) return '-';
+      if (typeof input?.toDate === 'function') {
+        return formatDate(input.toDate());
+      }
+      if (typeof input?.seconds === 'number') {
+        return formatDate(new Date(input.seconds * 1000));
+      }
+      const date = input instanceof Date ? input : new Date(input);
+      if (Number.isNaN(date.getTime())) return '-';
+      return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
+    function formatDateTime(input) {
+      if (!input) return '-';
+      if (typeof input?.toDate === 'function') {
+        return formatDateTime(input.toDate());
+      }
+      if (typeof input?.seconds === 'number') {
+        return formatDateTime(new Date(input.seconds * 1000));
+      }
+      const date = input instanceof Date ? input : new Date(input);
+      if (Number.isNaN(date.getTime())) return '-';
+      return date.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    }
+
+    function deriveName(user, profile) {
+      const rawName = profile?.displayName || user?.displayName || '';
+      if (rawName.trim()) return rawName.trim();
+      const email = user?.email || profile?.email || '';
+      if (email.includes('@')) return email.split('@')[0].replace(/[._-]+/g, ' ').trim() || 'Tucks Member';
+      return 'Tucks Member';
+    }
+
+    function initialsFromName(name) {
+      return String(name || 'T')
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map(part => part.charAt(0).toUpperCase())
+        .join('') || 'T';
+    }
+
+    function setGuestState() {
+      const name = 'Guest';
+      els.avatar.textContent = 'G';
+      els.displayName.textContent = name;
+      els.displaySubtitle.textContent = 'You are not signed in yet. Log in to see your account details and personalized shopping info.';
+      els.authStatus.innerHTML = "<i class='bx bx-user'></i> Guest mode";
+      els.memberSince.innerHTML = "<i class='bx bx-time-five'></i> Member since -";
+      els.accountMode.innerHTML = "<i class='bx bx-shield-quarter'></i> Secure account";
+      els.emailValue.textContent = 'Not signed in';
+      els.uidValue.textContent = 'Unavailable';
+      els.lastSignInValue.textContent = '-';
+      els.guestActions.classList.remove('hidden');
+      els.loggedInActions.classList.add('hidden');
+      els.guestCard.classList.remove('hidden');
+      els.accountNote.textContent = 'Sign in to unlock a more personal experience, including your stored account details and a faster path back to your cart and orders.';
+    }
+
+    async function loadUserProfile(user) {
+      let profile = null;
+      try {
+        const snap = await getDoc(doc(db, 'users', user.uid));
+        if (snap.exists()) profile = snap.data();
+      } catch (error) {
+        console.warn('Could not load profile doc', error);
+      }
+      return profile;
+    }
+
+    async function setLoggedInState(user) {
+      const profile = await loadUserProfile(user);
+      const name = deriveName(user, profile);
+      const initials = initialsFromName(name);
+      const email = user?.email || profile?.email || 'No email on file';
+
+      els.avatar.textContent = initials;
+      els.displayName.textContent = name;
+      els.displaySubtitle.textContent = user?.email ? `Welcome back, ${name}. Your account is live and ready.` : 'Welcome back. Your profile is connected.';
+      els.authStatus.innerHTML = "<i class='bx bx-user-check'></i> Signed in";
+      els.memberSince.innerHTML = `<i class='bx bx-time-five'></i> Member since ${formatDate(profile?.createdAt || user?.metadata?.creationTime)}`;
+      els.accountMode.innerHTML = `<i class='bx bx-shield-quarter'></i> ${user?.emailVerified ? 'Verified account' : 'Unverified account'}`;
+      els.emailValue.textContent = email;
+      els.uidValue.textContent = user?.uid || 'Unavailable';
+      els.lastSignInValue.textContent = formatDateTime(user?.metadata?.lastSignInTime || user?.metadata?.creationTime);
+      els.guestActions.classList.add('hidden');
+      els.loggedInActions.classList.remove('hidden');
+      els.guestCard.classList.add('hidden');
+      els.accountNote.textContent = 'Your profile now shows account-specific details. Keep your login active for a smoother shopping experience.';
+    }
+
+    async function handleAuthChange(user) {
+      if (user) {
+        localStorage.setItem('isLoggedIn', 'true');
+        await setLoggedInState(user);
+      } else {
+        localStorage.removeItem('isLoggedIn');
+        setGuestState();
+      }
+    }
+
+    els.logoutBtn?.addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+      } catch (error) {
+        console.warn('Sign out failed', error);
+      } finally {
+        localStorage.removeItem('isLoggedIn');
+        window.location.href = '/login.html';
+      }
+    });
+
+    const fallbackLogged = localStorage.getItem('isLoggedIn') === 'true';
+    if (!fallbackLogged) setGuestState();
+
+    onAuthStateChanged(auth, (user) => {
+      handleAuthChange(user);
+    });
+  </script>
+
   
-  
- <script type="module" src="/script.js"></script>
+
   <script>
-    function navigateTo(page) {
-      window.location.href = page;
-      flashMessage('loading....')
-    }
+    (function() {
+      const nav = document.querySelector('.bottom-nav');
+      const shadow = document.querySelector('.bottom-nav-shadow');
+      if (!nav || !shadow) return;
 
-    function logout() {
-      localStorage.clear();
-      sessionStorage.clear();
-      alert("Logged out.");
-      window.location.href = "index.html";
-    }
+      let lastScrollY = window.scrollY;
+      let isHidden = false;
+      let scrollTimeout;
+
+      const hideNav = () => {
+        if (isHidden) return;
+        nav.classList.add('hidden');
+        shadow.classList.add('visible');
+        isHidden = true;
+      };
+
+      const showNav = () => {
+        if (!isHidden) return;
+        nav.classList.remove('hidden');
+        shadow.classList.remove('visible');
+        isHidden = false;
+      };
+
+      window.addEventListener('scroll', () => {
+        const currentScroll = window.scrollY;
+        if (currentScroll > lastScrollY + 10 && currentScroll > 80) {
+          hideNav();
+        } else if (currentScroll < lastScrollY - 10) {
+          showNav();
+        }
+        lastScrollY = Math.max(currentScroll, 0);
+
+        window.clearTimeout(scrollTimeout);
+        scrollTimeout = window.setTimeout(() => {
+          if (window.scrollY < 100) showNav();
+        }, 150);
+      }, { passive: true });
+
+      window.addEventListener('pageshow', showNav);
+    })();
   </script>
 </body>
 </html>

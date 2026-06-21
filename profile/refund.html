@@ -22,43 +22,7 @@
       margin: 0;
       padding: 0;
     }
-    /* Menu Toggle Checkbox */
-#menuToggle {
-  display: none;
-}
-
-/* Hamburger */
-.menu-icon {
-  width: 30px;
-  height: 24px;
-  position: relative;
-  cursor: pointer;
-  transition: all 0.4s ease;
-}
-.menu-icon span {
-  position: absolute;
-  height: 3px;
-  width: 100%;
-  background: white;
-  border-radius: 3px;
-  transition: all 0.4s ease;
-}
-.menu-icon span:nth-child(1) { top: 0; }
-.menu-icon span:nth-child(2) { top: 10px; }
-.menu-icon span:nth-child(3) { top: 20px; }
-
-/* Animate to X */
-#menuToggle:checked + label .menu-icon span:nth-child(1) {
-  transform: rotate(45deg);
-  top: 10px;
-}
-#menuToggle:checked + label .menu-icon span:nth-child(2) {
-  opacity: 0;
-}
-#menuToggle:checked + label .menu-icon span:nth-child(3) {
-  transform: rotate(-45deg);
-  top: 10px;
-}
+ 
 
 /* Dropdown Menu */
 nav {
@@ -107,58 +71,7 @@ nav a:hover {
   }
 }
 
-    body {
-      padding-bottom: 80px; /* space for nav */
-    }
-
-    .bottom-nav {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90%;
-      max-width: 500px;
-      background: rgba(255, 255, 255, 0.85);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-      border-radius: 40px;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      padding: 10px 0;
-      backdrop-filter: blur(8px);
-      transition: all 0.3s ease-in-out;
-    }
-
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-decoration: none;
-      color: #555;
-      font-size: 0.8rem;
-      transition: all 0.3s;
-    }
-
-    .nav-item i {
-      font-size: 1.4rem;
-      margin-bottom: 4px;
-      transition: all 0.3s ease;
-    }
-
-    .nav-item:hover, .nav-item.active {
-      color: #ff5e57;
-    }
-
-    .nav-item:hover i, .nav-item.active i {
-      transform: scale(1.2);
-    }
-
-    @media (max-width: 600px) {
-      .bottom-nav {
-        width: 95%;
-        bottom: 15px;
-      }
-    }
+   
 
     .refund-container {
       max-width: 600px;
@@ -166,11 +79,11 @@ nav a:hover {
       padding: 20px;
       background: #fff;
       border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 10px #64748b;
     }
     h2 {
       text-align: center;
-      color: #333;
+      color: #2563eb;
     }
     .form-row {
       margin-bottom: 15px;
@@ -183,7 +96,7 @@ nav a:hover {
     .form-row input, .form-row textarea {
       width: 100%;
       padding: 10px;
-      border: 1px solid #ccc;
+      border: 1px solid blue;
       border-radius: 6px;
     }
     .submit-btn {
@@ -199,162 +112,57 @@ nav a:hover {
     .submit-btn:hover {
       background: orangered;
     }
-     /* Menu toggle */
-.menu-icon {
-  width: 30px;
-  height: 24px;
-  position: relative;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.menu-icon span {
-  height: 3px;
-  background: white;
-  border-radius: 3px;
-  transition: all 0.4s ease;
-}
-
-/* Transform to X */
-#menuToggle:checked + label.menu-icon span:nth-child(1) {
-  transform: rotate(45deg) translateY(10px);
-}
-#menuToggle:checked + label.menu-icon span:nth-child(2) {
-  opacity: 0;
-}
-#menuToggle:checked + label.menu-icon span:nth-child(3) {
-  transform: rotate(-45deg) translateY(-10px);
-}
-
-/* Dropdown Menu */
-.menu-dropdown {
-  position: fixed;
-  top: 65px;
-  right: 15px;
-  width: 180px;
-  background: rgba(255,255,255,0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 15px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-  padding: 12px;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-15px);
-  transition: all 0.3s ease;
-}
-
-/* Show dropdown when checked */
-#menuToggle:checked ~ .menu-dropdown {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
-}
-
-/* Links */
-.menu-dropdown a {
-  display: block;
-  padding: 10px;
-  color: #ff6b6b;
-  font-weight: 500;
-  text-decoration: none;
-  border-radius: 8px;
-  transition: background 0.3s ease, transform 0.2s ease;
-}
-
-.menu-dropdown a:hover {
-  background: rgba(255,107,107,0.15);
-  transform: translateX(4px);
-}
+ 
 
   </style>
 </head>
 <body>
-  <!-- Floating Bottom Navigation -->
-  <div  class="bottom-nav">
-    <a href="/home.html" class="nav-item">
-      
-      <span>Home</span>
-    </a>
-
-    <a href="/cart.html" class="nav-item">
-      
-      <span>Cart</span>
-    </a>
-
-    <a href="/order.html" class="nav-item">
-      
-      <span>Orders</span>
-    </a>
-
-    <a href="/profile.html" class="nav-item">
-     
-      <span>Profile</span>
-    </a>
-  </div>
-  
-<div id="tips" style="background:#fff2ee;color:#ff5a5a;text-align:center;padding:10px 15px;font-weight:500;animation:fadeIn 1s ease;">Welcome to Market!</div>
-
-  <!-- Floating Bottom Navigation -->
-  <nav class="bottom-nav">
-   <a href="/home.html" class="nav-item">
-      
-      <span>Home</span>
-    </a>
-
-    <a href="/cart.html" class="nav-item">
-      
-      <span>Cart</span>
-    </a>
-
-    <a href="/order.html" class="nav-item">
-      
-      <span>Orders</span>
-    </a>
-
-    <a href="/profile.html" class="nav-item">
-     
-      <span>Profile</span>
-    </a>
-  </nav>
-
+ 
   <div class="refund-container">
-    <h2 style="color: orangered;">Refund Request</h2>
+ <h2 style="color: blue; font-size: 50px;">Refund Request</h2>
+  <div class="refund-container">
     <form id="refundForm">
       <div class="form-row">
-        <label for="refNumber">Order Reference Number <span style="color:red">*</span></label>
+   
+        <label for="refNumber" style="color: blue;" >Order Reference Number <span style="color:red">*</span></label>
         <input id="refNumber" type="text" required placeholder="Enter your order reference number from your receipt">
       </div>
-
+      </div>
+     <div class="refund-container">
       <div class="form-row">
-        <label for="customerName">Full Name <span style="color:red">*</span></label>
+        <label for="customerName" style="color: blue;">Full Name <span style="color:red">*</span></label>
         <input id="customerName" type="text" required placeholder="Enter your full name">
       </div>
-
+      </div>
+      <div class="refund-container">
       <div class="form-row">
-        <label for="phone">Phone Number <span style="color:red">*</span></label>
+        <label for="phone" style="color: blue;">Phone Number <span style="color:red">*</span></label>
         <input id="phone" type="tel" required placeholder="Enter your phone number">
       </div>
-
+      </div>
+      <div class="refund-container">
       <div class="form-row">
-        <label for="email">Email <span style="color:red">*</span></label>
+        <label for="email" style="color: blue;">Email <span style="color:red">*</span></label>
         <input id="email" type="email" required placeholder="Enter your email address">
       </div>
-
+      </div>
+    <div class="refund-container">
       <div class="form-row">
-        <label for="address">Address to Receive Refund <span style="color:red">*</span></label>
+        <label for="address"  style="color: blue;">Address to Receive Refund <span style="color:red">*</span></label>
         <textarea id="address" rows="3" required placeholder="Enter your full address"></textarea>
       </div>
-
+      </div>
+    <div class="refund-container">
       <div class="form-row">
-        <label for="refundReason">Reason for Refund (optional)</label>
+        <label for="refundReason"  style="color: blue;">Reason for Refund (optional)</label>
         <textarea id="refundReason" rows="4" placeholder="Briefly explain why you need a refund"></textarea>
       </div>
-
+      </div>
+    <div class="refund-container">
       <div class="form-row">
-        <label for="refundImage">Upload Receipt / Product Image <span style="color:red">*</span></label>
+        <label for="refundImage"  style="color: blue;">Upload Receipt / Product Image <span style="color:red">*</span></label>
         <input id="refundImage" type="file" accept="image/*" required>
+      </div>
       </div>
       <div style="padding-bottom: 15px;">
       <code style="color: red;">Your refund will be processed within 7 working days</code>
@@ -363,6 +171,7 @@ nav a:hover {
 
       <button type="submit" class="submit-btn">Submit Refund Request</button>
     </form>
+  </div>
   </div>
  <script type="module" src="/script.js"></script>
   <script type="module">

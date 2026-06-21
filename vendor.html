@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="logo.png" alt="Tucks logo">
+  <meta name="theme-color" content="#2563eb">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js')
+          .then(() => console.log('Service Worker Registered'));
+      });
+    }
+  </script>
+  <title>Tucks - My Vault</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="clothes/clothes-theme.css">
+  <link rel="stylesheet" href="clothes/vendor-theme.css">
+</head>
+<body class="vendor-page">
+
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+  </div>
+
+  <div class="vendor-splash">
+    <img src="./logo.png" alt="Tucks" class="logo-img" width="48" height="48">
+    <h1 style="font-size:1.6rem;margin:8px 0 0;font-weight:800;color:var(--accent)">MY VAULT</h1>
+    <p style="opacity:0.75;margin:0;color:var(--text-muted)">Seller dashboard</p>
+  </div>
+
+  <div class="vendor-shell page-wrap">
+
+    <header class="site-header" style="margin-bottom:8px">
+      <a href="./home.html" class="logo">
+        <img src="./logo.png" alt="Tucks" class="logo-img" width="36" height="36">
+        <span class="logo-text">Tucks</span>
+      </a>
+      <div style="font-size:0.85rem;font-weight:700;color:var(--accent)">Seller Portal</div>
+    </header>
+
+    <div class="card login-box vendor-card" id="loginBox" style="display:none;">
+      <h2>Seller Login</h2>
+      <p class="sub">Sign in with your supplier account to upload and manage products.</p>
+      <input type="email" id="email" placeholder="Input default username" />
+      <input type="password" id="password" placeholder=" Input default Password" />
+      <div class="vendor-actions">
+        <button class="btn" onclick="login()">Login</button>
+        <a class="btn ghost" href="vendor-register.html">Register to Sell</a>
+       
+      </div>
+      <div id="loginMsg" style="margin-top:8px; display:none;"></div>
+      <p style="margin-top:12px;color:var(--text-muted);font-size:0.82rem">
+        Uploading products means you agree to our <a href="terms.html" style="color:var(--accent)">terms and conditions</a>
+      </p>
+    </div>
+
+    <div class="card upload-box vendor-card" id="uploadBox" style="display:none;">
+      <h2>Upload Products (Vendors)</h2>
+      <p class="sub">Add photos or short videos, set stock and sale dates, then publish to the marketplace.</p>
+
+      <div class="vendor-grid-2">
+        <div>
+          <label for="supplierName">Business Name</label>
+          <input type="text" id="supplierName" placeholder="Business Name or supplier email" required />
+        </div>
+        <div>
+          <label for="supplierCategory">Product Category</label>
+          <select id="supplierCategory" required>
+            <option value="">Select product category (applies to all uploads)</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:8px;font-size:0.92rem;color:var(--text-muted)">The selected product category is applied automatically to every product you upload.</div>
+      <div class="vendor-grid-2" style="margin-top:12px">
+        <div>
+          <label for="supplierLocation">Supplier Location</label>
+          <select id="supplierLocation" required>
+            <option value="">Select your location</option>
+            <option>Boys Main hostel</option>
+            <option>Boys Extension hostel</option>
+            <option>Girls Extension hostel</option>
+            <option>Queen Esther hostel</option>
+            <option>Guest House hostel</option>
+            <option>Girls Engineering hostel</option>
+            <option>Boys Engineering hostel</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="vendor-tabs" style="margin-top:18px">
+        <button type="button" class="vendor-tab active" data-panel="vendorPanelUpload">Upload</button>
+        <button type="button" class="vendor-tab" data-panel="vendorPanelProducts">My Products</button>
+        <button type="button" class="vendor-tab" data-panel="vendorPanelOrders">Customer Orders</button>
+      </div>
+
+      <div id="vendorPanelUpload" class="vendor-panel active">
+        <div id="productsContainer"></div>
+        <div class="vendor-actions">
+          <button type="button" class="btn ghost" onclick="addProductBlock()"><i class='bx bx-plus'></i> Add Product</button>
+          <button type="button" class="btn" onclick="uploadAllProducts()" id="uploadBtn"><i class='bx bx-cloud-upload'></i> Upload All</button>
+        </div>
+        <div id="successMsg" style="display:none;margin-top:12px;color:#065f46;font-weight:700;">Products uploaded successfully!</div>
+      </div>
+
+      <div id="vendorPanelProducts" class="vendor-panel">
+        <div id="myProductsList" class="empty-state">Loading your products...</div>
+      </div>
+
+      <div id="vendorPanelOrders" class="vendor-panel">
+        <div id="sellerOrdersList" class="empty-state">Loading customer orders...</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="overlay"></div>
+  <div id="toast">
+    <strong>Uploading...</strong>
+    <div class="spinner"></div>
+  </div>
+
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <a href="home.html" class="nav-item"><i class='bx bxs-home'></i><span>Home</span></a>
+    <a href="cart.html" class="nav-item"><i class='bx bx-cart'></i><span>Cart</span></a>
+    <a href="order.html" class="nav-item"><i class='bx bx-package'></i><span>Orders</span></a>
+    <a href="profile.html" class="nav-item"><i class='bx bx-user'></i><span>Profile</span></a>
+  </nav>
+
+  <script src="clothes/clothes-ui.js"></script>
+  <script src="clothes/product-options.js"></script>
+
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, collection, addDoc, getDocs, query, where, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDzwnmGgEcN63RcCHSNU6p_xXKxmeqzF6k",
+    authDomain: "losixmarket.firebaseapp.com",
+    projectId: "losixmarket",
+    storageBucket: "losixmarket.firebasestorage.app",
+    messagingSenderId: "301860246689",
+    appId: "1:301860246689:web:aabf0ab9af41081a91cce0",
+    measurementId: "G-ZPVVZ8GNP0"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const CLOUD_NAME = "dthxl4jcn";
+  const UPLOAD_PRESET = "losix_products";
+
+  let currentSellerEmail = "";
+
+  const TYPE_FILTERS = {
+    "cshirts": ["cshirts"],
+    "shirts": ["shirts"],
+    "trousers": ["black"],
+    "skirts": ["matching"],
+    "gowns": ["matching"],
+    "bubu": ["matching"],
+    "loafers": ["loafers"],
+    "slides": ["slides"],
+    "sneakers": ["sneakers"],
+    "accessoriesGadgets": ["accessoriesGadgets"],
+    "laptops": ["laptops"],
+    "phones": ["phones"],
+    "hairProducts": ["hairProducts"],
+    "accessoriesJewelry": ["accessoriesJewelry"],
+    "bracelets": ["bracelets"],
+    "chains": ["chains"],
+    "rings": ["rings"],
+    "watches": ["watches"],
+    "matchingSets": ["matchingSets"],
+    "skinCare": ["skinCare"],
+    "thrift": ["thrift"]
+  };
+
+  // Secondary categories for products
+  const TYPE_SUBCATEGORIES = {
+    "loafers": { matching: "Matching", occasion: "Occasion" },
+    "slides": { matching: "Matching", occasion: "Occasion" },
+    "sneakers": { matching: "Matching", occasion: "Occasion" },
+    "bubu": { matching: "Matching" },
+    "gowns": { matching: "Matching" },
+    "skirts": { matching: "Matching" },
+    "shirts": { casual: "Casual", formal: "Formal" },
+    "cshirts": { casual: "Casual", formal: "Formal" },
+    "trousers": { casual: "Casual", formal: "Formal" },
+    "bracelets": { daily: "Daily Wear", party: "Party Wear" },
+    "chains": { daily: "Daily Wear", party: "Party Wear" },
+    "rings": { daily: "Daily Wear", party: "Party Wear" },
+    "watches": { daily: "Daily Wear", party: "Party Wear" },
+    "matchingSets": { daily: "Daily Wear", party: "Party Wear" },
+    "accessoriesJewelry": { daily: "Daily Wear", party: "Party Wear" },
+    "skinCare": { face: "Face", body: "Body" },
+    "hairProducts": { maintenance: "Maintenance", treatment: "Treatment" },
+    "phones": { new: "New", used: "Used" },
+    "laptops": { new: "New", used: "Used" },
+    "accessoriesGadgets": { new: "New", used: "Used" },
+    "thrift": { mens: "Men's", womens: "Women's" }
+  };
+
+  function populateCategorySelect() {
+    const select = document.getElementById("supplierCategory");
+    if (!select) return;
+    Object.keys(TYPE_FILTERS).forEach(type => {
+      const option = document.createElement("option");
+      option.value = type;
+      option.textContent = type;
+      select.appendChild(option);
+    });
+    select.addEventListener("change", updateProductCategoryNotes);
+  }
+
+  function updateProductCategoryNotes() {
+    const category = document.getElementById("supplierCategory")?.value || "Automatically applied from above";
+    document.querySelectorAll(".p-category-note").forEach(el => el.value = category);
+    document.querySelectorAll(".product-block").forEach(block => updateSubcategoryOptions(block));
+  }
+
+  populateCategorySelect();
+
+  const overlay = document.getElementById("overlay");
+  const toast = document.getElementById("toast");
+
+  function showToast(msg) {
+    toast.querySelector("strong").textContent = msg || "Working...";
+    overlay.classList.add("show");
+    toast.classList.add("show");
+  }
+  function hideToast() {
+    toast.classList.remove("show");
+    overlay.classList.remove("show");
+  }
+
+  function computeInStock(stockQty, saleStart, saleEnd) {
+    const now = Date.now();
+    if (saleEnd) {
+      const end = new Date(saleEnd).getTime();
+      if (!isNaN(end) && now > end) return false;
+    }
+    if (saleStart) {
+      const start = new Date(saleStart).getTime();
+      if (!isNaN(start) && now < start) return false;
+    }
+    const qty = Number(stockQty);
+    if (!isNaN(qty) && qty <= 0) return false;
+    return true;
+  }
+
+  function moneyFmt(n) {
+    return '₦' + Number(n || 0).toLocaleString('en-US');
+  }
+
+  setTimeout(() => {
+    document.querySelector(".vendor-splash").style.display = "none";
+    document.getElementById("loginBox").style.display = "block";
+  }, 1000);
+
+  document.querySelectorAll(".vendor-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".vendor-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".vendor-panel").forEach(p => p.classList.remove("active"));
+      tab.classList.add("active");
+      document.getElementById(tab.dataset.panel).classList.add("active");
+      if (tab.dataset.panel === "vendorPanelProducts") loadMyProducts();
+      if (tab.dataset.panel === "vendorPanelOrders") loadSellerOrders();
+    });
+  });
+
+  async function login() {
+    const email = document.getElementById("email").value.trim();
+    const pass = document.getElementById("password").value.trim();
+    const msg = document.getElementById("loginMsg");
+    msg.style.display = "none";
+
+    try {
+      const userCred = await signInWithEmailAndPassword(auth, email, pass);
+      msg.style.display = "block";
+      msg.style.color = "green";
+      msg.textContent = "Login successful!";
+      setTimeout(() => showRoleUI(userCred.user.email), 600);
+    } catch {
+      msg.style.display = "block";
+      msg.style.color = "red";
+      msg.textContent = "Invalid credentials or Poor Internet Connection ";
+    }
+  }
+  window.login = login;
+
+  function showRoleUI(email) {
+    currentSellerEmail = email;
+    const supplierNameEl = document.getElementById("supplierName");
+    const supplierCategoryEl = document.getElementById("supplierCategory");
+    supplierNameEl.value = email;
+    updateProductCategoryNotes();
+    document.getElementById("loginBox").style.display = "none";
+    if (email.endsWith("@supplier.losix")) {
+      document.getElementById("uploadBox").style.display = "block";
+      if (!document.querySelector(".product-block")) addProductBlock();
+      loadMyProducts();
+      loadSellerOrders();
+    } else {
+      window.location.href = "";
+    }
+  }
+
+  onAuthStateChanged(auth, user => {
+    const msg = document.getElementById("loginMsg");
+    if (user && user.email && user.email.endsWith("@supplier.losix")) {
+      document.getElementById("loginBox").style.display = "block";
+      document.getElementById("uploadBox").style.display = "none";
+      document.getElementById("email").value = user.email;
+      if (msg) {
+        msg.style.display = "block";
+        msg.style.color = "#333";
+        msg.textContent = "Please enter your password to open the dashboard.";
+      }
+      return;
+    }
+    if (msg) {
+      msg.style.display = "none";
+    }
+    document.getElementById("uploadBox").style.display = "none";
+  });
+
+  function bindMediaPreview(input) {
+    input.addEventListener("change", () => {
+      const wrap = input.closest(".product-block").querySelector(".media-preview");
+      wrap.innerHTML = "";
+      Array.from(input.files || []).slice(0, 5).forEach(file => {
+        const item = document.createElement("div");
+        item.className = "media-preview-item";
+        const tag = document.createElement("span");
+        tag.className = "tag";
+        tag.textContent = file.type.startsWith("video/") ? "Video" : "Image";
+        if (file.type.startsWith("video/")) {
+          const v = document.createElement("video");
+          v.src = URL.createObjectURL(file);
+          v.muted = true;
+          item.appendChild(v);
+        } else {
+          const img = document.createElement("img");
+          img.src = URL.createObjectURL(file);
+          img.alt = file.name;
+          item.appendChild(img);
+        }
+        item.appendChild(tag);
+        wrap.appendChild(item);
+      });
+    });
+  }
+
+  function updateSubcategoryOptions(productBlock) {
+    const supplierCategory = document.getElementById("supplierCategory").value;
+    const subcategorySelect = productBlock.querySelector(".p-subcategory");
+    const subcategories = TYPE_SUBCATEGORIES[supplierCategory] || {};
+    
+    subcategorySelect.innerHTML = '<option value="">Select secondary category</option>';
+    Object.entries(subcategories).forEach(([key, label]) => {
+      const option = document.createElement("option");
+      option.value = key;
+      option.textContent = label;
+      subcategorySelect.appendChild(option);
+    });
+  }
+
+  function getMatrixPlaceholders(category) {
+    const key = String(category || "").toLowerCase().replace(/[\s_-]/g, "");
+    const jewelry = {
+      rings: { size: "Ring size e.g. 7", color: "Gold" },
+      bracelets: { size: 'Wrist e.g. 7"', color: "Silver" },
+      chains: { size: 'Length e.g. 18"', color: "Rose Gold" },
+      watches: { size: "Medium", color: "Black" },
+      matchingsets: { size: "One Size", color: "Gold" },
+      accessoriesjewelry: { size: "One Size", color: "Gold" }
+    };
+    const beauty = {
+      skincare: { size: "50ml", color: "Medium" },
+      hairproducts: { size: "250ml", color: "Black" }
+    };
+    if (jewelry[key]) return jewelry[key];
+    if (beauty[key]) return beauty[key];
+    if (["phones", "laptops", "accessoriesgadgets"].includes(key)) return { size: "", color: "Black" };
+    if (["loafers", "slides", "sneakers"].includes(key)) return { size: "42", color: "Black" };
+    return { size: "M", color: "Black" };
+  }
+
+  function addMatrixRow(listEl, category) {
+    const ph = getMatrixPlaceholders(category);
+    const row = document.createElement("div");
+    row.className = "variant-row matrix-row";
+    row.innerHTML = `
+      <input type="text" class="matrix-size" placeholder="${ph.size || 'Size (optional)'}" />
+      <input type="text" class="matrix-color" placeholder="${ph.color || 'Colour / shade'}" />
+      <input type="number" class="matrix-qty" placeholder="Qty" min="0" value="1" />
+      <button type="button" class="btn ghost btn-sm" onclick="this.parentElement.remove()">Remove</button>
+    `;
+    listEl.appendChild(row);
+  }
+
+  function bindVariantButtons(block) {
+    const category = document.getElementById("supplierCategory")?.value || "";
+    block.querySelector(".add-matrix-variant")?.addEventListener("click", () => {
+      addMatrixRow(block.querySelector(".variant-matrix-list"), category);
+    });
+  }
+
+  function collectVariantMatrix(block) {
+    return Array.from(block.querySelectorAll(".variant-matrix-list .matrix-row"))
+      .map(row => ({
+        size: row.querySelector(".matrix-size")?.value?.trim() || "",
+        color: row.querySelector(".matrix-color")?.value?.trim() || "",
+        qty: Math.max(0, Number(row.querySelector(".matrix-qty")?.value) || 0)
+      }))
+      .filter(v => v.size || v.color);
+  }
+
+  function computeProductInStock(stockQty, saleStart, saleEnd, variantMatrix) {
+    const now = Date.now();
+    if (saleEnd) {
+      const end = new Date(saleEnd).getTime();
+      if (!isNaN(end) && now > end) return false;
+    }
+    if (saleStart) {
+      const start = new Date(saleStart).getTime();
+      if (!isNaN(start) && now < start) return false;
+    }
+    if (variantMatrix.length) return variantMatrix.some(v => v.qty > 0);
+    return Number(stockQty) > 0;
+  }
+
+  function addProductBlock() {
+    const container = document.getElementById("productsContainer");
+    const div = document.createElement("div");
+    div.className = "product-block";
+    div.innerHTML = `
+      <div class="product-row">
+        <div><label>Product Name</label><input type="text" class="pname" placeholder="Product Name" /></div>
+        <div><label>Description</label><textarea class="pdesc" placeholder="Product specs,delivery time-range,refund status"></textarea></div>
+        <div><label>Price</label><input type="number" class="pprice" placeholder="Price" min="0" /></div>
+      </div>
+      <div class="product-row">
+        <div style="flex:1; min-width:240px;">
+          <label>Primary Category</label>
+          <input type="text" class="p-category-note" readonly value="Automatically applied from above" />
+        </div>
+        <div>
+          <label>Secondary Category</label>
+          <select class="p-subcategory" required>
+            <option value="">Select secondary category</option>
+          </select>
+        </div>
+        <div>
+          <label>Is product refundable?</label>
+          <select class="pcustom">
+            <option value="">Select</option>
+            <option>Refundable</option>
+            <option>Non-Refundable</option>
+          </select>
+        </div>
+      </div>
+      <div class="product-row">
+        <div>
+          <label>Stock quantity</label>
+          <input type="number" class="pstock" placeholder="e.g. 10" min="0" value="10" />
+          <div style="font-size:0.78rem;color:var(--text-muted);margin-top:4px">Fallback stock when no combinations are listed below.</div>
+        </div>
+        <div>
+          <label>Sale starts (optional)</label>
+          <input type="datetime-local" class="psalestart" />
+        </div>
+        <div>
+          <label>Sale ends (optional)</label>
+          <input type="datetime-local" class="psaleend" />
+        </div>
+      </div>
+      <div class="variant-section">
+        <label>Size + colour combinations (linked stock)</label>
+        <p class="variant-hint">Each row controls one exact combination. Example: Ring size 7 + Gold = 2 units. Leave blank size for colour-only items (phones), or blank colour for size-only items. Buyers only see combinations you list here — selecting a size filters available colours, and vice versa.</p>
+        <div class="variant-matrix-head"><span>Size / length / volume</span><span>Colour / shade</span><span>Qty</span><span></span></div>
+        <div class="variant-rows variant-matrix-list"></div>
+        <button type="button" class="btn ghost btn-sm add-matrix-variant" style="margin-top:8px">+ Add combination</button>
+      </div>
+      <div style="margin-top:8px">
+        <label>Upload up to 5 images or short videos</label>
+        <input type="file" class="pimages" accept="image/*,video/*" multiple />
+        <div class="media-preview"></div>
+      </div>
+      <button type="button" class="btn ghost" style="background:#fef2f2;color:#991b1b;border-color:#fecaca;margin-top:10px" onclick="this.parentElement.remove()">Remove</button>
+    `;
+    container.appendChild(div);
+    bindMediaPreview(div.querySelector(".pimages"));
+    bindVariantButtons(div);
+    updateSubcategoryOptions(div);
+    updateProductCategoryNotes();
+  }
+  window.addProductBlock = addProductBlock;
+
+  async function uploadMediaFile(file) {
+    const isVideo = file.type.startsWith("video/");
+    const endpoint = isVideo ? "video" : "image";
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", UPLOAD_PRESET);
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${endpoint}/upload`, { method: "POST", body: formData });
+    const data = await res.json();
+    if (!data.secure_url) throw new Error("Upload failed");
+    return { url: data.secure_url, kind: isVideo ? "video" : "image" };
+  }
+
+  async function uploadImages(files) {
+    const images = [];
+    const videos = [];
+    for (let i = 0; i < Math.min(files.length, 5); i++) {
+      const uploaded = await uploadMediaFile(files[i]);
+      if (uploaded.kind === "video") videos.push(uploaded.url);
+      else images.push(uploaded.url);
+    }
+    return { images, videos };
+  }
+
+  async function loadMyProducts() {
+    const list = document.getElementById("myProductsList");
+    if (!currentSellerEmail || !list) return;
+    list.innerHTML = '<div class="empty-state">Loading your products...</div>';
+    try {
+      const sellerKey = currentSellerEmail.toLowerCase();
+      const q = query(collection(db, "products"), where("supplierEmail", "==", currentSellerEmail));
+      let snap = await getDocs(q);
+      let products = [];
+
+      if (!snap.empty) {
+        snap.forEach(docSnap => {
+          const p = docSnap.data() || {};
+          products.push(p);
+        });
+      } else {
+        const allSnap = await getDocs(collection(db, "products"));
+        allSnap.forEach(docSnap => {
+          const p = docSnap.data() || {};
+          const supplierEmail = String(p.supplierEmail || "").toLowerCase();
+          const supplierName = String(p.supplierName || "").toLowerCase();
+          if (supplierEmail === sellerKey || supplierName === sellerKey) {
+            products.push(p);
+          }
+        });
+      }
+
+      if (!products.length) {
+        list.innerHTML = '<div class="empty-state">No products uploaded yet. Use the Upload tab to add your first item.</div>';
+        return;
+      }
+
+      list.innerHTML = "";
+      products.forEach(p => {
+        const inStock = window.evaluateProductStock ? window.evaluateProductStock(p) : p.instock !== false;
+        const card = document.createElement("div");
+        card.className = "list-card";
+        const thumb = (p.images && p.images[0]) ? p.images[0] : "";
+        card.innerHTML = `
+          <div class="list-card-head">
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              ${thumb ? `<img src="${thumb}" alt="" style="width:56px;height:56px;border-radius:10px;object-fit:cover;border:1px solid var(--border)">` : ""}
+              <div>
+                <h4>${p.name || "Untitled product"}</h4>
+                <div style="font-size:0.82rem;color:var(--text-muted)">${p.type || ""} · ${moneyFmt(p.price)}</div>
+              </div>
+            </div>
+            <span class="status-pill ${inStock ? "in" : "out"}">${inStock ? "In stock" : "Out of stock"}</span>
+          </div>
+          <div style="margin-top:8px;font-size:0.82rem;color:var(--text-muted);line-height:1.45">
+            Stock: ${p.stockQty ?? "—"} ·
+            ${Array.isArray(p.variantMatrix) && p.variantMatrix.length ? `${p.variantMatrix.length} linked combinations` : "Category defaults"} ·
+            ${p.saleStart ? `Starts ${new Date(p.saleStart).toLocaleString()}` : "No start date"} ·
+            ${p.saleEnd ? `Ends ${new Date(p.saleEnd).toLocaleString()}` : "No end date"}
+          </div>
+        `;
+        list.appendChild(card);
+      });
+    } catch (e) {
+      list.innerHTML = '<div class="empty-state">Could not load products. Check your connection.</div>';
+    }
+  }
+
+  function escapeHtml(value) {
+    return String(value || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
+  async function markOrderDelivered(orderDocId, sellerItemIds, orderType) {
+    if (!orderDocId) return;
+    try {
+      const orderRef = doc(db, "orders", orderDocId);
+      const orderSnap = await getDoc(orderRef);
+      if (!orderSnap.exists()) throw new Error("Order not found");
+      const orderData = orderSnap.data() || {};
+      const isCartOrder = orderType === "cart_checkout" || orderData.type === "cart_checkout";
+
+      if (isCartOrder && Array.isArray(orderData.items) && sellerItemIds.length) {
+        const items = orderData.items.map(item => {
+          if (sellerItemIds.includes(item.id)) {
+            return { ...item, status: "delivered" };
+          }
+          return item;
+        });
+        const allDelivered = items.every(item => item.status === "delivered");
+        await updateDoc(orderRef, {
+          items,
+          status: allDelivered ? "delivered" : orderData.status || "pending"
+        });
+      } else {
+        await updateDoc(orderRef, { status: "delivered" });
+      }
+      loadSellerOrders();
+    } catch (err) {
+      console.error("Failed to mark delivered", err);
+      alert("Could not mark order as delivered. Please try again.");
+    }
+  }
+
+  async function loadSellerOrders() {
+    const list = document.getElementById("sellerOrdersList");
+    if (!currentSellerEmail || !list) return;
+    list.innerHTML = '<div class="empty-state">Loading customer orders...</div>';
+    try {
+      const productSnap = await getDocs(query(collection(db, "products"), where("supplierEmail", "==", currentSellerEmail)));
+      const myIds = new Set();
+      productSnap.forEach(d => {
+        myIds.add(d.id);
+      });
+
+      const ordersSnap = await getDocs(collection(db, "orders"));
+      const sellerKey = currentSellerEmail.toLowerCase();
+      const matches = [];
+
+      ordersSnap.forEach(d => {
+        const o = d.data() || {};
+        const prod = o.product || {};
+        const prodId = prod.id || "";
+        const orderSupplierEmail = String(o.supplierEmail || "").toLowerCase();
+        const orderProductSupplierEmail = String(prod.supplierEmail || "").toLowerCase();
+        const orderSupplierName = String(o.supplierName || "").toLowerCase();
+        const supplierMatch = orderSupplierEmail === sellerKey || orderProductSupplierEmail === sellerKey || orderSupplierName === sellerKey || myIds.has(prodId);
+
+        const cartItems = Array.isArray(o.items) ? o.items.filter(item => {
+          const itemSupplierEmail = String(item.supplierEmail || "").toLowerCase();
+          const itemSupplierName = String(item.supplierName || "").toLowerCase();
+          return itemSupplierEmail === sellerKey || itemSupplierName === sellerKey || myIds.has(item.id);
+        }) : [];
+
+        if (supplierMatch || cartItems.length) {
+          matches.push({ id: d.id, order: o, cartItems, supplierMatch });
+        }
+      });
+
+      if (!matches.length) {
+        list.innerHTML = '<div class="empty-state">No customer orders for your products yet.</div>';
+        return;
+      }
+
+      list.innerHTML = "";
+      matches.sort((a, b) => new Date(b.order.createdAt || 0) - new Date(a.order.createdAt || 0)).forEach(entry => {
+        const order = entry.order;
+        const sellerItems = entry.cartItems || [];
+        const isCartOrder = Array.isArray(order.items) && sellerItems.length > 0;
+        const product = order.product || {};
+        const customer = order.customer || order.payer || {};
+        const address = customer.address || customer.location || "No address provided";
+        const email = customer.email || "No email provided";
+        const phone = customer.phone || "No phone provided";
+        const created = order.createdAt ? new Date(order.createdAt).toLocaleString() : "Date unavailable";
+        const orderIdDisplay = order.orderId || entry.id;
+
+        const itemStatuses = isCartOrder ? sellerItems.map(item => item.status || order.status || "pending") : [];
+        const status = isCartOrder ? (itemStatuses.every(s => s === "delivered") ? "delivered" : "pending") : (order.status || "pending");
+
+        const orderTitle = isCartOrder ? `Cart Order ${escapeHtml(orderIdDisplay)}` : `Product Order ${escapeHtml(orderIdDisplay)}`;
+        const itemsHtml = isCartOrder ? sellerItems.map(item => `
+            <div style="border:1px solid #eee;border-radius:10px;padding:10px;margin:8px 0">
+              <div><strong>${escapeHtml(item.name || item.product?.name || "Item")}</strong> x${item.qty || 1}</div>
+              <div>Product ID: ${escapeHtml(item.id || "N/A")}</div>
+              <div>${moneyFmt(Number(item.price || 0) * Number(item.qty || 1))}</div>
+              <div>Status: ${escapeHtml(item.status || order.status || "pending")}</div>
+            </div>
+          `).join("") : `
+            <div style="border:1px solid #eee;border-radius:10px;padding:10px;margin:8px 0">
+              <div><strong>${escapeHtml(product.name || "Product order")}</strong></div>
+              <div>Product ID: ${escapeHtml(product.id || "N/A")}</div>
+              <div>Status: ${escapeHtml(status)}</div>
+            </div>
+          `;
+
+        const canDeliver = status !== "delivered";
+        const card = document.createElement("div");
+        card.className = "list-card";
+        card.innerHTML = `
+          <div class="list-card-head">
+            <div>
+              <h4>${orderTitle}</h4>
+              <div style="font-size:0.82rem;color:var(--text-muted)">Ordered: ${created}</div>
+            </div>
+            <span class="status-pill ${status === "delivered" ? "delivered" : "pending"}">${status}</span>
+          </div>
+          <div style="margin-top:8px;font-size:0.92rem;color:var(--text-muted);line-height:1.5">
+            ${itemsHtml}
+            <div><strong>Customer:</strong> ${escapeHtml(customer.name || "Unknown")}</div>
+            <div><strong>Email:</strong> ${escapeHtml(email)}</div>
+            <div><strong>Phone:</strong> ${escapeHtml(phone)}</div>
+            <div><strong>Address:</strong> ${escapeHtml(address)}</div>
+            <div><strong>Total:</strong> ${moneyFmt(order.total || sellerItems.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.qty || 1), 0))}</div>
+            <div><strong>Note:</strong> ${escapeHtml(order.supplierNote || order.note || "None")}</div>
+          </div>
+          ${canDeliver ? `<div style="margin-top:12px;text-align:right"><button class="btn ghost btn-sm deliver-btn">Mark delivered</button></div>` : ""}
+        `;
+        list.appendChild(card);
+
+        if (canDeliver) {
+          const btn = card.querySelector(".deliver-btn");
+          if (btn) {
+            btn.addEventListener("click", async () => {
+              await markOrderDelivered(entry.id, sellerItems.map(item => item.id), order.type || "");
+            });
+          }
+        }
+      });
+    } catch (e) {
+      console.error("Vendor orders load failed", e);
+      list.innerHTML = '<div class="empty-state">Could not load orders. Check your connection.</div>';
+    }
+  }
+
+  async function uploadAllProducts() {
+    const supplierName = document.getElementById("supplierName").value.trim();
+    const supplierLocation = document.getElementById("supplierLocation").value.trim();
+    const chosenCategory = document.getElementById("supplierCategory").value.trim();
+    const resolvedFilters = TYPE_FILTERS[chosenCategory] || [];
+    const productType = chosenCategory;
+    const productFilter = resolvedFilters[0] || "";
+
+    if (!supplierName) return alert("Enter supplier name");
+    if (!chosenCategory) return alert("Select a product category to apply to all uploads");
+    if (!supplierLocation) return alert("Select your location");
+
+    const blocks = document.querySelectorAll(".product-block");
+    if (blocks.length === 0) return alert("Add at least one product");
+
+    showToast("Uploading products...");
+    document.getElementById("uploadBtn").disabled = true;
+
+    try {
+      for (const b of blocks) {
+        const name = b.querySelector(".pname").value.trim();
+        const desc = b.querySelector(".pdesc").value.trim();
+        const price = b.querySelector(".pprice").value.trim();
+        const custom = b.querySelector(".pcustom").value;
+        const stockQty = b.querySelector(".pstock").value.trim();
+        const saleStart = b.querySelector(".psalestart").value;
+        const saleEnd = b.querySelector(".psaleend").value;
+        const subcategory = b.querySelector(".p-subcategory").value.trim();
+        const files = b.querySelector(".pimages").files;
+
+        if (!name || !price || files.length === 0) {
+          hideToast();
+          document.getElementById("uploadBtn").disabled = false;
+          alert("Each product needs a name, price, and at least one image or video");
+          return;
+        }
+
+        if (!subcategory) {
+          hideToast();
+          document.getElementById("uploadBtn").disabled = false;
+          alert("Please select a secondary category for each product");
+          return;
+        }
+
+        const media = await uploadImages(files);
+        if (!media.images.length && !media.videos.length) {
+          hideToast();
+          document.getElementById("uploadBtn").disabled = false;
+          alert("Upload failed for one or more files. Please try again.");
+          return;
+        }
+
+        const stockNum = Number(stockQty || 0);
+        const variantMatrix = collectVariantMatrix(b);
+        const instock = computeProductInStock(stockNum, saleStart, saleEnd, variantMatrix);
+        const normalizedCategories = [subcategory, productType];
+        const normalizedFilters = [productType];
+        const firstMedia = media.images.length ? media.images[0] : (media.videos.length ? media.videos[0] : "");
+
+        await addDoc(collection(db, "products"), {
+          supplierName,
+          supplierLocation,
+          supplierCategory: chosenCategory,
+          supplierEmail: currentSellerEmail,
+          name,
+          description: desc,
+          desc,
+          price: Number(price),
+          customizable: custom,
+          type: productType,
+          category: productType,
+          filter: productFilter,
+          filters: normalizedFilters,
+          categories: normalizedCategories,
+          image: firstMedia,
+          images: media.images.length ? media.images : (media.videos.length ? [media.videos[0]] : []),
+          videos: media.videos,
+          variantMatrix,
+          stockQty: stockNum,
+          saleStart: saleStart || null,
+          saleEnd: saleEnd || null,
+          instock,
+          inStock: instock,
+          createdAt: new Date()
+        });
+      }
+
+      hideToast();
+      document.getElementById("successMsg").style.display = "block";
+      document.getElementById("productsContainer").innerHTML = "";
+      addProductBlock();
+      loadMyProducts();
+      loadSellerOrders();
+      setTimeout(() => { document.getElementById("successMsg").style.display = "none"; }, 3500);
+    } catch (err) {
+      hideToast();
+      alert("Upload failed: " + (err.message || "Try again"));
+    } finally {
+      document.getElementById("uploadBtn").disabled = false;
+    }
+  }
+  window.uploadAllProducts = uploadAllProducts;
+  </script>
+</body>
+</html>

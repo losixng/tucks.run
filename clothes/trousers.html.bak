@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/logo.png" alt="Tucks logo">
+  <meta name="theme-color" content="#2563eb">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(() => console.log('Service Worker Registered'));
+      });
+    }
+  </script>
+  <title>Tucks - Trousers</title>
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="clothes-theme.css">
+</head>
+<body>
+
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+  </div>
+
+  <div class="page-wrap">
+
+  <header class="site-header">
+    <a href="/home.html" class="logo">
+      <img src="/logo.png" alt="Tucks" class="logo-img" width="36" height="36">
+      <span class="logo-text">Tucks</span>
+    </a>
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Search products..." autocomplete="off"/>
+      <button id="searchBtn" type="button" aria-label="Search"><i class='bx bx-search'></i></button>
+      <div id="suggestionBox"></div>
+    </div>
+    <input type="checkbox" id="menuToggle" hidden>
+    <label for="menuToggle" class="menu-icon" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </label>
+    <div class="menu-dropdown">
+      <a href="/profile/help.html"><i class='bx bx-help-circle'></i> Help</a>
+      <a href="/profile/partner.html"><i class='bx bx-download'></i> Install</a>
+      <a href="/profile/refund.html"><i class='bx bx-revision'></i> Refunds</a>
+      <a href="/profile/reviews.html"><i class='bx bx-star'></i> Reviews</a>
+    </div>
+  </header>
+
+  <div id="tips">&#10024; Welcome to Tucks Market - browse our fashion collection!</div>
+
+  <section class="hero">
+    <div class="hero-badge"><i class='bx bx-closet'></i> Clothes</div>
+    <div class="hero-content">
+      <h1 class="hero-title">Trousers Built for <span style="color:var(--accent)">Comfort</span></h1>
+      <p class="hero-subtitle">Find the perfect fit - from relaxed casual to sharp formal trousers.</p>
+    </div>
+  </section>
+
+  <main>
+    <section class="category">
+      <div class="cat-head"><h2>Shop Collection</h2></div>
+      <div id="matchingFilters" class="filters"></div>
+      <div id="matchingProducts" class="product-grid"></div>
+    </section>
+  </main>
+
+  </div><!-- /.page-wrap -->
+
+<div id="lightbox" class="lightbox" aria-hidden="true">
+  <div class="lb">
+    <div class="lb-left">
+      <div id="lbMain" class="lb-main">Image</div>
+      <div id="lbThumbs" class="lb-thumbs"></div>
+    </div>
+    <div class="lb-right">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <h3 id="lbName" class="lb-title">Product</h3>
+        <button id="lbClose" class="btn ghost">Close</button>
+      </div>
+      <p id="lbDesc" class="lb-desc"></p>
+      <div id="lbPrice" class="lb-price"></div>
+      <div id="lbStock" class="lb-stock"></div>
+      <div class="lb-actions">
+        <button id="lbBuy" class="btn">Buy Now</button>
+        <button id="lbAdd" class="btn ghost">Add to Cart</button>
+        <button id="lbShare" class="btn ghost">Share</button></div>
+    </div>
+  </div>
+</div>
+
+<div id="buyModal" class="modal" aria-hidden="true">
+  <div class="modal-card">
+    <h3 style="margin-top:0">Complete Purchase</h3>
+    <div class="modal-grid">
+      <div>
+        <div class="form-row"><label for="buyerName">Full name</label><input id="buyerName" placeholder="Jane Doe"></div>
+        <div class="form-row"><label for="buyerPhone">Phone</label><input id="buyerPhone" placeholder="+2348012345678"></div>
+        <div class="form-row"><label for="buyerEmail">Email</label><input id="buyerEmail" placeholder="you@example.com"></div>
+        <div class="form-row"><label for="buyerAddress">Shipping address</label><textarea id="buyerAddress" rows="2" placeholder="Room, Block,Hostel"></textarea></div>
+        <div class="form-row"><label for="buyerShipping">Shipping option</label>
+          <select id="buyerShipping">
+            <option value="delivery">Door Delivery Ã¢â‚¬â€ Ã¢â€šÂ¦350</option>
+          </select>
+        </div>
+                <div class="form-row"><label for="buyerNote">Note to supplier</label><textarea id="buyerNote" rows="3" placeholder="Add any special instructions for the supplier…"></textarea></div>
+<div class="form-row">
+          <label for="buyerSize">Clothing Size</label>
+          <select id="buyerSize">
+            <option value="" disabled selected>Select size</option>
+            <option value="XS">XS</option>
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="L">L</option>
+            <option value="XL">XL</option>
+            <option value="XXL">XXL</option>
+          </select>
+        </div>
+        <div class="note" style="margin-top:8px">Transaction fee: Ã¢â€šÂ¦100 (fixed).
+          <br>The order takes an estimated time of 1 to 7 working days.
+          <br> By continuing with this purchase you agree to our <a href="/profile/terms.html"> terms and conditions</a>.
+      </div>
+
+      <div>
+        <div style="display:flex;gap:12px;align-items:center">
+          <div id="bmThumb" style="width:96px;height:96px;border-radius:8px;background:#f2f2f2;background-size:cover;background-position:center"></div>
+          <div>
+            <div id="bmTitle" style="font-weight:800"></div>
+            <div id="bmPrice" style="color:var(--accent);font-weight:800;margin-top:6px"></div>
+          </div>
+        </div>
+
+        <div class="totals" style="margin-top:12px">
+          <div><span>Product</span><span id="sumProduct">Ã¢â€šÂ¦0</span></div>
+          <div><span>Shipping</span><span id="sumShipping">Ã¢â€šÂ¦0</span></div>
+          <div><span>Transaction</span><span id="sumTxn">Ã¢â€šÂ¦100</span></div>
+          <div style="border-top:1px dashed #eee;padding-top:8px;font-weight:800"><span>Total</span><span id="sumTotal">Ã¢â€šÂ¦0</span></div>
+        </div>
+
+        <div class="modal-foot" style="margin-top:12px">
+          <button id="payNow" class="btn">Pay Now</button>
+          <button id="cancelBuy" class="btn ghost">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="customModal" class="modal" aria-hidden="true">
+  <div class="modal-card">
+    <h3 style="margin-top:0">Customize Request</h3>
+    <div class="form-row"><label for="cName">Name</label><input id="cName"></div>
+    <div class="form-row"><label for="cPhone">Phone</label><input id="cPhone"></div>
+    <div class="form-row"><label for="cEmail">Email</label><input id="cEmail"></div>
+    <div class="form-row"><label for="cDetails">Measurements / Notes</label><textarea id="cDetails" rows="4" placeholder="Specify measurements, fabric preference, color..."></textarea></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
+      <button id="sendCustomize" class="btn">Send Request</button>
+      <button id="cancelCustomize" class="btn ghost">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="confirmModal" class="modal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="confirm-card" id="confirmContent">Thanks Ã¢â‚¬â€ payment successful.</div>
+    <div style="display:flex;justify-content:flex-end;margin-top:10px">
+      <button id="closeConfirm" class="btn">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="uploadModal" class="modal" aria-hidden="true">
+  <div class="modal-card" style="max-width:560px; position:relative; transform-origin:center; transition:transform .28s ease, opacity .22s ease;">
+    <button id="closeUpload" class="btn ghost" style="position:absolute;right:12px;top:12px">Ã¢Å“â€¢</button>
+    <h3 style="margin-top:6px">Complete Payment (Manual Transfer)</h3>
+    <p style="color:var(--muted)">Transfer to the account shown below, then upload a screenshot of your transfer to complete the order.</p>
+
+    <div style="background:#fff7ed;border-radius:10px;padding:12px;margin:12px 0;font-weight:700;">
+      <div><strong>Account Name:</strong> OJO MIRACLE OLAREWAJU</div>
+      <div><strong>Bank:</strong> Moniepoint</div>
+      <div><strong>Account Number:</strong> 9169174059</div>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-direction:column">
+      <label style="font-size:13px;color:var(--muted)">Your name</label>
+      <input id="uploadName" placeholder="Jane Doe" />
+
+      <label style="font-size:13px;color:var(--muted);margin-top:8px">Upload payment receipt (image or PDF)</label>
+      <input id="uploadFile" type="file" accept="image/*,.pdf" />
+
+      <div id="uploadPreview" style="display:none;margin-top:8px;align-items:center;gap:8px">
+        <img id="uploadPreviewImg" alt="preview" style="max-width:90px;max-height:90px;border-radius:8px;object-fit:cover"/>
+        <div id="uploadPreviewName" style="font-size:13px;color:var(--muted)"></div>
+      </div>
+
+      <div style="display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:12px">
+        <button id="submitUpload" class="btn">Submit Order</button>
+        <button id="cancelUpload" class="btn ghost">Cancel</button>
+      </div>
+
+      <div id="uploadStatus" style="margin-top:10px;display:none;font-weight:700"></div>
+    </div>
+  </div>
+</div>
+
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <a href="/home.html" class="nav-item">
+      <i class='bx bxs-home'></i><span>Home</span>
+    </a>
+    <a href="/cart.html" class="nav-item">
+      <i class='bx bx-cart'></i><span>Cart</span>
+    </a>
+    <a href="/order.html" class="nav-item">
+      <i class='bx bx-package'></i><span>Orders</span>
+    </a>
+    <a href="/profile.html" class="nav-item">
+      <i class='bx bx-user'></i><span>Profile</span>
+    </a>
+  </nav>
+
+  <script src="clothes-ui.js"></script>
+  <script type="module" src="trousers.js"></script>
+  <script type="module" src="/script.js"></script>
+<script type="module">
+  // checkout-replace.js
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDzwnmGgEcN63RcCHSNU6p_xXKxmeqzF6k" ,
+  authDomain: "losixmarket.firebaseapp.com",
+  projectId: "losixmarket" ,
+  storageBucket: "losixmarket.firebasestorage.app",
+  messagingSenderId: "301860246689",
+  appId:"1:301860246689:web:aabf0ab9af41081a91cce0",
+  measurementId: "G-ZPVVZ8GNP0"
+};
+
+const CLOUDINARY_CLOUD = "dthxl4jcn";
+const CLOUDINARY_UNSIGNED_PRESET = "losix_products";
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const buyBtn = document.getElementById('payNow');
+const lbCustomize = document.getElementById('lbCustomize');
+const uploadModal = document.getElementById('uploadModal');
+const closeUpload = document.getElementById('closeUpload');
+const cancelUpload = document.getElementById('cancelUpload');
+const submitUpload = document.getElementById('submitUpload');
+const uploadFile = document.getElementById('uploadFile');
+const uploadName = document.getElementById('uploadName');
+const uploadStatus = document.getElementById('uploadStatus');
+const uploadPreview = document.getElementById('uploadPreview');
+const uploadPreviewImg = document.getElementById('uploadPreviewImg');
+const uploadPreviewName = document.getElementById('uploadPreviewName');
+
+function showModal(modal) {
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden','false');
+  requestAnimationFrame(()=> {
+    modal.querySelector('.modal-card').style.transform = 'translateY(0) scale(1)';
+    modal.querySelector('.modal-card').style.opacity = '1';
+  });
+}
+function hideModal(modal) {
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden','true');
+  modal.querySelector('.modal-card').style.transform = '';
+  modal.querySelector('.modal-card').style.opacity = '';
+}
+
+if (buyBtn) {
+  buyBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    uploadStatus.style.display = 'none';
+    uploadPreview.style.display = 'none';
+    uploadFile.value = null;
+    uploadName.value = document.getElementById('buyerName') ? document.getElementById('buyerName').value : '';
+    showModal(uploadModal);
+  });
+}
+
+const customModal = document.getElementById('customModal');
+if (lbCustomize) {
+  lbCustomize.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    showModal(customModal);
+  });
+}
+
+const cancelCustomize = document.getElementById('cancelCustomize');
+if (cancelCustomize) cancelCustomize.addEventListener('click', ()=> hideModal(customModal));
+
+uploadFile.addEventListener('change', (e) => {
+  const f = e.target.files[0];
+  if (!f) {
+    uploadPreview.style.display = 'none';
+    return;
+  }
+  uploadPreview.style.display = 'flex';
+  uploadPreviewName.textContent = f.name;
+  if (f.type.startsWith('image/')) {
+    const url = URL.createObjectURL(f);
+    uploadPreviewImg.src = url;
+    uploadPreviewImg.style.display = 'block';
+  } else {
+    uploadPreviewImg.src = '';
+    uploadPreviewImg.style.display = 'none';
+  }
+});
+
+async function uploadToCloudinary(file) {
+  const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/upload`;
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', CLOUDINARY_UNSIGNED_PRESET);
+  fd.append('folder', 'market_receipts');
+  const res = await fetch(url, { method: 'POST', body: fd });
+  if (!res.ok) throw new Error('Upload failed');
+  return res.json();
+}
+
+async function createOrderRecord(data) {
+  const docRef = await addDoc(collection(db, 'manualPayments'), {
+    ...data,
+    status: 'Pending',
+    createdAt: serverTimestamp()
+  });
+  return docRef.id;
+}
+
+submitUpload.addEventListener('click', async (ev) => {
+  ev.preventDefault();
+  const file = uploadFile.files[0];
+  const name = (uploadName.value || '').trim();
+
+  if (!name) {
+    uploadStatus.style.display = 'block';
+    uploadStatus.className = 'error';
+    uploadStatus.textContent = 'Enter your name before submitting.';
+    return;
+  }
+  if (!file) {
+    uploadStatus.style.display = 'block';
+    uploadStatus.className = 'error';
+    uploadStatus.textContent = 'Please choose a receipt image or PDF.';
+    return;
+  }
+
+  submitUpload.disabled = true;
+  submitUpload.textContent = 'Uploading...';
+  uploadStatus.style.display = 'block';
+  uploadStatus.className = '';
+  uploadStatus.textContent = 'Uploading receipt â€” please wait...';
+
+  try {
+    const cloudRes = await uploadToCloudinary(file);
+    const receiptUrl = cloudRes.secure_url || cloudRes.url;
+    const orderData = {
+      name: name,
+      phone: document.getElementById('buyerPhone') ? document.getElementById('buyerPhone').value : '',
+      email: document.getElementById('buyerEmail') ? document.getElementById('buyerEmail').value : '',
+      address: document.getElementById('buyerAddress') ? document.getElementById('buyerAddress').value : '',
+      shipping: document.getElementById('buyerShipping') ? document.getElementById('buyerShipping').value : '',
+      size: document.getElementById('buyerSize') ? document.getElementById('buyerSize').value : '',
+      productTitle: document.getElementById('bmTitle') ? document.getElementById('bmTitle').textContent : '',
+      productPrice: document.getElementById('bmPrice') ? document.getElementById('bmPrice').textContent : '',
+      receiptUrl,
+      note: 'Manual transfer - pending verification'
+    };
+    const orderId = await createOrderRecord(orderData);
+    uploadStatus.className = 'success';
+    uploadStatus.textContent = 'Receipt uploaded and order saved. We will verify soon. Order ID: ' + orderId;
+    submitUpload.textContent = 'Uploaded';
+    setTimeout(()=> {
+      hideModal(uploadModal);
+      submitUpload.disabled = false;
+      submitUpload.textContent = 'Submit Order';
+      uploadStatus.style.display = 'none';
+    }, 1500);
+    const confirmContent = document.getElementById('confirmContent');
+    if (confirmContent) confirmContent.textContent = 'Thanks â€” your order is pending verification. We will confirm when we see your transfer.';
+    const confirmModal = document.getElementById('confirmModal');
+    if (confirmModal) showModal(confirmModal);
+  } catch (err) {
+    console.error(err);
+    uploadStatus.className = 'error';
+    uploadStatus.textContent = 'Upload failed: ' + (err.message || 'Try again');
+    submitUpload.disabled = false;
+    submitUpload.textContent = 'Submit Order';
+  }
+});
+
+closeUpload.addEventListener('click', ()=> hideModal(uploadModal));
+cancelUpload.addEventListener('click', ()=> hideModal(uploadModal));
+
+const closeConfirm = document.getElementById('closeConfirm');
+if (closeConfirm) closeConfirm.addEventListener('click', ()=> {
+  const confirmModal = document.getElementById('confirmModal');
+  if (confirmModal) hideModal(confirmModal);
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal.show').forEach(m => hideModal(m));
+  }
+});
+
+uploadModal.addEventListener('transitionend', () => {
+  const active = document.querySelector('.modal.show');
+  if (active) {
+    const firstInput = active.querySelector('input, textarea, button');
+    if (firstInput) firstInput.focus();
+  }
+});
+</script>
+</body>
+</html>

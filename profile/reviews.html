@@ -183,8 +183,9 @@ nav a:hover {
     .form-row input, .form-row textarea, .form-row select {
       width: 100%;
       padding: 10px;
-      border: 1px solid #ddd;
+      border: 1px solid blue;
       border-radius: 6px;
+      
     }
     .submit-btn {
       padding: 12px 20px;
@@ -301,65 +302,24 @@ nav a:hover {
   </style>
 </head>
 <body>
-  <!-- Floating Bottom Navigation -->
-  <div  class="bottom-nav">
-    <a href="/home.html" class="nav-item">
-      
-      <span>Home</span>
-    </a>
-
-    <a href="/cart.html" class="nav-item">
-      
-      <span>Cart</span>
-    </a>
-
-    <a href="/order.html" class="nav-item">
-      
-      <span>Orders</span>
-    </a>
-
-    <a href="/profile.html" class="nav-item">
-     
-      <span>Profile</span>
-    </a>
-  </div>
   
-<div id="tips" style="background:#fff2ee;color:#ff5a5a;text-align:center;padding:10px 15px;font-weight:500;animation:fadeIn 1s ease;">Welcome to Market!</div>
+  
+<h2 style="color: blue; font-size: 50px;">Customer Reviews</h2>
 
-  <!-- Floating Bottom Navigation -->
-  <nav class="bottom-nav">
-    <a href="/home.html" class="nav-item">
-      
-      <span>Home</span>
-    </a>
-
-    <a href="/cart.html" class="nav-item">
-      
-      <span>Cart</span>
-    </a>
-
-    <a href="/order.html" class="nav-item">
-      
-      <span>Orders</span>
-    </a>
-
-    <a href="/profile.html" class="nav-item">
-     
-      <span>Profile</span>
-    </a>
-  </nav>
 
   <div class="review-container">
-    <h2 style="color: orangered;">Customer Reviews</h2>
+      
+<h2 style="color: blue; font-size: 20px;font-family: 'Times New Roman', Times, serif;">Please Drop A Review 😊😁</h2>
+
 
     <!-- Review Form -->
     <form id="reviewForm">
       <div class="form-row">
-        <label for="name">Your Name</label>
+        <label for="name" style="color: blue;">Your Name</label>
         <input id="name" type="text" required placeholder="Enter your name">
       </div>
       <div class="form-row">
-        <label for="rating">Rating</label>
+        <label for="rating" style="color: blue;">Rating</label>
         <select id="rating" required>
           <option value="5">⭐⭐⭐⭐⭐</option>
           <option value="4">⭐⭐⭐⭐</option>
@@ -369,7 +329,7 @@ nav a:hover {
         </select>
       </div>
       <div class="form-row">
-        <label for="review">Your Review</label>
+        <label for="review" style="color: blue;">Your Review</label>
         <textarea id="review" rows="4" required placeholder="Write your review..."></textarea>
       </div>
       <button type="submit" class="submit-btn">Submit Review</button>

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/logo.png" alt="Tucks logo">
+  <meta name="theme-color" content="#2563eb">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(() => console.log('Service Worker Registered'));
+      });
+    }
+  </script>
+  <title>Tucks - Vendor Registration</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="clothes/clothes-theme.css">
+  <link rel="stylesheet" href="clothes/vendor-theme.css">
+  <style>
+    body.vendor-page {
+      background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 24%),
+                  radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.12), transparent 24%),
+                  #f8fbff;
+      min-height: 100vh;
+      color: #111827;
+    }
+    .vendor-shell {
+      padding: 28px 20px 40px;
+      max-width: 980px;
+    }
+    .vendor-card {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      box-shadow: 0 28px 80px rgba(15, 23, 42, 0.09);
+      padding: clamp(24px, 2.4vw, 36px);
+    }
+    .vendor-card h2 {
+      font-size: clamp(1.8rem, 2.5vw, 2.4rem);
+      letter-spacing: -0.03em;
+    }
+    .vendor-card .sub {
+      max-width: 760px;
+      margin-bottom: 22px;
+      font-size: 0.98rem;
+      line-height: 1.8;
+      color: #475569;
+    }
+    .info-panel {
+      border-left: 4px solid #2563eb;
+      background: #eff6ff;
+      padding: 16px 18px;
+      border-radius: 14px;
+      margin: 20px 0 10px;
+      color: #0f172a;
+    }
+    .info-panel strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 1rem;
+    }
+    .form-row,
+    .floating-field {
+      position: relative;
+      margin-top: 20px;
+    }
+    .floating-field {
+      min-height: 84px;
+    }
+    .floating-field label {
+      position: absolute;
+      left: 18px;
+      top: 18px;
+      pointer-events: none;
+      color: #64748b;
+      background: transparent;
+      transition: transform 0.25s ease, color 0.25s ease, font-size 0.25s ease;
+      transform-origin: left top;
+      font-weight: 600;
+      font-size: 0.97rem;
+    }
+    .floating-field input,
+    .floating-field textarea,
+    .floating-field select {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      background: #f8fbff;
+      color: #0f172a;
+      padding: 20px 18px 14px;
+      border-radius: 18px;
+      font-family: inherit;
+      font-size: 0.96rem;
+      outline: none;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease, background 0.25s ease;
+    }
+    .floating-field input:hover,
+    .floating-field textarea:hover,
+    .floating-field select:hover {
+      transform: translateY(-1px);
+      background: #ffffff;
+    }
+    .floating-field input:focus,
+    .floating-field textarea:focus,
+    .floating-field select:focus {
+      border-color: #2563eb;
+      box-shadow: 0 18px 40px rgba(37, 99, 235, 0.12);
+      background: #ffffff;
+    }
+    .floating-field input:focus + label,
+    .floating-field input:not(:placeholder-shown) + label,
+    .floating-field textarea:focus + label,
+    .floating-field textarea:not(:placeholder-shown) + label,
+    .floating-field select:focus + label {
+      transform: translateY(-12px) scale(0.88);
+      color: #2563eb;
+    }
+    .floating-field input::placeholder,
+    .floating-field textarea::placeholder {
+      color: transparent;
+    }
+    .vendor-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+    .vendor-grid-2 > .floating-field {
+      margin-top: 0;
+    }
+    .vendor-grid-2 .floating-field {
+      min-height: 88px;
+    }
+    .vendor-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 24px;
+    }
+    .vendor-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .vendor-actions .btn {
+      min-width: 170px;
+    }
+    @media (max-width: 720px) {
+      .vendor-shell { padding: 22px 14px 32px; }
+      .vendor-grid-2 { grid-template-columns: 1fr; }
+      .vendor-card { padding: 20px; }
+      .vendor-actions { flex-direction: column; align-items: stretch; }
+      .vendor-actions .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body class="vendor-page">
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+  </div>
+  <div class="vendor-shell page-wrap">
+    <header class="site-header" style="margin-bottom:16px">
+      <a href="/vendor.html" class="logo">
+        <img src="/logo.png" alt="Tucks" class="logo-img" width="36" height="36">
+        <span class="logo-text">Tucks</span>
+      </a>
+      <div style="font-size:0.85rem;font-weight:700;color:var(--accent)">Vendor Registration</div>
+    </header>
+
+    <div class="card vendor-card">
+      <h2>Register to Sell on Tucks</h2>
+      <p class="sub">Share your vendor details below and our team will review your application. Once submitted, we will contact you by email or phone to confirm your account and next steps.</p>
+
+      <div class="info-panel">
+        <strong>What to expect</strong>
+        <p>Complete all required fields, then submit your application. Our review team will get back to you within 1-2 business days with approval information.</p>
+      </div>
+
+      <div class="info-panel">
+        <strong>Subscription + payment</strong>
+        <p>Regular monthly subscription: <strong>₦1,000</strong> per month.</p>
+        <p>Discounts available:
+          <ul style="margin:6px 0 0 18px; padding-left:0; list-style:disc; color:#0f172a;">
+            <li>Two months: 50% discount, pay <strong>₦1,000</strong></li>
+            <li>One month: 25% discount, pay <strong>₦750</strong></li>
+          </ul>
+        </p>
+        <p>Account number: <strong>8083510202</strong><br>
+           Account name: <strong>MIRACLE OLAREWAJU OJO</strong><br>
+           Bank name: <strong>Palmpay Limited (Palmpay)</strong>
+        </p>
+      </div>
+
+      <form id="vendorRegistrationForm">
+        <div class="vendor-grid-2">
+          <div class="floating-field">
+            <input id="fullName" name="fullName" type="text" placeholder=" " required>
+            <label for="fullName">Full Name</label>
+          </div>
+          <div class="floating-field">
+            <input id="email" name="email" type="email" placeholder=" " required>
+            <label for="email">Email</label>
+          </div>
+        </div>
+
+        <div class="vendor-grid-2">
+          <div class="floating-field">
+            <input id="phone" name="phone" type="tel" placeholder=" " required>
+            <label for="phone">Phone Number</label>
+          </div>
+          <div class="floating-field">
+            <input id="university" name="university" type="text" placeholder=" " required>
+            <label for="university">University</label>
+          </div>
+        </div>
+
+        <div class="vendor-grid-2">
+          <div class="floating-field">
+            <input id="studentId" name="studentId" type="text" placeholder=" " required>
+            <label for="studentId">Matric Number or NIN</label>
+          </div>
+          <div class="floating-field">
+            <input id="level" name="level" type="text" placeholder=" " required>
+            <label for="level">Level</label>
+          </div>
+        </div>
+
+        <div class="vendor-grid-2">
+          <div class="floating-field">
+            <input id="businessName" name="businessName" type="text" placeholder=" " required>
+            <label for="businessName">Business Name</label>
+          </div>
+          <div class="floating-field">
+            <input id="products" name="products" type="text" placeholder=" " required>
+            <label for="products">Products You Want to Sell</label>
+          </div>
+        </div>
+
+        <div class="vendor-grid-2">
+          <div class="floating-field">
+            <input id="bankName" name="bankName" type="text" placeholder=" " required>
+            <label for="bankName">Bank Name</label>
+          </div>
+          <div class="floating-field">
+            <input id="bankNumber" name="bankNumber" type="text" placeholder=" " required>
+            <label for="bankNumber">Bank Account Number</label>
+          </div>
+        </div>
+
+        <div class="floating-field">
+          <label for="imageUpload" style="top: 18px; left: 18px;">Upload an image</label>
+          <input id="imageUpload" name="imageUpload" type="file" accept="image/*" required style="width:100%; border:1px solid #cbd5e1; background:#f8fbff; padding:18px 18px 14px; border-radius:18px; font-family:inherit; font-size:0.96rem; color:#0f172a;" />
+        </div>
+
+        <div class="floating-field">
+          <textarea id="deliveryNote" name="deliveryNote" rows="4" placeholder=" " required></textarea>
+          <label for="deliveryNote">Product Handling / Delivery</label>
+        </div>
+
+        <div class="vendor-actions">
+          <button id="submitRegistrationBtn" type="submit" class="btn">Submit Registration</button>
+          <a class="btn ghost" href="/vendor.html">Back to Vendor Portal</a>
+        </div>
+      </form>
+
+      <div id="registrationStatus" style="margin-top:14px; display:none;"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { getVendorApplications, saveVendorApplication } from '/vendor-registration.js';
+
+    const form = document.getElementById('vendorRegistrationForm');
+    const statusEl = document.getElementById('registrationStatus');
+    const submitBtn = document.getElementById('submitRegistrationBtn');
+
+    function readFileAsDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error('Unable to read uploaded file.'));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function normalizeString(value) {
+      return (value || '').toString().trim().toLowerCase();
+    }
+
+    function isDuplicateApplication(existingApplications, applicationData) {
+      return existingApplications.some(app =>
+        normalizeString(app.email) === normalizeString(applicationData.email) &&
+        normalizeString(app.phone) === normalizeString(applicationData.phone) &&
+        normalizeString(app.businessName) === normalizeString(applicationData.businessName)
+      );
+    }
+
+    function setSubmitting(isSubmitting) {
+      submitBtn.disabled = isSubmitting;
+      submitBtn.textContent = isSubmitting ? 'Submitting…' : 'Submit Registration';
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const imageFile = form.imageUpload.files[0];
+      const data = {
+        fullName: form.fullName.value.trim(),
+        email: form.email.value.trim(),
+        phone: form.phone.value.trim(),
+        university: form.university.value.trim(),
+        studentId: form.studentId.value.trim(),
+        level: form.level.value.trim(),
+        businessName: form.businessName.value.trim(),
+        products: form.products.value.trim(),
+        bankName: form.bankName.value.trim(),
+        bankNumber: form.bankNumber.value.trim(),
+        deliveryNote: form.deliveryNote.value.trim()
+      };
+
+      if (!data.fullName || !data.email || !data.phone || !data.studentId || !data.level || !data.products || !data.bankName || !data.bankNumber || !data.deliveryNote || !imageFile) {
+        statusEl.textContent = 'Please fill in all required fields and upload an image.';
+        statusEl.style.display = 'block';
+        statusEl.style.color = '#b91c1c';
+        return;
+      }
+
+      setSubmitting(true);
+      statusEl.style.display = 'none';
+
+      try {
+        const existingApplications = await getVendorApplications();
+        if (isDuplicateApplication(existingApplications, data)) {
+          statusEl.textContent = 'A registration with this email, phone, and business name already exists.';
+          statusEl.style.display = 'block';
+          statusEl.style.color = '#b91c1c';
+          setSubmitting(false);
+          return;
+        }
+
+        data.imageDataUrl = await readFileAsDataURL(imageFile);
+        data.imageName = imageFile.name;
+
+        await saveVendorApplication(data);
+        statusEl.textContent = 'Registration submitted successfully. You can return to the vendor portal.';
+        statusEl.style.display = 'block';
+        statusEl.style.color = '#047857';
+        form.reset();
+      } catch (error) {
+        statusEl.textContent = 'Unable to save registration at this time. Please try again later.';
+        statusEl.style.display = 'block';
+        statusEl.style.color = '#b91c1c';
+        console.error(error);
+        setSubmitting(false);
+      }
+    });
+  </script>
+</script>
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <a href="/home.html" class="nav-item"><i class='bx bxs-home'></i><span>Home</span></a>
+    <a href="/cart.html" class="nav-item"><i class='bx bx-cart'></i><span>Cart</span></a>
+    <a href="/order.html" class="nav-item"><i class='bx bx-history'></i><span>Orders</span></a>
+    <a href="/profile.html" class="nav-item"><i class='bx bxs-user-circle'></i><span>Profile</span></a>
+  </nav>
+  <div class="bottom-nav-shadow" aria-hidden="true"></div>
+</body>
+</html>
