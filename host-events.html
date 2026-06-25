@@ -1221,6 +1221,7 @@
     async function loadEventConfig() {
       const data = await apiFetch('/api/eventConfig');
       eventConfig = data;
+      window.PAYSTACK_PUBLIC_KEY = String(data.paystackPublicKey || window.PAYSTACK_PUBLIC_KEY || '').trim();
       if (hostFeeLabel) hostFeeLabel.textContent = money(data.hostRegistrationFee + data.hostGatewayFee);
       if (attendeeFeeLabel) attendeeFeeLabel.textContent = money(data.attendeeRegistrationFee);
       if (publicKeyLabel) publicKeyLabel.textContent = window.PAYSTACK_PUBLIC_KEY ? 'Configured' : 'Missing key';
@@ -1381,6 +1382,4 @@
   </script>
 </body>
 </html>
-
-
 

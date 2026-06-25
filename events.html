@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -1029,6 +1029,7 @@
     async function loadPricingConfig() {
       try {
         const data = await apiFetch('/api/eventConfig');
+        window.PAYSTACK_PUBLIC_KEY = String(data.paystackPublicKey || window.PAYSTACK_PUBLIC_KEY || '').trim();
         pricingConfig = {
           attendeeRegistrationFee: Number(data.attendeeRegistrationFee || 100),
           gatewayPercent: Number(data.gatewayPercent || 1.5),
@@ -1179,6 +1180,4 @@
   </script>
 </body>
 </html>
-
-
 

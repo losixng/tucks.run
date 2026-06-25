@@ -7,11 +7,13 @@ exports.handler = async (event) => {
 
   const sampleAttendeeCharge = calculateAttendeeCharge(0, 1);
   const hostCharge = calculateHostCharge();
+  const paystackPublicKey = String(process.env.PAYSTACK_PUBLIC_KEY || "").trim();
 
   return {
     statusCode: 200,
     body: JSON.stringify({
       status: "success",
+      paystackPublicKey,
       attendeeRegistrationFee: sampleAttendeeCharge.registrationFee,
       hostRegistrationFee: hostCharge.base,
       hostGatewayFee: hostCharge.gatewayFee,
@@ -21,3 +23,4 @@ exports.handler = async (event) => {
     })
   };
 };
+
