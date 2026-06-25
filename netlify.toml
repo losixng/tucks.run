@@ -29,3 +29,18 @@
   from = "/api/verifyTicket"
   to = "/.netlify/functions/verifyTicket"
   status = 200
+
+[[redirects]]
+  from = "/api/getMyEvents"
+  to = "/.netlify/functions/getMyEvents"
+  status = 200
+
+[[redirects]]
+  from = "/api/getMyQrPass"
+  to = "/.netlify/functions/getMyQrPass"
+  status = 200
+
+[[redirects]]
+  from = "/api/eventConfig"
+  to = "/.netlify/functions/eventConfig"
+  status = 200

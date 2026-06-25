@@ -496,16 +496,30 @@ function availableQtyForItem(item) {
       const matrix = window.ProductOptions.resolveVariantMatrix(item) || [];
       const stockQty = Number(item.stockQty || 0);
       if (matrix && matrix.length) {
-        const exactRow = matrix.find(r => (r.size || '') === (item.size || '') && (r.color || '') === (item.color || ''));
+        const selectedSize = String(item.size || '').trim();
+        const selectedColor = String(item.color || '').trim();
+        const exactRow = matrix.find((r) => (r.size || '') === selectedSize && (r.color || '') === selectedColor);
         if (exactRow) return Number(exactRow.qty || 0);
-        if (!item.size && !item.color) {
-          const availableRows = matrix.map(r => {
-            const qty = r.qty != null ? Number(r.qty) : stockQty;
-            return qty > 0 ? qty : 0;
-          }).filter(q => q > 0);
+
+        const matchingRows = matrix.filter((r) => {
+          const rowSize = String(r.size || '').trim();
+          const rowColor = String(r.color || '').trim();
+          if (selectedSize && rowSize !== selectedSize) return false;
+          if (selectedColor && rowColor !== selectedColor) return false;
+          return true;
+        });
+
+        if (matchingRows.length) {
+          const availableRows = matchingRows
+            .map((r) => (r.qty != null ? Number(r.qty) : stockQty))
+            .filter((qty) => qty > 0);
           if (availableRows.length) return Math.max(...availableRows);
         }
-        // if matrix exists but row missing or no exact selection, combination may still be unavailable
+
+        const availableRows = matrix
+          .map((r) => (r.qty != null ? Number(r.qty) : stockQty))
+          .filter((qty) => qty > 0);
+        if (availableRows.length) return Math.max(...availableRows);
         return 0;
       }
     }
@@ -514,11 +528,11 @@ function availableQtyForItem(item) {
   }
   return Number(item.stockQty || 0) || 0;
 }
-
 function updateStockHints() {
   cartItems.forEach((item, index) => {
     const el = document.getElementById(`itemStock-${index}`);
     if (!el) return;
+    const requirements = getItemOptionRequirements(item);
     // check sale/timeline availability first
     if (window.evaluateProductStock && !window.evaluateProductStock(item)) {
       el.textContent = 'Unavailable (outside sale window)';
@@ -527,12 +541,22 @@ function updateStockHints() {
     }
     const avail = availableQtyForItem(item);
     if (avail <= 0) {
-      el.textContent = 'Unavailable for selected size/colour';
+      if (requirements.sizeRequired && !item.size) {
+        el.textContent = 'Select a size to check availability';
+      } else if (requirements.colorRequired && !item.color) {
+        el.textContent = 'Select a colour to check availability';
+      } else {
+        el.textContent = 'Unavailable for selected size/colour';
+      }
       el.style.color = 'var(--danger)';
       // ensure selectors are rebuilt to empty lists
       rebuildItemSelectors(index);
     } else {
-      el.textContent = `Available: ${avail}`;
+      if ((requirements.sizeRequired && !item.size) || (requirements.colorRequired && !item.color)) {
+        el.textContent = `Available: ${avail} pending variant selection`;
+      } else {
+        el.textContent = `Available: ${avail}`;
+      }
       // rebuild lists to reflect current selection constraints
       rebuildItemSelectors(index);
       // if qty exceeds available, visually indicate
@@ -545,7 +569,6 @@ function updateStockHints() {
     }
   });
 }
-
 function recalcTotals() {
   const subtotal = cartItems.reduce((s, i) => s + i.price * i.qty, 0);
   const shippingSelect = document.getElementById("shippingMethod");

@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a">
+  <title>Tucks - My Events</title>
+  <link rel="icon" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --panel: rgba(255, 255, 255, 0.9);
+      --line: rgba(15, 23, 42, 0.08);
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #2563eb;
+      --shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Outfit', system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 30%),
+        radial-gradient(circle at top right, rgba(16, 185, 129, 0.12), transparent 25%),
+        linear-gradient(180deg, #f8fbff 0%, #eef3ff 100%);
+      min-height: 100vh;
+    }
+
+    .orb {
+      position: fixed;
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.2;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb.one { top: -100px; left: -80px; background: #93c5fd; }
+    .orb.two { top: 20%; right: -80px; background: #6ee7b7; }
+
+    .shell {
+      position: relative;
+      z-index: 1;
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 18px 18px 40px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: nowrap;
+      gap: 16px;
+      padding: 14px 18px;
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 14px;
+      z-index: 20;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand img {
+      width: 28px;
+      height: 28px;
+      flex: 0 0 auto;
+      display: block;
+    }
+
+    .badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #2563eb, #0f766e);
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.1rem;
+      white-space: nowrap;
+    }
+
+    .brand p {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: nowrap;
+      margin-left: auto;
+      justify-content: flex-end;
+    }
+
+    .btn, .pill-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      border-radius: 14px;
+      padding: 11px 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font: inherit;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .btn:hover, .pill-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+      border-color: rgba(37, 99, 235, 0.2);
+    }
+
+    .hero {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-card {
+      padding: 28px;
+      min-height: 250px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.1);
+      color: var(--accent);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .hero-card h2 {
+      margin: 16px 0 10px;
+      font-size: clamp(2rem, 4vw, 4rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      max-width: 12ch;
+    }
+
+    .hero-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.75;
+      max-width: 68ch;
+    }
+
+    .stats {
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .stat {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid var(--line);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.4rem;
+      margin-bottom: 4px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin: 22px 0 12px;
+      flex-wrap: wrap;
+    }
+
+    .section-head h3 { margin: 0; font-size: 1.2rem; }
+    .section-head p { margin: 0; color: var(--muted); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .event {
+      grid-column: span 4;
+      padding: 16px;
+      border-radius: 22px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 12px;
+    }
+
+    .event h4 {
+      margin: 0;
+      font-size: 1.12rem;
+    }
+
+    .media {
+      height: 180px;
+      border-radius: 18px;
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(16, 185, 129, 0.12));
+    }
+
+    .media img, .media video, .media iframe {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border: 0;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.06);
+      color: var(--text);
+      font-size: 0.82rem;
+    }
+
+    .countdown {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(37, 99, 235, 0.08);
+      color: var(--accent);
+      font-weight: 700;
+      line-height: 1.55;
+    }
+
+    .empty {
+      grid-column: 1 / -1;
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(15, 23, 42, 0.04);
+      border: 1px dashed rgba(15, 23, 42, 0.12);
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .toast {
+      position: fixed;
+      inset: auto 18px 18px auto;
+      background: rgba(15, 23, 42, 0.96);
+      color: white;
+      padding: 14px 16px;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      z-index: 120;
+      pointer-events: none;
+      max-width: min(360px, calc(100vw - 36px));
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 980px) {
+      .hero { grid-template-columns: 1fr; }
+      .event { grid-column: span 6; }
+    }
+
+    @media (max-width: 720px) {
+      .shell { padding: 12px 12px 32px; }
+      .topbar { padding: 12px; border-radius: 20px; }
+      .hero-card { padding: 20px; }
+      .event { grid-column: 1 / -1; }
+    }
+     .cardStats{
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      width: 100%;
+    }
+    .stat{
+      flex: 0 0 auto;
+      min-width: 140px;
+    }
+  </style>
+</head>
+<body>
+  <div class="orb one"></div>
+  <div class="orb two"></div>
+
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <img src="/logo.png" alt="Tucks logo">
+        <div>
+          <h1>My Events</h1>
+        </div>
+      </div>
+      <div class="top-actions">
+        <a class="pill-btn" href="/events.html"><i class='bx bx-grid-alt'></i>Events</a>
+        <a class="pill-btn" href="/host-events.html"><i class='bx bx-badge-check'></i>Host</a>
+        <a class="pill-btn" href="/scan-events.html"><i class='bx bx-qr'></i>QR</a>
+      </div>
+    </header>
+
+    <section class="hero">
+
+
+      <aside class="cardStats">
+        <div class="stat">
+          <strong id="countAttending">0</strong>
+          <span>Events you are attending</span>
+        </div>
+        <div class="stat">
+          <strong id="nextCountdown">--</strong>
+          <span>Nearest countdown</span>
+        </div>
+        <div class="stat">
+          <strong id="upcomingSoon">0</strong>
+          <span>Starting within 7 days</span>
+        </div>
+      </aside>
+    </section>
+
+    <div class="section-head">
+      <div>
+        <h3>Registered events</h3>
+        <p>Events you have registered for and are attending.</p>
+      </div>
+     
+    </div>
+
+    <section class="grid" id="eventGrid"></section>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module">
+    import {
+      apiFetch,
+      auth,
+      buildCountdownLabel,
+      firstMedia,
+      formatDateTime,
+      money,
+      onAuthStateChanged,
+      resolveMediaMarkup,
+      safeArray
+    } from './events-app.js';
+
+    const eventGrid = document.getElementById('eventGrid');
+    const countAttending = document.getElementById('countAttending');
+    const nextCountdown = document.getElementById('nextCountdown');
+    const upcomingSoon = document.getElementById('upcomingSoon');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const toast = document.getElementById('toast');
+
+    let currentUser = null;
+    let registrations = [];
+    let eventLookup = new Map();
+    let timer = null;
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+
+    function serializeDate(value) {
+      if (!value) return null;
+      const date = value?.toDate ? value.toDate() : new Date(value);
+      return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    function nextCountdownLabel(event) {
+      const startsAt = serializeDate(event.startsAt);
+      if (!startsAt) return 'Date pending';
+      const diff = Math.max(0, startsAt.getTime() - Date.now());
+      if (diff === 0) return 'Starting now';
+      return buildCountdownLabel(startsAt);
+    }
+
+    function renderEvents() {
+      if (!registrations.length) {
+        eventGrid.innerHTML = '<div class="empty">You are not registered for any events yet. Buy a ticket from the Events page and it will appear here.</div>';
+        countAttending.textContent = '0';
+        nextCountdown.textContent = '--';
+        upcomingSoon.textContent = '0';
+        return;
+      }
+
+      const merged = registrations
+        .map((registration) => ({
+          ...registration,
+          event: eventLookup.get(String(registration.eventId)) || null
+        }))
+        .filter((item) => item.event);
+
+      countAttending.textContent = String(merged.length);
+
+      const sorted = merged.sort((a, b) => {
+        const aDate = serializeDate(a.event.startsAt)?.getTime() || 0;
+        const bDate = serializeDate(b.event.startsAt)?.getTime() || 0;
+        return aDate - bDate;
+      });
+
+      const nearest = sorted[0];
+      nextCountdown.textContent = nearest ? nextCountdownLabel(nearest.event) : '--';
+      upcomingSoon.textContent = String(
+        sorted.filter((item) => {
+          const date = serializeDate(item.event.startsAt);
+          return date && (date.getTime() - Date.now()) <= 7 * 24 * 60 * 60 * 1000;
+        }).length
+      );
+
+      eventGrid.innerHTML = sorted.map((item) => {
+        const event = item.event;
+        const media = firstMedia(event);
+        const startsAt = serializeDate(event.startsAt);
+        return `
+          <article class="event">
+            <div class="media">${media ? resolveMediaMarkup(media) : ''}</div>
+            <div class="meta">
+              <span class="chip">${event.category || 'General'}</span>
+              <span class="chip">${item.ticketTierName || 'Standard'}</span>
+              <span class="chip">${item.quantity || 1} ticket(s)</span>
+            </div>
+            <h4>${event.title || 'Untitled event'}</h4>
+            <div style="color:#64748b;line-height:1.65;">${event.location || 'Location pending'}</div>
+            <div class="countdown">
+              ${startsAt ? `${startsAt.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })}<br>${nextCountdownLabel(event)}` : 'Date pending'}
+            </div>
+            <div class="meta">
+              <span class="chip">${item.amountPaid ? money(item.amountPaid) : money(event.ticketPrice || 0)}</span>
+              <span class="chip">${item.status || 'registered'}</span>
+            </div>
+            <div style="color:#64748b;line-height:1.6;">
+              Ticket ID: ${item.ticketId || 'pending'}<br>
+              QR pass ready for host scan.
+            </div>
+            <div class="meta">
+              <a class="chip" href="/scan-events.html">Show QR</a>
+              <a class="chip" href="/events.html">More events</a>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    async function loadData() {
+      if (!currentUser) return;
+      eventGrid.innerHTML = '<div class="empty">Loading your events...</div>';
+      try {
+        const [eventsData, myData] = await Promise.all([
+          apiFetch('/api/listEvents'),
+          apiFetch('/api/getMyEvents')
+        ]);
+
+        eventLookup = new Map((Array.isArray(eventsData.events) ? eventsData.events : []).map((event) => [String(event.id), event]));
+        registrations = Array.isArray(myData.registrations) ? myData.registrations : [];
+        renderEvents();
+      } catch (error) {
+        eventGrid.innerHTML = `<div class="empty">Could not load your events: ${error.message}</div>`;
+      }
+    }
+
+    function startTicker() {
+      clearInterval(timer);
+      timer = setInterval(() => {
+        if (registrations.length) renderEvents();
+      }, 1000);
+    }
+
+    refreshBtn.addEventListener('click', loadData);
+        onAuthStateChanged(auth, async (user) => {
+      currentUser = user;
+      if (!user) {
+        eventGrid.innerHTML = '<div class="empty">Please log in to view your events. Redirecting you now...</div>';
+        countAttending.textContent = '0';
+        nextCountdown.textContent = '--';
+        upcomingSoon.textContent = '0';
+        if (!window.__myEventsLoginRedirect) {
+          window.__myEventsLoginRedirect = setTimeout(() => {
+            window.location.href = '/login.html';
+          }, 1200);
+        }
+        return;
+      }
+      if (window.__myEventsLoginRedirect) {
+        clearTimeout(window.__myEventsLoginRedirect);
+        window.__myEventsLoginRedirect = null;
+      }
+      await loadData();
+      startTicker();
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+

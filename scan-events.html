@@ -1,0 +1,768 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a">
+  <title>Tucks - QR Pass</title>
+  <link rel="icon" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --panel: rgba(255, 255, 255, 0.9);
+      --line: rgba(15, 23, 42, 0.08);
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #2563eb;
+      --shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Outfit', system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 30%),
+        radial-gradient(circle at top right, rgba(16, 185, 129, 0.12), transparent 25%),
+        linear-gradient(180deg, #f8fbff 0%, #eef3ff 100%);
+      min-height: 100vh;
+    }
+
+    .orb {
+      position: fixed;
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.2;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb.one { top: -100px; left: -80px; background: #93c5fd; }
+    .orb.two { top: 20%; right: -80px; background: #6ee7b7; }
+
+    .shell {
+      position: relative;
+      z-index: 1;
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 18px 18px 40px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      flex-wrap: nowrap;
+      gap: 10px;
+      padding: 14px 18px;
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 14px;
+      z-index: 20;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      flex: 0 0 auto;
+    }
+
+    .badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #2563eb, #0f766e);
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .brand img {
+      width: 32px;
+      height: 32px;
+      display: block;
+      flex: 0 0 auto;
+    }
+
+    .brand h1 { margin: 0; font-size: 1.1rem; }
+    .brand p { margin: 2px 0 0; color: var(--muted); font-size: 0.9rem; }
+
+    .top-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: nowrap;
+      justify-content: flex-end;
+    }
+
+    .btn, .pill-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      border-radius: 14px;
+      padding: 11px 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font: inherit;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .pill-btn {
+      white-space: nowrap;
+    }
+
+    .nav-menu {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      border-radius: 14px;
+      padding: 11px 38px 11px 14px;
+      font: inherit;
+      cursor: pointer;
+      appearance: none;
+    }
+
+    .btn:hover, .pill-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+      border-color: rgba(37, 99, 235, 0.2);
+    }
+
+    .hero {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-card {
+      padding: 28px;
+      min-height: 250px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.1);
+      color: var(--accent);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .hero-card h2 {
+      margin: 16px 0 10px;
+      font-size: clamp(2rem, 4vw, 4rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      max-width: 12ch;
+    }
+
+    .hero-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.75;
+      max-width: 68ch;
+    }
+
+    .stats {
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .stat {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid var(--line);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.4rem;
+      margin-bottom: 4px;
+    }
+
+    .content {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      align-items: start;
+    }
+
+    .section {
+      padding: 20px;
+    }
+
+    .section h3 {
+      margin: 0 0 6px;
+      font-size: 1.25rem;
+    }
+
+    .section .sub {
+      margin: 0 0 18px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .qr-box {
+      display: grid;
+      place-items: center;
+      gap: 14px;
+      padding: 20px;
+      border-radius: 22px;
+      background: #fff;
+      border: 1px solid var(--line);
+      min-height: 340px;
+    }
+
+    .qr-canvas {
+      width: min(100%, 300px);
+      height: min(100%, 300px);
+      border-radius: 18px;
+      box-shadow: 0 18px 42px rgba(15, 23, 42, 0.16);
+    }
+
+    .identity {
+      width: 100%;
+      display: grid;
+      gap: 8px;
+      text-align: center;
+    }
+
+    .identity strong {
+      font-size: 1.18rem;
+    }
+
+    .identity span {
+      color: var(--muted);
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .field label {
+      font-size: 0.9rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .field select, .field input, .field textarea {
+      width: 100%;
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font: inherit;
+      outline: none;
+    }
+
+    .field textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .scanner-box {
+      padding: 18px;
+      border-radius: 20px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .scanner-view {
+      min-height: 320px;
+      border-radius: 18px;
+      overflow: hidden;
+      background: rgba(15, 23, 42, 0.04);
+      display: grid;
+      place-items: center;
+      margin-top: 12px;
+    }
+
+    .result {
+      margin-top: 12px;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(37, 99, 235, 0.08);
+      color: var(--accent);
+      line-height: 1.65;
+    }
+
+    .empty {
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(15, 23, 42, 0.04);
+      border: 1px dashed rgba(15, 23, 42, 0.12);
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .toast {
+      position: fixed;
+      inset: auto 18px 18px auto;
+      background: rgba(15, 23, 42, 0.96);
+      color: white;
+      padding: 14px 16px;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      z-index: 120;
+      pointer-events: none;
+      max-width: min(360px, calc(100vw - 36px));
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 1024px) {
+      .hero, .content {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .shell { padding: 12px 12px 32px; }
+      .topbar {
+        padding: 10px 12px;
+        border-radius: 20px;
+        gap: 8px;
+      }
+      .brand {
+        gap: 8px;
+      }
+      .brand img {
+        width: 28px;
+        height: 28px;
+      }
+      .brand h1 {
+        font-size: 1rem;
+      }
+      .nav-menu {
+        padding: 10px 34px 10px 12px;
+      }
+      .hero-card { padding: 20px; }
+    }     .cardStats{
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      width: 100%;
+    }
+    .stat{
+      flex: 0 0 auto;
+      min-width: 140px;
+    }
+  </style>
+</head>
+<body>
+  <div class="orb one"></div>
+  <div class="orb two"></div>
+
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <img src="/logo.png" alt="Tucks logo" />
+        <div>
+          <h1>QR Pass</h1>
+        </div>
+      </div>
+      <div class="top-actions" style="margin-left:auto;">
+        <select class="nav-menu" id="navMenu" aria-label="Navigate to another page">
+          <option value="">Menu</option>
+          <option value="/events.html">Events</option>
+          <option value="/host-events.html">Host</option>
+          <option value="/my-events.html">My events</option>
+        </select>
+      </div>
+    </header>
+
+    <section class="hero" >
+   <aside class="cardStats">
+        <div class="stat">
+          <strong id="qrStatus">Loading...</strong>
+          <span>User pass status</span>
+        </div>
+        <div class="stat">
+          <strong id="hostedCount">0</strong>
+          <span>Events you can verify as host</span>
+        </div>
+        <div class="stat">
+          <strong id="scanMode">Ready</strong>
+          <span>Scanner state</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="content">
+      <article class="card section">
+        <h3>Your QR pass</h3>
+        <p class="sub">Show this QR to a host during check-in. It will only verify against events where you are registered.</p>
+        <div class="qr-box">
+          <canvas id="qrCanvas" class="qr-canvas" width="300" height="300"></canvas>
+          <div class="identity">
+            <strong id="userName">Waiting for sign-in...</strong>
+            <span id="userEmail">-</span>
+          </div>
+          <div class="empty" id="qrTokenText">No QR token loaded yet.</div>
+          <div class="inline-actions">
+            <button class="btn" id="refreshQrBtn"><i class='bx bx-refresh'></i>Refresh QR</button>
+            <button class="btn" id="copyQrBtn"><i class='bx bx-copy'></i>Copy token</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="card section">
+        <h3>Host verification</h3>
+        <p class="sub">Select one of your hosted events, scan the guest QR, and let the backend approve or reject the entry.</p>
+
+        <div class="field">
+          <label for="hostEventSelect">Select hosted event</label>
+          <select id="hostEventSelect">
+            <option value="">Loading events...</option>
+          </select>
+        </div>
+
+        <div class="scanner-box">
+          <div class="inline-actions">
+            <button class="btn" id="startScanBtn"><i class='bx bx-camera'></i>Start camera scan</button>
+            <button class="btn" id="stopScanBtn"><i class='bx bx-stop-circle'></i>Stop scan</button>
+          </div>
+          <div class="scanner-view" id="scannerView">
+            <div class="empty">Camera scanner will appear here.</div>
+          </div>
+
+          <div class="field" style="margin-top:14px;">
+            <label for="manualToken">Manual QR token input</label>
+            <textarea id="manualToken" placeholder="Paste an encrypted QR token here if needed."></textarea>
+          </div>
+
+          <button class="btn" id="verifyBtn"><i class='bx bx-shield-quarter'></i>Verify attendee</button>
+          <div class="result" id="verifyResult">No verification yet.</div>
+        </div>
+      </article>
+    </section>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="https://unpkg.com/qrcode/build/qrcode.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <script type="module">
+    import {
+      apiFetch,
+      auth,
+      onAuthStateChanged,
+      safeArray
+    } from './events-app.js';
+
+    const qrCanvas = document.getElementById('qrCanvas');
+    const qrStatus = document.getElementById('qrStatus');
+    const hostedCount = document.getElementById('hostedCount');
+    const scanMode = document.getElementById('scanMode');
+    const userName = document.getElementById('userName');
+    const userEmail = document.getElementById('userEmail');
+    const qrTokenText = document.getElementById('qrTokenText');
+    const refreshQrBtn = document.getElementById('refreshQrBtn');
+    const copyQrBtn = document.getElementById('copyQrBtn');
+    const hostEventSelect = document.getElementById('hostEventSelect');
+    const startScanBtn = document.getElementById('startScanBtn');
+    const stopScanBtn = document.getElementById('stopScanBtn');
+    const navMenu = document.getElementById('navMenu');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const verifyResult = document.getElementById('verifyResult');
+    const manualToken = document.getElementById('manualToken');
+    const scannerView = document.getElementById('scannerView');
+    const toast = document.getElementById('toast');
+
+    let currentUser = null;
+    let qrToken = '';
+    let hostedEvents = [];
+    let scanner = null;
+    let scanSessionId = 0;
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+
+    function maskToken(value) {
+      const text = String(value || '').trim();
+      if (!text) return 'No QR token loaded yet.';
+      if (text.length <= 18) return text;
+      return `${text.slice(0, 8)}...${text.slice(-6)}`;
+    }
+
+    function isLikelyToken(value) {
+      return String(value || '').trim().length >= 20;
+    }
+
+    async function drawQr(value) {
+      if (!value || !window.QRCode) return;
+      const ctx = qrCanvas.getContext('2d');
+      if (ctx) {
+        ctx.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
+      }
+      await window.QRCode.toCanvas(qrCanvas, value, {
+        width: 300,
+        margin: 1,
+        errorCorrectionLevel: 'M',
+        color: {
+          dark: '#0f172a',
+          light: '#ffffff'
+        }
+      });
+    }
+
+    async function loadQrPass() {
+      if (!currentUser) {
+        qrStatus.textContent = 'Sign in first';
+        qrTokenText.textContent = 'No user pass available.';
+        qrTokenText.title = '';
+        userName.textContent = 'Waiting for sign-in...';
+        userEmail.textContent = '-';
+        return;
+      }
+
+      const data = await apiFetch('/api/getMyQrPass');
+      qrToken = String(data.qrToken || '').trim();
+      if (!isLikelyToken(qrToken)) {
+        throw new Error('The QR token returned by the server is invalid.');
+      }
+      userName.textContent = data.user.displayName || currentUser.displayName || 'Signed-in user';
+      userEmail.textContent = data.user.email || currentUser.email || '';
+      qrStatus.textContent = 'Pass ready';
+      qrTokenText.textContent = maskToken(qrToken);
+      qrTokenText.title = qrToken;
+      await drawQr(qrToken);
+    }
+
+    async function loadHostedEvents() {
+      if (!currentUser) {
+        hostedEvents = [];
+        hostedCount.textContent = '0';
+        hostEventSelect.innerHTML = '<option value="">Sign in to load events</option>';
+        return;
+      }
+
+      const data = await apiFetch('/api/getMyEvents');
+      hostedEvents = safeArray(data.hostedEvents);
+      hostedCount.textContent = String(hostedEvents.length);
+      hostEventSelect.innerHTML = hostedEvents.length
+        ? ['<option value="">Select hosted event</option>', ...hostedEvents.map((event) => `<option value="${event.id}">${event.title || 'Untitled event'}</option>`)].join('')
+        : '<option value="">No hosted events yet</option>';
+    }
+
+    async function verifyToken(token) {
+      const eventId = hostEventSelect.value;
+      if (!eventId) {
+        showToast('Select a hosted event first.');
+        return;
+      }
+      const cleanToken = String(token || '').trim();
+      if (!isLikelyToken(cleanToken)) {
+        showToast('Provide a QR token first.');
+        return;
+      }
+
+      const result = await apiFetch('/api/verifyTicket', {
+        method: 'POST',
+        body: JSON.stringify({
+          qrToken: cleanToken,
+          eventId
+        })
+      });
+
+      verifyResult.innerHTML = `
+        <strong>${result.approved ? 'Approved' : 'Rejected'}</strong><br>
+        ${result.event?.title || 'Unknown event'}<br>
+        ${result.attendee?.displayName || result.attendee?.email || 'Guest'}
+      `;
+      showToast(result.approved ? 'Attendee approved.' : 'Attendee rejected.');
+      if (result.approved && scanner) {
+        await stopScanner();
+      }
+    }
+
+    async function startScanner() {
+      if (!window.Html5Qrcode || scanner) {
+        return;
+      }
+
+      if (!window.isSecureContext) {
+        showToast('Camera scanning requires HTTPS or localhost.');
+        return;
+      }
+
+      scannerView.innerHTML = '<div id="qr-reader" style="width:100%;"></div>';
+      scanMode.textContent = 'Scanning';
+      const sessionId = ++scanSessionId;
+
+      scanner = new window.Html5Qrcode('qr-reader');
+      await scanner.start(
+        { facingMode: 'environment' },
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 }
+        },
+        async (decodedText) => {
+          if (sessionId !== scanSessionId || !scanner) {
+            return;
+          }
+          const cleanText = String(decodedText || '').trim();
+          if (!isLikelyToken(cleanText)) {
+            showToast('Scanned QR content is not valid.');
+            return;
+          }
+          manualToken.value = cleanText;
+          try {
+            await stopScanner();
+            await verifyToken(cleanText);
+          } catch (error) {
+            verifyResult.textContent = error.message;
+            showToast(error.message);
+          }
+        }
+      );
+    }
+
+    async function stopScanner() {
+      scanSessionId += 1;
+      if (scanner) {
+        await scanner.stop();
+        await scanner.clear();
+        scanner = null;
+      }
+      scanMode.textContent = 'Ready';
+      scannerView.innerHTML = '<div class="empty">Camera scanner stopped.</div>';
+    }
+
+    refreshQrBtn.addEventListener('click', loadQrPass);
+    copyQrBtn.addEventListener('click', async () => {
+      if (!qrToken) {
+        showToast('No QR token loaded yet.');
+        return;
+      }
+      await navigator.clipboard.writeText(qrToken);
+      showToast('QR token copied.');
+    });
+    startScanBtn.addEventListener('click', async () => {
+      try {
+        await startScanner();
+      } catch (error) {
+        scanMode.textContent = 'Ready';
+        scannerView.innerHTML = `<div class="empty">Scanner error: ${error.message}</div>`;
+        showToast(error.message);
+      }
+    });
+    stopScanBtn.addEventListener('click', stopScanner);
+    navMenu.addEventListener('change', () => {
+      if (navMenu.value) {
+        window.location.href = navMenu.value;
+      }
+      navMenu.value = '';
+    });
+    verifyBtn.addEventListener('click', async () => {
+      try {
+        await verifyToken(manualToken.value);
+      } catch (error) {
+        verifyResult.textContent = error.message;
+        showToast(error.message);
+      }
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      currentUser = user;
+      if (!user) {
+        qrStatus.textContent = 'Please log in';
+        userName.textContent = 'Waiting for sign-in...';
+        userEmail.textContent = '-';
+        qrTokenText.textContent = 'No user pass available.';
+        qrTokenText.title = '';
+        hostedCount.textContent = '0';
+        hostEventSelect.innerHTML = '<option value="">Sign in to load events</option>';
+        verifyResult.textContent = 'No verification yet.';
+        if (!window.__scanLoginRedirect) {
+          window.__scanLoginRedirect = setTimeout(() => {
+            window.location.href = '/login.html';
+          }, 1200);
+        }
+        return;
+      }
+      if (window.__scanLoginRedirect) {
+        clearTimeout(window.__scanLoginRedirect);
+        window.__scanLoginRedirect = null;
+      }
+
+      try {
+        await Promise.all([loadQrPass(), loadHostedEvents()]);
+      } catch (error) {
+        qrToken = '';
+        qrTokenText.textContent = 'Unable to load QR pass.';
+        qrTokenText.title = '';
+        showToast(error.message);
+      }
+    });
+
+    window.addEventListener('beforeunload', async () => {
+      if (scanner) {
+        try {
+          await scanner.stop();
+          await scanner.clear();
+        } catch {}
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

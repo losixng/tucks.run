@@ -1,0 +1,1184 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a">
+  <title>Tucks - Events</title>
+  <link rel="icon" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: rgba(255, 255, 255, 0.9);
+      --panel-strong: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --line: rgba(15, 23, 42, 0.08);
+      --accent: #2563eb;
+      --accent-2: #0f766e;
+      --good: #16a34a;
+      --shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: 'Outfit', system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 30%),
+        radial-gradient(circle at top right, rgba(16, 185, 129, 0.12), transparent 25%),
+        linear-gradient(180deg, #f8fbff 0%, #eef3ff 100%);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .orb {
+      position: fixed;
+      inset: auto;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.22;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb.one { top: -120px; left: -80px; background: #93c5fd; }
+    .orb.two { top: 15%; right: -90px; background: #6ee7b7; }
+
+    .shell {
+      position: relative;
+      z-index: 1;
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 18px 18px 40px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 18px;
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 14px;
+      z-index: 20;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      object-fit: cover;
+      flex: 0 0 auto;
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: white;
+    }
+
+    .brand-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #2563eb, #0f766e);
+      box-shadow: 0 12px 24px rgba(37, 99, 235, 0.28);
+      display: grid;
+      place-items: center;
+      color: white;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      flex: 0 0 auto;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.1rem;
+      line-height: 1.1;
+    }
+
+    .brand p {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .menu {
+      position: relative;
+    }
+
+    .menu-btn, .pill-btn, .action-btn {
+      border: 1px solid var(--line);
+      background: var(--panel-strong);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 11px 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font: inherit;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .menu-btn:hover, .pill-btn:hover, .action-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(37, 99, 235, 0.2);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    .menu-panel {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 10px);
+      width: min(320px, calc(100vw - 32px));
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 10px;
+      display: none;
+      z-index: 30;
+    }
+
+    .menu.open .menu-panel { display: block; }
+
+    .menu-panel a, .menu-panel button {
+      width: 100%;
+      text-align: left;
+      border: 0;
+      background: transparent;
+      padding: 12px 12px;
+      border-radius: 12px;
+      color: var(--text);
+      text-decoration: none;
+      font: inherit;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .menu-panel a:hover, .menu-panel button:hover {
+      background: rgba(37, 99, 235, 0.08);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .hero-card, .stats-card, .filter-card, .section-card {
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-card {
+      padding: 28px;
+      min-height: 280px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -70px -70px auto;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.22), transparent 70%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.1);
+      color: var(--accent);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .hero-card h2 {
+      margin: 16px 0 12px;
+      font-size: clamp(2.1rem, 4vw, 4.4rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      max-width: 12ch;
+    }
+
+    .hero-card p {
+      margin: 0;
+      max-width: 62ch;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 1rem;
+    }
+
+    .hero-grid {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+      min-height: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-stats-inline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .hero-stat {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      backdrop-filter: blur(10px);
+      min-width: 140px;
+    }
+
+    .hero-stat strong {
+      display: block;
+      font-size: 1.12rem;
+      margin-bottom: 4px;
+    }
+
+    .hero-stat span {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .hero-actions {
+      margin-top: 22px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, #2563eb, #0f766e);
+      color: white;
+      border: 0;
+    }
+
+    .stats-card {
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .stat {
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 16px;
+      border: 1px solid var(--line);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.5rem;
+      margin-bottom: 6px;
+    }
+
+    .filters {
+      margin-top: 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      padding: 14px;
+      border-radius: calc(var(--radius) + 2px);
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .filter-card {
+      padding: 14px 16px;
+      flex: 1 1 280px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+    }
+
+    .filter-card input, .filter-card select {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      font: inherit;
+      color: var(--text);
+      outline: none;
+    }
+
+    .section-head {
+      margin: 24px 0 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .section-head h3 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+    }
+
+    .event-card {
+      grid-column: span 4;
+      overflow: hidden;
+      cursor: pointer;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .event-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 32px 70px rgba(15, 23, 42, 0.16);
+    }
+
+    .event-media {
+      aspect-ratio: 16 / 10;
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(16, 185, 129, 0.15));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .event-media img, .event-media video, .event-media iframe {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border: 0;
+    }
+
+    .event-body {
+      padding: 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .event-body h4 {
+      margin: 0;
+      font-size: 1.18rem;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.05);
+      color: var(--text);
+      font-size: 0.82rem;
+    }
+
+    .price {
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .empty {
+      padding: 24px;
+      border-radius: 20px;
+      background: var(--panel);
+      border: 1px dashed rgba(15, 23, 42, 0.16);
+      color: var(--muted);
+      text-align: center;
+      grid-column: 1 / -1;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.62);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 100;
+    }
+
+    .modal-backdrop.open { display: flex; }
+
+    .modal {
+      width: min(1100px, 100%);
+      max-height: min(92vh, 980px);
+      overflow: auto;
+      border-radius: 28px;
+      background: #fff;
+      box-shadow: 0 40px 120px rgba(2, 6, 23, 0.4);
+    }
+
+    .modal-shell {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      min-height: 640px;
+    }
+
+    .modal-media {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(16, 185, 129, 0.12));
+      position: relative;
+      min-height: 340px;
+    }
+
+    .modal-media .hero-media {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .modal-body {
+      padding: 24px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .modal-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .modal-top h3 {
+      margin: 0 0 8px;
+      font-size: clamp(1.6rem, 3vw, 2.6rem);
+      line-height: 1;
+    }
+
+    .modal-top p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .close-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: white;
+      cursor: pointer;
+      font-size: 1.3rem;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .detail {
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(15, 23, 42, 0.04);
+      border: 1px solid rgba(15, 23, 42, 0.06);
+    }
+
+    .detail span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.86rem;
+      margin-bottom: 4px;
+    }
+
+    .detail strong {
+      font-size: 0.98rem;
+    }
+
+    .section-box {
+      padding: 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: #fff;
+    }
+
+    .section-box h5 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+    }
+
+    .list {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .tier-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .tier {
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: rgba(15, 23, 42, 0.02);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .purchase-form {
+      display: grid;
+      gap: 10px;
+    }
+
+    .purchase-form input, .purchase-form select, .purchase-form textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      font: inherit;
+    }
+
+    .purchase-form textarea {
+      min-height: 96px;
+      resize: vertical;
+    }
+
+    .purchase-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .toast {
+      position: fixed;
+      inset: auto 18px 18px auto;
+      background: rgba(15, 23, 42, 0.96);
+      color: white;
+      padding: 14px 16px;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      z-index: 120;
+      pointer-events: none;
+      max-width: min(360px, calc(100vw - 36px));
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 980px) {
+      .hero, .modal-shell {
+        grid-template-columns: 1fr;
+      }
+      .event-card {
+        grid-column: span 6;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .shell { padding: 12px 12px 32px; }
+      .topbar { padding: 12px; border-radius: 20px; }
+      .hero-card { padding: 20px; }
+      .event-card { grid-column: 1 / -1; }
+      .detail-grid { grid-template-columns: 1fr; }
+      .filters { grid-template-columns: 1fr; }
+      .top-actions { justify-content: flex-start; }
+    }
+    .stats-card{
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      width: 100%;
+    }
+    .stat{
+      flex: 0 0 auto;
+      min-width: 140px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="orb one"></div>
+    <div class="orb two"></div>
+    <div class="shell">
+      <header class="topbar">
+        <div class="brand">
+          <img class="brand-mark" src="/logo.png" alt="Tucks logo" />
+          <div>
+            <h1>Events</h1>
+          </div>
+        </div>
+        <div class="top-actions">
+          <a class="pill-btn" href="/index.html"><i class='bx bx-home'></i>Home</a>
+          <div class="menu" id="menu">
+            <button class="menu-btn" id="menuBtn"><i class='bx bx-menu'></i>Actions</button>
+            <div class="menu-panel" aria-label="Events menu">
+              <a href="/host-events.html"><i class='bx bx-badge-check'></i>Host an event</a>
+              <a href="/host-events.html"><i class='bx bx-calendar-event'></i>My hosted events</a>
+              <a href="/my-events.html"><i class='bx bx-time'></i>My attending events</a>
+              <a href="/scan-events.html"><i class='bx bx-qr'></i>QR scanner / pass</a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="hero">
+        <div class="hero-card"  style="display: none;">
+          <div class="hero-grid" >
+            <div>
+              
+                <a class="action-btn primary-btn" href="#eventGrid"><i class='bx bx-calendar-check'></i>Browse events</a>
+                <button class="action-btn" type="button" id="refreshBtn"><i class='bx bx-refresh'></i>Refresh</button>
+              </div>
+            </div>
+            <div class="hero-stats-inline">
+              <div class="hero-stat">
+                <strong id="totalEventsHero">0</strong>
+                <span>Published events</span>
+              </div>
+              <div class="hero-stat">
+                <strong id="freeEventsHero">0</strong>
+                <span>Free events available</span>
+              </div>
+              <div class="hero-stat">
+                <strong id="tieredEventsHero">0</strong>
+                <span>Events with tiered tickets</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="stats-card">
+          <div class="stat">
+            <strong id="totalEvents">0</strong>
+            <span>Published events</span>
+          </div>
+          <div class="stat">
+            <strong id="freeEvents">0</strong>
+            <span>Free events available</span>
+          </div>
+          <div class="stat">
+            <strong id="tieredEvents">0</strong>
+            <span>Events with tiered tickets</span>
+          </div>
+        </aside>
+      </section>
+
+      <section class="filters">
+        <div class="filter-card">
+          <i class='bx bx-search'></i>
+          <input id="searchInput" placeholder="Search events, venues, categories..." />
+        </div>
+        <div class="filter-card" style="flex: 0 1 280px;">
+          <i class='bx bx-filter-alt'></i>
+          <select id="sortSelect">
+            <option value="soonest">Soonest first</option>
+            <option value="priceLow">Price low to high</option>
+            <option value="priceHigh">Price high to low</option>
+            <option value="featured">Featured</option>
+          </select>
+        </div>
+      </section>
+
+      <div class="section-head">
+        <div>
+          <h3>Available Events</h3>
+          <p>Tap a card to view details and buy.</p>
+        </div>
+      </div>
+
+      <section class="grid" id="eventGrid"></section>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
+    <div class="modal">
+      <div class="modal-shell" id="modalContent"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+  <script type="module">
+    import {
+      apiFetch,
+      auth,
+      buildCountdownLabel,
+      firstMedia,
+      formatDateTime,
+      isFavorite,
+      money,
+      onAuthStateChanged,
+      resolveMediaMarkup,
+      safeArray,
+      shareEvent,
+      toggleFavorite
+    } from './events-app.js';
+
+    const grid = document.getElementById('eventGrid');
+    const searchInput = document.getElementById('searchInput');
+    const sortSelect = document.getElementById('sortSelect');
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const modalContent = document.getElementById('modalContent');
+    const toast = document.getElementById('toast');
+    const totalEvents = document.getElementById('totalEvents');
+    const freeEvents = document.getElementById('freeEvents');
+    const tieredEvents = document.getElementById('tieredEvents');
+    const totalEventsHero = document.getElementById('totalEventsHero');
+    const freeEventsHero = document.getElementById('freeEventsHero');
+    const tieredEventsHero = document.getElementById('tieredEventsHero');
+    const menu = document.getElementById('menu');
+    const menuBtn = document.getElementById('menuBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+
+    let allEvents = [];
+    let currentUser = null;
+    let activeEventId = null;
+    let pricingConfig = {
+      attendeeRegistrationFee: 100,
+      gatewayPercent: 1.5,
+      gatewayFlat: 100
+    };
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+
+    function openModal() {
+      modalBackdrop.classList.add('open');
+      modalBackdrop.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeModal() {
+      modalBackdrop.classList.remove('open');
+      modalBackdrop.setAttribute('aria-hidden', 'true');
+      modalContent.innerHTML = '';
+      activeEventId = null;
+    }
+
+    function eventPriceLabel(event) {
+      if (event.isFree) return 'Free';
+      const tiers = safeArray(event.tiers);
+      if (tiers.length) {
+        const lowest = tiers.reduce((min, tier) => Math.min(min, Number(tier.price || 0)), Number.POSITIVE_INFINITY);
+        return lowest === Number.POSITIVE_INFINITY ? money(event.ticketPrice || 0) : `From ${money(lowest)}`;
+      }
+      return money(event.ticketPrice || 0);
+    }
+
+    function renderEventCard(event) {
+      const media = firstMedia(event);
+      const dateText = formatDateTime(event.startsAt);
+      const location = event.location || 'TBD';
+      const tierCount = safeArray(event.tiers).length;
+      return `
+        <article class="event-card" data-event-id="${event.id}">
+          <div class="event-media">${media ? resolveMediaMarkup(media) : ''}</div>
+          <div class="event-body">
+            <div class="meta-row">
+              <span>${event.category || 'General'}</span>
+              <span class="price">${eventPriceLabel(event)}</span>
+            </div>
+            <h4>${event.title || 'Untitled event'}</h4>
+            <div class="meta-row">
+              <span><i class='bx bx-map'></i> ${location}</span>
+              <span><i class='bx bx-calendar'></i> ${dateText}</span>
+            </div>
+            <div class="chips">
+              <span class="chip">${event.isFree ? 'Free entry' : 'Paid entry'}</span>
+              <span class="chip">${tierCount ? `${tierCount} ticket tiers` : 'Single ticket type'}</span>
+              <span class="chip">${Number(event.capacity || 0) ? `Capacity ${event.capacity}` : 'Unlimited seats'}</span>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderGrid(events) {
+      if (!events.length) {
+        grid.innerHTML = `<div class="empty">No events matched your search yet.</div>`;
+        return;
+      }
+      grid.innerHTML = events.map(renderEventCard).join('');
+    }
+
+    function sortEvents(events) {
+      const mode = sortSelect.value;
+      const list = [...events];
+      if (mode === 'priceLow') {
+        list.sort((a, b) => (Number(a.ticketPrice || 0) - Number(b.ticketPrice || 0)));
+      } else if (mode === 'priceHigh') {
+        list.sort((a, b) => (Number(b.ticketPrice || 0) - Number(a.ticketPrice || 0)));
+      } else if (mode === 'featured') {
+        list.sort((a, b) => Number(!!b.isFree) - Number(!!a.isFree));
+      } else {
+        list.sort((a, b) => {
+          const ad = a.startsAt?.toDate ? a.startsAt.toDate().getTime() : new Date(a.startsAt || 0).getTime();
+          const bd = b.startsAt?.toDate ? b.startsAt.toDate().getTime() : new Date(b.startsAt || 0).getTime();
+          return ad - bd;
+        });
+      }
+      return list;
+    }
+
+    function filterEvents() {
+      const term = searchInput.value.trim().toLowerCase();
+      const filtered = allEvents.filter((event) => {
+        const haystack = [
+          event.title,
+          event.description,
+          event.category,
+          event.location,
+          event.venue,
+          ...(safeArray(event.requirements)),
+          ...(safeArray(event.thingsToBring))
+        ].join(' ').toLowerCase();
+        return haystack.includes(term);
+      });
+      renderGrid(sortEvents(filtered));
+    }
+
+    function renderModal(event) {
+      const media = firstMedia(event);
+      const tiers = safeArray(event.tiers);
+      const fields = safeArray(event.attendeeFields);
+      const requirements = safeArray(event.requirements);
+      const bring = safeArray(event.thingsToBring);
+      const mediaMarkup = media ? resolveMediaMarkup(media) : `<div style="display:grid;place-items:center;height:100%;color:#64748b;">No media uploaded yet</div>`;
+      modalContent.innerHTML = `
+        <div class="modal-media">${mediaMarkup}</div>
+        <div class="modal-body">
+          <div class="modal-top">
+            <div>
+              <div class="eyebrow"><i class='bx bx-calendar-event'></i> ${event.category || 'Event'}</div>
+              <h3>${event.title || 'Untitled event'}</h3>
+              <p>${event.description || 'No description provided yet.'}</p>
+            </div>
+            <button class="close-btn" data-close>&times;</button>
+          </div>
+
+          <div class="detail-grid">
+            <div class="detail"><span>Starts</span><strong>${formatDateTime(event.startsAt)}</strong></div>
+            <div class="detail"><span>Location</span><strong>${event.location || 'TBD'}</strong></div>
+            <div class="detail"><span>Price</span><strong>${event.isFree ? 'Free' : money(event.ticketPrice || 0)}</strong></div>
+            <div class="detail"><span>Tickets</span><strong>${event.minTicketsPerOrder || 1} - ${event.maxTicketsPerOrder || 10} per purchase</strong></div>
+          </div>
+
+          <div class="section-box">
+            <h5>Important Details</h5>
+            <ul class="list">
+              <li><strong>Dress code:</strong> ${event.dressCode || 'No specific dress code'}</li>
+              <li><strong>Capacity:</strong> ${event.capacity ? event.capacity : 'Unlimited'}</li>
+              <li><strong>Host:</strong> ${event.hostName || 'Tucks host'}</li>
+            </ul>
+          </div>
+
+          ${requirements.length ? `
+          <div class="section-box">
+            <h5>Requirements</h5>
+            <ul class="list">${requirements.map((item) => `<li>${item}</li>`).join('')}</ul>
+          </div>` : ''}
+
+          ${bring.length ? `
+          <div class="section-box">
+            <h5>Things to bring</h5>
+            <ul class="list">${bring.map((item) => `<li>${item}</li>`).join('')}</ul>
+          </div>` : ''}
+
+          ${tiers.length ? `
+          <div class="section-box">
+            <h5>Ticket tiers</h5>
+            <div class="tier-list">
+              ${tiers.map((tier) => `
+                <div class="tier">
+                  <div>
+                    <strong>${tier.name}</strong>
+                    <div style="color:#64748b;font-size:0.92rem;">${tier.description || 'Premium access option'}</div>
+                  </div>
+                  <strong>${money(tier.price || 0)}</strong>
+                </div>
+              `).join('')}
+            </div>
+          </div>` : ''}
+
+          ${fields.length ? `
+          <div class="section-box">
+            <h5>Compulsory attendee fields</h5>
+            <ul class="list">${fields.map((field) => `<li>${field.label}${field.required ? ' (required)' : ''}</li>`).join('')}</ul>
+          </div>` : ''}
+
+          <div class="section-box">
+            <h5>Register / Save / Share</h5>
+            <div class="purchase-form">
+              <input id="buyerName" placeholder="Your name" value="${currentUser?.displayName || ''}" />
+              <input id="buyerEmail" type="email" placeholder="Your email" value="${currentUser?.email || ''}" />
+              <select id="ticketTier">
+                <option value="">Select a ticket tier</option>
+                ${tiers.map((tier) => `<option value="${tier.id}">${tier.name} - ${money(tier.price || 0)}</option>`).join('')}
+              </select>
+              <input id="quantity" type="number" min="${event.minTicketsPerOrder || 1}" max="${event.maxTicketsPerOrder || 10}" value="${event.minTicketsPerOrder || 1}" />
+              <textarea id="answers" placeholder="Any custom answers the host requires. Use one answer per line."></textarea>
+            </div>
+            <div class="purchase-actions" style="margin-top:12px;">
+              <button class="action-btn primary-btn" data-buy="${event.id}"><i class='bx bx-cart'></i>Buy ticket</button>
+              <button class="action-btn" data-fav="${event.id}">${isFavorite(event.id) ? 'Saved' : 'Save'}</button>
+              <button class="action-btn" data-share="${event.id}">Share</button>
+            </div>
+            <div style="color:#64748b;font-size:0.9rem;line-height:1.6;">
+              Ticket payment is checked on the server after Paystack confirms the reference. The UI will only continue if the payment key is configured.
+            </div>
+          </div>
+        </div>
+      `;
+      openModal();
+    }
+
+    async function loadEvents() {
+      grid.innerHTML = `<div class="empty">Loading events...</div>`;
+      try {
+        const data = await apiFetch('/api/listEvents');
+        allEvents = Array.isArray(data.events) ? data.events : [];
+        totalEvents.textContent = String(allEvents.length);
+        freeEvents.textContent = String(allEvents.filter((event) => event.isFree).length);
+        tieredEvents.textContent = String(allEvents.filter((event) => safeArray(event.tiers).length).length);
+        totalEventsHero.textContent = String(allEvents.length);
+        freeEventsHero.textContent = String(allEvents.filter((event) => event.isFree).length);
+        tieredEventsHero.textContent = String(allEvents.filter((event) => safeArray(event.tiers).length).length);
+        filterEvents();
+      } catch (error) {
+        grid.innerHTML = `<div class="empty">Could not load events: ${error.message}</div>`;
+      }
+    }
+
+    async function loadPricingConfig() {
+      try {
+        const data = await apiFetch('/api/eventConfig');
+        pricingConfig = {
+          attendeeRegistrationFee: Number(data.attendeeRegistrationFee || 100),
+          gatewayPercent: Number(data.gatewayPercent || 1.5),
+          gatewayFlat: Number(data.gatewayFlat || 100)
+        };
+      } catch (error) {
+        console.warn('Could not load event pricing config', error);
+      }
+    }
+
+    async function handleBuy(eventId) {
+      const eventData = allEvents.find((entry) => entry.id === eventId);
+      if (!eventData) return;
+      if (!currentUser) {
+        showToast('Sign in first so the ticket can be tied to your user QR.');
+        return;
+      }
+
+      const publicKey = window.PAYSTACK_PUBLIC_KEY;
+      if (!publicKey) {
+        showToast('Paystack public key is not configured yet.');
+        return;
+      }
+
+      const quantity = Number(document.getElementById('quantity').value || 1);
+      const tierId = document.getElementById('ticketTier').value || '';
+      const buyerName = document.getElementById('buyerName').value.trim();
+      const buyerEmail = document.getElementById('buyerEmail').value.trim();
+      const answers = document.getElementById('answers').value
+        .split(/\n/)
+        .map((line) => line.trim())
+        .filter(Boolean);
+
+      const selectedTier = safeArray(eventData.tiers).find((tier) => tier.id === tierId);
+      const basePrice = selectedTier ? Number(selectedTier.price || 0) : Number(eventData.ticketPrice || 0);
+      const chargeable = (basePrice * quantity) + (pricingConfig.attendeeRegistrationFee * quantity);
+      const gatewayFee = Math.round(chargeable * (pricingConfig.gatewayPercent / 100) + pricingConfig.gatewayFlat);
+      const total = chargeable + gatewayFee;
+
+      const handler = window.PaystackPop.setup({
+        key: publicKey,
+        email: buyerEmail,
+        amount: total * 100,
+        metadata: {
+          eventId: eventData.id,
+          tierId,
+          quantity,
+          buyerName
+        },
+        callback: async (response) => {
+          try {
+            const result = await apiFetch('/api/purchaseTicket', {
+              method: 'POST',
+              body: JSON.stringify({
+                reference: response.reference,
+                email: buyerEmail,
+                buyerName,
+                eventId: eventData.id,
+                quantity,
+                tierId,
+                answers
+              })
+            });
+            showToast(`Ticket confirmed. Reference: ${result.ticketId}`);
+            closeModal();
+            await loadEvents();
+          } catch (error) {
+            showToast(error.message);
+          }
+        },
+        onClose: () => showToast('Payment window closed.')
+      });
+      handler.openIframe();
+    }
+
+    grid.addEventListener('click', (event) => {
+      const card = event.target.closest('.event-card');
+      if (!card) return;
+      const id = card.getAttribute('data-event-id');
+      const eventData = allEvents.find((entry) => entry.id === id);
+      if (eventData) {
+        activeEventId = id;
+        renderModal(eventData);
+      }
+    });
+
+    modalBackdrop.addEventListener('click', (event) => {
+      if (event.target === modalBackdrop || event.target.matches('[data-close]')) {
+        closeModal();
+      }
+      const buyTarget = event.target.closest('[data-buy]');
+      const favTarget = event.target.closest('[data-fav]');
+      const shareTarget = event.target.closest('[data-share]');
+      if (buyTarget) {
+        handleBuy(buyTarget.getAttribute('data-buy'));
+      } else if (favTarget) {
+        const saved = toggleFavorite(favTarget.getAttribute('data-fav'));
+        favTarget.textContent = saved ? 'Saved' : 'Save';
+        showToast(saved ? 'Saved to favorites.' : 'Removed from favorites.');
+      } else if (shareTarget) {
+        const eventData = allEvents.find((entry) => entry.id === shareTarget.getAttribute('data-share'));
+        if (eventData) {
+          shareEvent(eventData);
+          showToast('Share link ready.');
+        }
+      }
+    });
+
+    searchInput.addEventListener('input', filterEvents);
+    sortSelect.addEventListener('change', filterEvents);
+    refreshBtn.addEventListener('click', loadEvents);
+    menuBtn.addEventListener('click', () => menu.classList.toggle('open'));
+    document.addEventListener('click', (event) => {
+      if (!menu.contains(event.target)) {
+        menu.classList.remove('open');
+      }
+    });
+
+        onAuthStateChanged(auth, (user) => {
+      currentUser = user;
+      if (!user) {
+        grid.innerHTML = '<div class="empty">Please log in to continue. Redirecting you to the login page...</div>';
+        if (!window.__eventsLoginRedirect) {
+          window.__eventsLoginRedirect = setTimeout(() => {
+            window.location.href = '/login.html';
+          }, 1200);
+        }
+        return;
+      }
+      if (window.__eventsLoginRedirect) {
+        clearTimeout(window.__eventsLoginRedirect);
+        window.__eventsLoginRedirect = null;
+      }
+      const buyerNameInput = document.getElementById('buyerName');
+      const buyerEmailInput = document.getElementById('buyerEmail');
+      if (buyerNameInput && !buyerNameInput.value) buyerNameInput.value = user.displayName || '';
+      if (buyerEmailInput && !buyerEmailInput.value) buyerEmailInput.value = user.email || '';
+      if (buyerEmailInput) buyerEmailInput.readOnly = true;
+    });
+
+    window.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        closeModal();
+      }
+    });
+
+    await Promise.all([loadPricingConfig(), loadEvents()]);
+  </script>
+</body>
+</html>
+
+
+
