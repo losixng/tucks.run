@@ -281,13 +281,82 @@ async function initProducts(){
   applyProducts(SAMPLE_PRODUCTS);
 }
 
+function normalizeStringList(value){
+  if(Array.isArray(value)) return value.map(v => String(v || '').trim()).filter(Boolean);
+  if(typeof value === 'string') return value.split(',').map(v => v.trim()).filter(Boolean);
+  return [];
+}
+
+function inferSectionGroup(product, fallbackType='trousers'){
+  const source = [
+    fallbackType,
+    product?.type,
+    product?.category,
+    product?.group,
+    product?.pageCategory,
+    product?.supplierCategory,
+    product?.subcategory,
+    product?.secondaryCategory,
+    ...normalizeStringList(product?.categories),
+    ...normalizeStringList(product?.filters),
+    ...normalizeStringList(product?.tags)
+  ].filter(Boolean).join(' ').toLowerCase();
+
+  const matchingKeywords = ['matching','casual','formal','black','trending','body-con','corporate','mens','womens','face','maintenance','new','daily','default'];
+  const occasionKeywords = ['occasion','party','parties','wedding','church','festive','birthday','get together','special','event','treatment','used','body'];
+  if (matchingKeywords.some(keyword => source.includes(keyword))) return 'matching';
+  if (occasionKeywords.some(keyword => source.includes(keyword))) return 'occasion';
+  return 'matching';
+}
+
+function normalizeProductForPage(product, fallbackType='trousers'){
+  const type = String(product?.type || product?.category || fallbackType || '').toLowerCase();
+  const sectionGroup = inferSectionGroup(product, fallbackType);
+  const categoryValues = [
+    ...normalizeStringList(product?.categories),
+    ...normalizeStringList(product?.filters),
+    product?.category,
+    product?.type,
+    product?.subcategory,
+    product?.secondaryCategory,
+    product?.group,
+    product?.pageCategory,
+    sectionGroup
+  ].map(v => String(v || '').trim().toLowerCase()).filter(Boolean);
+
+  return {
+    ...product,
+    type,
+    categories: [...new Set(categoryValues)],
+    filters: [...new Set([
+      ...normalizeStringList(product?.filters),
+      ...normalizeStringList(product?.categories),
+      product?.subcategory,
+      product?.secondaryCategory,
+      product?.type,
+      product?.category,
+      sectionGroup,
+      type
+    ].map(v => String(v || '').trim().toLowerCase()).filter(Boolean))],
+    sectionGroup
+  };
+}
+function hasSection(product, sectionValues){
+  const values = sectionValues.map(v => String(v || '').toLowerCase());
+  return [...normalizeStringList(product?.categories), ...normalizeStringList(product?.filters)]
+    .map(v => String(v || '').toLowerCase())
+    .some(v => values.includes(v));
+}
+
 function applyProducts(allProducts){
   console.log('📦 Products loaded:', allProducts.length, 'total items');
-  // Only use those with type 'fits'
-  const fits = allProducts.filter(p => (p.type || '').toLowerCase() === 'trousers');
+  const fits = allProducts
+    .map(p => normalizeProductForPage(p, 'trousers'))
+    .filter(p => (p.type || '').toLowerCase() === 'trousers');
   console.log('📦 Filtered for trousers:', fits.length, 'items');
-  allMatching = fits.filter(p => (p.categories || []).map(c=>c.toLowerCase()).includes('matching'));
-  allOccasion = fits.filter(p => (p.categories || []).map(c=>c.toLowerCase()).includes('occasion'));
+  allMatching = fits.filter(p => hasSection(p, ['matching','casual','formal','black','trending','body-con','corporate','mens','womens','face','maintenance','new','daily','default']));
+  allOccasion = fits.filter(p => hasSection(p, ['occasion','party','parties','wedding','church','festive','birthday','get together','special','event','treatment','used','body']));
+  if (!allMatching.length && fits.length) allMatching = fits;
   console.log('📦 UI updated | Matching:', allMatching.length, '| Occasion:', allOccasion.length);
   updateUI();
   applyDeepLinkHighlight();
@@ -365,15 +434,35 @@ function openLightbox(item){
   }
   const imgs = (Array.isArray(item.images) && item.images.length) ? item.images.slice(0,5) : (item.image ? [item.image] : []);
   if(lbMain) {
-    lbMain.style.backgroundImage = imgs.length ? `url(${imgs[0]})` : 'none';
-    lbMain.textContent = imgs.length ? '' : 'No image';
+    lbMain.innerHTML = '';
+    if(imgs.length) {
+      lbMain.style.backgroundImage = `url(${imgs[0]})`;
+      const previewBtn = document.createElement('button');
+      previewBtn.type = 'button';
+      previewBtn.className = 'lb-preview-btn';
+      previewBtn.textContent = 'Open full preview';
+      previewBtn.addEventListener('click', () => window.open(imgs[0], '_blank', 'noopener,noreferrer'));
+      lbMain.appendChild(previewBtn);
+    } else {
+      lbMain.style.backgroundImage = 'none';
+      lbMain.textContent = 'No image';
+    }
   }
   if(lbThumbs) {
     lbThumbs.innerHTML = '';
     imgs.forEach((u,i)=>{
       const t = document.createElement('div'); t.className = 'thumb' + (i===0 ? ' active' : ''); t.style.backgroundImage = `url(${u})`;
       t.addEventListener('click', ()=> {
-        if(lbMain) lbMain.style.backgroundImage = `url(${u})`;
+        if(lbMain) {
+          lbMain.style.backgroundImage = `url(${u})`;
+          lbMain.innerHTML = '';
+          const previewBtn = document.createElement('button');
+          previewBtn.type = 'button';
+          previewBtn.className = 'lb-preview-btn';
+          previewBtn.textContent = 'Open full preview';
+          previewBtn.addEventListener('click', () => window.open(u, '_blank', 'noopener,noreferrer'));
+          lbMain.appendChild(previewBtn);
+        }
         lbThumbs.querySelectorAll('.thumb').forEach(x=>x.classList.remove('active'));
         t.classList.add('active');
       });
@@ -416,7 +505,7 @@ lbCustomize?.addEventListener('click', ()=> {
 function recalcTotals(){
   if(!currentItem) return null;
   const price = Number(currentItem.price) || 0;
-  const shipping = bmShipping && bmShipping.value === 'GIG' ? 250 : 350;
+  const shipping = 500;
   const misc = 100;
   const paystackFee = Math.ceil((price + shipping + misc) * 0.015);
   const txn = misc + paystackFee;
@@ -437,7 +526,7 @@ lbBuy?.addEventListener('click', ()=> {
   if(bmName) bmName.value = currentUser?.displayName || '';
   if(bmEmail) bmEmail.value = currentUser?.email || '';
   if(bmPhone) bmPhone.value = currentUser?.phoneNumber || '';
-  if(bmShipping) bmShipping.value = 'NURTW';
+  if(bmShipping) bmShipping.value = 'pickup';
   recalcTotals();
   window.ProductOptions?.prepareForProduct(currentItem);
   if(buyModal) { buyModal.classList.add('show'); buyModal.setAttribute('aria-hidden','false'); }
@@ -487,29 +576,38 @@ payNow?.addEventListener('click', async ()=>{
       callback: function(response){
       (async () => {
         order.paystackRef = response.reference;
-        order.status = 'paid';
-    
         // Verify payment securely with backend
         const verifyRes = await fetch("/api/verifyPayment", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ reference: response.reference, amount: Math.round(order.total * 100), email: email })
         });
-    
-        const verifyData = await verifyRes.json();
-    
-        if (!verifyData.status || verifyData.status !== "success" || !verifyData.data || verifyData.data.amount !== Math.round(order.total * 100)) {
+        let verifyData = null;
+        try { verifyData = await verifyRes.json(); } catch (e) { console.warn('Invalid verify response', e); }
+        const verifiedAmount = Number(verifyData?.data?.amount ?? verifyData?.amount ?? 0);
+        const isVerified = verifyData?.status === "success" && verifiedAmount === Math.round(order.total * 100);
+        if (!isVerified) {
           alert("Payment verification failed! Amount mismatch or invalid reference. Please contact support.");
           console.error("Verification failed:", verifyData);
           return;
         }
-    
+
+        order.status = 'paid';
+        order.paymentVerified = true;
+        order.paymentVerification = {
+          reference: response.reference,
+          amountKobo: Math.round(order.total * 100),
+          email,
+          verifiedAt: new Date().toISOString()
+        };
+
         try {
           if (db) {
             await addDoc(collection(db, 'orders'), {
               ...order,
               userId: currentUser ? currentUser.uid : null,
-              createdAt: serverTimestamp()
+              paymentVerified: true,
+              paymentVerification: order.paymentVerification,
             });
             if (window.ProductOptions?.decrementStockAfterOrder) {
               await window.ProductOptions.decrementStockAfterOrder(db, currentItem, optionSelection);

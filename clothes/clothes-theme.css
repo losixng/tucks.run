@@ -720,10 +720,31 @@ main {
   border-radius: 12px;
   background: var(--surface-2);
   background-position: center;
-  background-size: cover;
+  background-size: contain;
+  background-repeat: no-repeat;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.lb-preview-btn {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: rgba(15, 23, 42, 0.82);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+}
+.lb-preview-btn:hover {
+  background: rgba(37, 99, 235, 0.95);
 }
 .lb-thumbs { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
 .thumb {

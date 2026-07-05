@@ -609,7 +609,7 @@
   <div id="checkoutModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="checkoutTitle">
     <div class="modal-card">
       <h2 id="checkoutTitle">Checkout</h2>
-      <p class="subtitle">Pay with Paystack. Choose who receives the delivery.</p>
+      <p class="subtitle">Pay with Paystack. Choose who collects the pickup.</p>
 
       <div class="form-section">
         <h3>Payer details (you)</h3>
@@ -629,15 +629,15 @@
           <label class="radio-option">
             <input type="radio" name="deliveryTarget" value="payer" checked>
             <div>
-              <strong>Deliver to me (payer)</strong>
-              <span>Use my details above for shipping</span>
+              <strong>Pickup for me (payer)</strong>
+              <span>Use my details above for pickup</span>
             </div>
           </label>
           <label class="radio-option">
             <input type="radio" name="deliveryTarget" value="recipient">
             <div>
-              <strong>Deliver to recipient</strong>
-              <span>Ship to the person this cart was shared with</span>
+              <strong>Pickup for recipient</strong>
+              <span>Have the person this cart was shared with collect it</span>
             </div>
           </label>
         </div>
@@ -655,10 +655,9 @@
       </div>
 
       <div class="form-section">
-        <label for="shippingMethod">Shipping method</label>
+        <label for="shippingMethod">Pickup option</label>
         <select id="shippingMethod">
-          <option value="NURTW">NURTW — ₦3,000</option>
-          <option value="GIG">GIG Logistics — ₦5,000</option>
+          <option value="pickup">Pickup — ₦500</option>
         </select>
         <label for="orderNote">Order note (optional)</label>
         <textarea id="orderNote" rows="2" placeholder="Special instructions"></textarea>

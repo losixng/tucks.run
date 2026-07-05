@@ -572,7 +572,7 @@ function updateStockHints() {
 function recalcTotals() {
   const subtotal = cartItems.reduce((s, i) => s + i.price * i.qty, 0);
   const shippingSelect = document.getElementById("shippingMethod");
-  const shipping = shippingSelect?.value === "GIG" ? 5000 : 3000;
+  const shipping = 500;
   const misc = 100;
   const paystackFee = Math.ceil((subtotal + shipping + misc) * 0.015);
   const txn = misc + paystackFee;
@@ -947,10 +947,15 @@ async function verifyPaystackPayment(reference, amountKobo, email) {
       console.warn("Verification request failed", res.status, errorData);
       return false;
     }
+
     const data = await res.json();
-    if (data.status === "success" && data.data?.amount === amountKobo) return true;
-    console.warn("Verification response:", data);
-    return false;
+    const paystackStatus = String(data?.data?.status || data?.status || "").toLowerCase();
+    const verifiedAmount = Number(data?.data?.amount ?? data?.amount ?? 0);
+    const isVerified = paystackStatus === "success" && verifiedAmount === amountKobo;
+    if (!isVerified) {
+      console.warn("Verification response:", data);
+    }
+    return isVerified;
   } catch (e) {
     console.warn("Payment verification unavailable", e);
     return false;
@@ -1058,7 +1063,7 @@ document.getElementById("payNow")?.addEventListener("click", async () => {
   }
 
   const totals = recalcTotals();
-  const shippingMethod = document.getElementById("shippingMethod")?.value || "NURTW";
+  const shippingMethod = document.getElementById("shippingMethod")?.value || "pickup";
   const note = document.getElementById("orderNote")?.value?.trim() || "";
   const orderId = `ORD-${Date.now().toString(36).toUpperCase()}`;
 
@@ -1127,12 +1132,21 @@ document.getElementById("payNow")?.addEventListener("click", async () => {
         }
 
         order.status = "paid";
+        order.paymentVerified = true;
+        order.paymentVerification = {
+          reference: response.reference,
+          amountKobo,
+          email: payer.email,
+          verifiedAt: new Date().toISOString()
+        };
         persistOrderLocally(order);
 
         try {
           if (db) {
             await addDoc(collection(db, "orders"), {
               ...order,
+              paymentVerified: true,
+              paymentVerification: order.paymentVerification,
               createdAt: serverTimestamp()
             });
             await saveCustomerNotifications(order);

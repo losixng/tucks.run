@@ -455,7 +455,7 @@ lbCustomize?.addEventListener('click', ()=> {
 function recalcTotals(){
   if(!currentItem) return null;
   const price = Number(currentItem.price) || 0;
-  const shipping = bmShipping && bmShipping.value === 'GIG' ? 250 : 350;
+  const shipping = 500;
   const misc = 100;
   const paystackFee = Math.ceil((price + shipping + misc) * 0.015);
   const txn = misc + paystackFee;
@@ -476,7 +476,7 @@ lbBuy?.addEventListener('click', ()=> {
   if(bmName) bmName.value = currentUser?.displayName || '';
   if(bmEmail) bmEmail.value = currentUser?.email || '';
   if(bmPhone) bmPhone.value = currentUser?.phoneNumber || '';
-  if(bmShipping) bmShipping.value = 'NURTW';
+  if(bmShipping) bmShipping.value = 'pickup';
   recalcTotals();
   window.ProductOptions?.prepareForProduct(currentItem);
   if(buyModal) { buyModal.classList.add('show'); buyModal.setAttribute('aria-hidden','false'); }
@@ -526,29 +526,38 @@ payNow?.addEventListener('click', async ()=>{
       callback: function(response){
       (async () => {
         order.paystackRef = response.reference;
-        order.status = 'paid';
-    
         // Verify payment securely with backend
         const verifyRes = await fetch("/api/verifyPayment", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ reference: response.reference, amount: Math.round(order.total * 100), email: email })
         });
-    
-        const verifyData = await verifyRes.json();
-    
-        if (!verifyData.status || verifyData.status !== "success" || !verifyData.data || verifyData.data.amount !== Math.round(order.total * 100)) {
+        let verifyData = null;
+        try { verifyData = await verifyRes.json(); } catch (e) { console.warn('Invalid verify response', e); }
+        const verifiedAmount = Number(verifyData?.data?.amount ?? verifyData?.amount ?? 0);
+        const isVerified = verifyData?.status === "success" && verifiedAmount === Math.round(order.total * 100);
+        if (!isVerified) {
           alert("Payment verification failed! Amount mismatch or invalid reference. Please contact support.");
           console.error("Verification failed:", verifyData);
           return;
         }
-    
+
+        order.status = 'paid';
+        order.paymentVerified = true;
+        order.paymentVerification = {
+          reference: response.reference,
+          amountKobo: Math.round(order.total * 100),
+          email,
+          verifiedAt: new Date().toISOString()
+        };
+
         try {
           if (db) {
             await addDoc(collection(db, 'orders'), {
               ...order,
               userId: currentUser ? currentUser.uid : null,
-              createdAt: serverTimestamp()
+              paymentVerified: true,
+              paymentVerification: order.paymentVerification,
             });
             if (window.ProductOptions?.decrementStockAfterOrder) {
               await window.ProductOptions.decrementStockAfterOrder(db, currentItem, optionSelection);

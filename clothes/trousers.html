@@ -102,9 +102,9 @@
         <div class="form-row"><label for="buyerPhone">Phone</label><input id="buyerPhone" placeholder="+2348012345678"></div>
         <div class="form-row"><label for="buyerEmail">Email</label><input id="buyerEmail" placeholder="you@example.com"></div>
         <div class="form-row"><label for="buyerAddress">Shipping address</label><textarea id="buyerAddress" rows="2" placeholder="Room, Block,Hostel"></textarea></div>
-        <div class="form-row"><label for="buyerShipping">Shipping option</label>
+        <div class="form-row"><label for="buyerShipping">Delivery option</label>
           <select id="buyerShipping">
-            <option value="delivery">Door Delivery — ₦350</option>
+            <option value="pickup">Pickup — ₦500</option>
           </select>
         </div>
                 <div class="form-row"><label for="buyerNote">Note to supplier</label><textarea id="buyerNote" rows="3" placeholder="Add any special instructions for the supplier…"></textarea></div>
@@ -226,8 +226,8 @@ function hideModal(modal) {
   modal.querySelector('.modal-card').style.opacity = '';
 }
 
-);
-}
+
+
 
 const customModal = document.getElementById('customModal');
 if (lbCustomize) {

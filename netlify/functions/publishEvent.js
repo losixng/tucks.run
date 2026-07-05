@@ -46,6 +46,13 @@ exports.handler = async (event) => {
     const expectedHostCharge = calculateHostCharge();
     const verified = await verifyPaystackReference(reference);
 
+    // Validation limits
+    const MAX_TIERS = 10;
+    const MAX_MEDIA = 10;
+    const MAX_ATTENDEE_FIELDS = 20;
+    const MAX_TITLE_LEN = 200;
+    const MAX_DESC_LEN = 5000;
+
     if (verified.amount !== Number(amount)) {
       return {
         statusCode: 400,
@@ -88,6 +95,11 @@ exports.handler = async (event) => {
           }))
           .filter((tier) => tier.name)
       : [];
+    // Enforce reasonable limits to avoid abuse
+    const MAX_TIERS = 10;
+    if (tiers.length > MAX_TIERS) {
+      return { statusCode: 400, body: JSON.stringify({ status: 'failed', message: 'Too many ticket tiers' }) };
+    }
     const attendeeFields = Array.isArray(eventData.attendeeFields)
       ? eventData.attendeeFields
           .map((field, index) => ({
@@ -99,6 +111,16 @@ exports.handler = async (event) => {
           }))
           .filter((field) => field.label)
       : [];
+    if (attendeeFields.length > MAX_ATTENDEE_FIELDS) {
+      return { statusCode: 400, body: JSON.stringify({ status: 'failed', message: 'Too many attendee fields' }) };
+    }
+
+    if (String(eventData.title || '').length > MAX_TITLE_LEN) {
+      return { statusCode: 400, body: JSON.stringify({ status: 'failed', message: 'Title too long' }) };
+    }
+    if (String(eventData.description || '').length > MAX_DESC_LEN) {
+      return { statusCode: 400, body: JSON.stringify({ status: 'failed', message: 'Description too long' }) };
+    }
 
     const eventPayload = {
       title: normalizeText(eventData.title || "Untitled event"),
@@ -113,7 +135,7 @@ exports.handler = async (event) => {
       dressCode: normalizeText(eventData.dressCode || ""),
       requirements: normalizeList(eventData.requirements || []),
       thingsToBring: normalizeList(eventData.thingsToBring || []),
-      mediaUrls: normalizeList(eventData.mediaUrls || []),
+      mediaUrls: (normalizeList(eventData.mediaUrls || [])).slice(0, MAX_MEDIA),
       ticketPrice: Math.max(0, toNumber(eventData.ticketPrice, 0)),
       ticketLabel: normalizeText(eventData.ticketLabel || "General admission"),
       isFree: Boolean(eventData.isFree),
@@ -135,13 +157,30 @@ exports.handler = async (event) => {
       attendees: 0
     };
 
-    const docRef = await db.collection("events").add(eventPayload);
+    // Atomically reserve the payment reference and create the event
+    const paymentsRef = db.collection('payments').doc(String(reference));
+    const newEventRef = db.collection('events').doc();
+
+    await db.runTransaction(async (tx) => {
+      const paySnap = await tx.get(paymentsRef);
+      if (paySnap.exists) {
+        throw new Error('This payment reference has already been used');
+      }
+      tx.set(paymentsRef, {
+        reference: String(reference),
+        hostUid: user.uid,
+        amount: Number(amount),
+        email: normalizeEmail(email),
+        createdAt: admin.firestore.FieldValue.serverTimestamp()
+      });
+      tx.set(newEventRef, eventPayload);
+    });
 
     return {
       statusCode: 200,
       body: JSON.stringify({
         status: "success",
-        eventId: docRef.id,
+        eventId: newEventRef.id,
         hostUid: user.uid,
         expectedHostCharge: expectedHostCharge.total
       })

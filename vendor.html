@@ -206,6 +206,15 @@
     "thrift": { mens: "Men's", womens: "Women's" }
   };
 
+  function inferSectionGroup(chosenCategory, subcategory) {
+    const source = [chosenCategory, subcategory].filter(Boolean).join(" ").toLowerCase();
+    const matchingKeywords = ["matching", "casual", "formal", "black", "trending", "body-con", "corporate", "mens", "womens", "face", "maintenance", "new", "daily", "default"];
+    const occasionKeywords = ["occasion", "party", "parties", "wedding", "church", "festive", "birthday", "get together", "special", "event", "treatment", "used", "body"];
+    if (matchingKeywords.some(keyword => source.includes(keyword))) return "matching";
+    if (occasionKeywords.some(keyword => source.includes(keyword))) return "occasion";
+    return "matching";
+  }
+
   function populateCategorySelect() {
     const select = document.getElementById("supplierCategory");
     if (!select) return;
@@ -593,6 +602,49 @@
     return String(value || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
   }
 
+  function normalizeSellerValue(value) {
+    return String(value || "").trim().toLowerCase();
+  }
+
+  function formatOrderDate(value) {
+    if (!value) return "Date unavailable";
+    if (typeof value?.toDate === "function") {
+      const d = value.toDate();
+      return Number.isNaN(d?.getTime?.()) ? "Date unavailable" : d.toLocaleString();
+    }
+    const d = new Date(value);
+    return Number.isNaN(d?.getTime?.()) ? "Date unavailable" : d.toLocaleString();
+  }
+
+  function getOrderTimestamp(value) {
+    if (!value) return 0;
+    if (typeof value?.toDate === "function") {
+      const d = value.toDate();
+      return Number.isNaN(d?.getTime?.()) ? 0 : d.getTime();
+    }
+    const d = new Date(value);
+    return Number.isNaN(d?.getTime?.()) ? 0 : d.getTime();
+  }
+
+  function itemBelongsToSeller(item, sellerKey, myIds) {
+    if (!item) return false;
+    const itemSupplierEmail = normalizeSellerValue(item.supplierEmail);
+    const itemSupplierName = normalizeSellerValue(item.supplierName);
+    const itemId = String(item.id || "");
+    return itemSupplierEmail === sellerKey || itemSupplierName === sellerKey || myIds.has(itemId);
+  }
+
+  function orderBelongsToSeller(orderData, sellerKey, myIds) {
+    if (!orderData) return false;
+    const product = orderData.product || {};
+    const productId = String(product.id || "");
+    const orderSupplierEmail = normalizeSellerValue(orderData.supplierEmail);
+    const orderSupplierName = normalizeSellerValue(orderData.supplierName);
+    const orderProductSupplierEmail = normalizeSellerValue(product.supplierEmail);
+    const orderProductSupplierName = normalizeSellerValue(product.supplierName);
+    return orderSupplierEmail === sellerKey || orderSupplierName === sellerKey || orderProductSupplierEmail === sellerKey || orderProductSupplierName === sellerKey || myIds.has(productId);
+  }
+
   async function markOrderDelivered(orderDocId, sellerItemIds, orderType) {
     if (!orderDocId) return;
     try {
@@ -629,35 +681,45 @@
     if (!currentSellerEmail || !list) return;
     list.innerHTML = '<div class="empty-state">Loading customer orders...</div>';
     try {
-      const productSnap = await getDocs(query(collection(db, "products"), where("supplierEmail", "==", currentSellerEmail)));
+      const sellerKey = normalizeSellerValue(currentSellerEmail);
+      const productSnap = await getDocs(collection(db, "products"));
       const myIds = new Set();
       productSnap.forEach(d => {
-        myIds.add(d.id);
+        const product = d.data() || {};
+        const supplierEmail = normalizeSellerValue(product.supplierEmail);
+        const supplierName = normalizeSellerValue(product.supplierName);
+        if (supplierEmail === sellerKey || supplierName === sellerKey) {
+          myIds.add(d.id);
+        }
       });
 
       const ordersSnap = await getDocs(collection(db, "orders"));
-      const sellerKey = currentSellerEmail.toLowerCase();
       const matches = [];
 
       ordersSnap.forEach(d => {
         const o = d.data() || {};
-        const prod = o.product || {};
-        const prodId = prod.id || "";
-        const orderSupplierEmail = String(o.supplierEmail || "").toLowerCase();
-        const orderProductSupplierEmail = String(prod.supplierEmail || "").toLowerCase();
-        const orderSupplierName = String(o.supplierName || "").toLowerCase();
-        const supplierMatch = orderSupplierEmail === sellerKey || orderProductSupplierEmail === sellerKey || orderSupplierName === sellerKey || myIds.has(prodId);
-
-        const cartItems = Array.isArray(o.items) ? o.items.filter(item => {
-          const itemSupplierEmail = String(item.supplierEmail || "").toLowerCase();
-          const itemSupplierName = String(item.supplierName || "").toLowerCase();
-          return itemSupplierEmail === sellerKey || itemSupplierName === sellerKey || myIds.has(item.id);
-        }) : [];
+        const cartItems = Array.isArray(o.items) ? o.items.filter(item => itemBelongsToSeller(item, sellerKey, myIds)) : [];
+        const supplierMatch = orderBelongsToSeller(o, sellerKey, myIds);
 
         if (supplierMatch || cartItems.length) {
           matches.push({ id: d.id, order: o, cartItems, supplierMatch });
         }
       });
+
+      try {
+        const localOrders = JSON.parse(localStorage.getItem("orders") || "[]");
+        localOrders.forEach((entry) => {
+          const order = entry && typeof entry === "object" && entry.order ? entry.order : entry;
+          if (!order) return;
+          const cartItems = Array.isArray(order.items) ? order.items.filter(item => itemBelongsToSeller(item, sellerKey, myIds)) : [];
+          const supplierMatch = orderBelongsToSeller(order, sellerKey, myIds);
+          if (supplierMatch || cartItems.length) {
+            matches.push({ id: order.orderId || entry.id || `local-${matches.length}`, order, cartItems, supplierMatch, source: "local" });
+          }
+        });
+      } catch (err) {
+        console.warn("Could not load local orders for vendor view", err);
+      }
 
       if (!matches.length) {
         list.innerHTML = '<div class="empty-state">No customer orders for your products yet.</div>';
@@ -665,7 +727,7 @@
       }
 
       list.innerHTML = "";
-      matches.sort((a, b) => new Date(b.order.createdAt || 0) - new Date(a.order.createdAt || 0)).forEach(entry => {
+      matches.sort((a, b) => getOrderTimestamp(b.order?.createdAt) - getOrderTimestamp(a.order?.createdAt)).forEach(entry => {
         const order = entry.order;
         const sellerItems = entry.cartItems || [];
         const isCartOrder = Array.isArray(order.items) && sellerItems.length > 0;
@@ -674,7 +736,7 @@
         const address = customer.address || customer.location || "No address provided";
         const email = customer.email || "No email provided";
         const phone = customer.phone || "No phone provided";
-        const created = order.createdAt ? new Date(order.createdAt).toLocaleString() : "Date unavailable";
+        const created = formatOrderDate(order.createdAt);
         const orderIdDisplay = order.orderId || entry.id;
 
         const itemStatuses = isCartOrder ? sellerItems.map(item => item.status || order.status || "pending") : [];
@@ -790,8 +852,9 @@
         const stockNum = Number(stockQty || 0);
         const variantMatrix = collectVariantMatrix(b);
         const instock = computeProductInStock(stockNum, saleStart, saleEnd, variantMatrix);
-        const normalizedCategories = [subcategory, productType];
-        const normalizedFilters = [productType];
+        const sectionGroup = inferSectionGroup(chosenCategory, subcategory);
+        const normalizedCategories = [productType, subcategory, sectionGroup].filter(Boolean);
+        const normalizedFilters = [productType, subcategory, sectionGroup].filter(Boolean);
         const firstMedia = media.images.length ? media.images[0] : (media.videos.length ? media.videos[0] : "");
 
         await addDoc(collection(db, "products"), {
@@ -806,6 +869,8 @@
           customizable: custom,
           type: productType,
           category: productType,
+          subcategory,
+          group: sectionGroup,
           filter: productFilter,
           filters: normalizedFilters,
           categories: normalizedCategories,

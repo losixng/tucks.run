@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://tucks.com.ng/sitemap.xml

@@ -33,27 +33,33 @@ exports.handler = async (event) => {
     }
 
     const data = await res.json();
+    const paystackStatus = String(data?.data?.status || data?.status || "").toLowerCase();
+    const verifiedAmount = Number(data?.data?.amount ?? data?.amount ?? 0);
+    const paystackCustomerEmail = String(data?.data?.customer?.email || data?.customer?.email || "").trim().toLowerCase();
 
-    if (!data.status || data.data?.status !== "success") {
-      return { statusCode: 400, body: JSON.stringify(data) };
+    if (paystackStatus !== "success") {
+      return { statusCode: 400, body: JSON.stringify({ status: "failed", message: "Payment not successful", data: data?.data || data }) };
     }
 
-    if (Number(data.data.amount) !== expectedAmount) {
+    if (verifiedAmount !== expectedAmount) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ status: "failed", message: "Amount mismatch", data: data.data })
+        body: JSON.stringify({ status: "failed", message: "Amount mismatch", data: data?.data || data })
       };
     }
 
-    const expectedEmail = String(email || "").trim();
-    if (expectedEmail && data.data.customer?.email && String(data.data.customer.email).toLowerCase() !== expectedEmail.toLowerCase()) {
+    const expectedEmail = String(email || "").trim().toLowerCase();
+    if (expectedEmail && paystackCustomerEmail && paystackCustomerEmail !== expectedEmail) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ status: "failed", message: "Email mismatch", data: data.data })
+        body: JSON.stringify({ status: "failed", message: "Email mismatch", data: data?.data || data })
       };
     }
 
-    return { statusCode: 200, body: JSON.stringify(data) };
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ status: "success", message: "Payment verified", data: data?.data || data, raw: data })
+    };
   } catch (err) {
     return { statusCode: 500, body: JSON.stringify({ status: "failed", message: err.message }) };
   }

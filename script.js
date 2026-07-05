@@ -136,9 +136,9 @@ const PRODUCT_PAGES = {
 };
 
 const APP_NAME = 'Tucks';
-const searchInput = document.getElementById("searchInput");
-const searchBtn = document.getElementById("searchBtn");
-const suggestionBox = document.getElementById("suggestionBox");
+let searchInput = null;
+let searchBtn = null;
+let suggestionBox = null;
 let allProducts = [];
 let productsLoaded = false;
 let productsLoading = false;
@@ -253,6 +253,10 @@ async function fetchProducts() {
     if (lastSearchTerm) showResults(lastSearchTerm);
   } catch (err) {
     console.warn("Search: could not load products", err);
+    if (suggestionBox && lastSearchTerm) {
+      suggestionBox.innerHTML = `<div class="search-suggestion search-suggestion--status">Please check internet connection</div>`;
+      suggestionBox.style.display = "block";
+    }
   } finally {
     productsLoading = false;
   }
@@ -292,7 +296,7 @@ function showResults(term) {
   ).slice(0, 8);
 
   if (!results.length) {
-    suggestionBox.innerHTML = `<div class="search-suggestion search-suggestion--status">No products found</div>`;
+    suggestionBox.innerHTML = `<div class="search-suggestion search-suggestion--status">This product is currently not available</div>`;
     suggestionBox.style.display = "block";
     return;
   }
@@ -414,6 +418,24 @@ document.addEventListener('DOMContentLoaded', () => {
       if (window.scrollY < 100) showNav();
     }, 150);
   }, { passive: true });
+
+  searchInput = document.getElementById("searchInput");
+  searchBtn = document.getElementById("searchBtn");
+  suggestionBox = document.getElementById("suggestionBox");
+
+  if (searchInput) {
+    searchInput.addEventListener("input", () => showResults(searchInput.value || ""));
+    searchInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        showResults(searchInput.value || "");
+      }
+    });
+  }
+
+  if (searchBtn) {
+    searchBtn.addEventListener("click", () => showResults(searchInput?.value || ""));
+  }
 
   window.addEventListener('pageshow', showNav);
 });

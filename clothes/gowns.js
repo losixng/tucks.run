@@ -468,7 +468,7 @@ lbCustomize?.addEventListener('click', ()=> {
 function recalcTotals(){
   if(!currentItem) return null;
   const price = Number(currentItem.price) || 0;
-  const shipping = bmShipping && bmShipping.value === 'GIG' ? 5000 : 3000;
+  const shipping = 500;
   const misc = 100;
   const paystackFee = Math.ceil((price + shipping + misc) * 0.015);
   const txn = misc + paystackFee;
@@ -489,7 +489,7 @@ lbBuy?.addEventListener('click', ()=> {
   if(bmName) bmName.value = currentUser?.displayName || '';
   if(bmEmail) bmEmail.value = currentUser?.email || '';
   if(bmPhone) bmPhone.value = currentUser?.phoneNumber || '';
-  if(bmShipping) bmShipping.value = 'NURTW';
+  if(bmShipping) bmShipping.value = 'pickup';
   recalcTotals();
   window.ProductOptions?.prepareForProduct(currentItem);
   if(buyModal) { buyModal.classList.add('show'); buyModal.setAttribute('aria-hidden','false'); }
@@ -556,6 +556,15 @@ payNow?.addEventListener('click', async ()=>{
           return;
         }
     
+        // mark payment metadata
+        order.paymentVerified = true;
+        order.paymentVerification = {
+          reference: response.reference,
+          amountKobo: Math.round(order.total * 100),
+          email,
+          verifiedAt: new Date().toISOString()
+        };
+
         try {
           if (db) {
             await addDoc(collection(db, 'orders'), {

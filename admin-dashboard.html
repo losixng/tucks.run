@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tucks Admin Dashboard</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07111f;
+      --panel: rgba(10, 20, 35, 0.92);
+      --panel-2: rgba(255, 255, 255, 0.05);
+      --text: #f8fbff;
+      --muted: #94a3b8;
+      --accent: #4cc9f0;
+      --accent-2: #3b82f6;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: rgba(255, 255, 255, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at top left, #12314f 0%, var(--bg) 45%, #02060d 100%);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .page {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 20px 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 800;
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(76, 201, 240, 0.12);
+      color: #8be8ff;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .stat-card, .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 18px 20px;
+      box-shadow: 0 16px 44px rgba(0, 0, 0, 0.16);
+      backdrop-filter: blur(10px);
+    }
+
+    .stat-card .label {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin: 0 0 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .stat-card h3 {
+      margin: 0;
+      font-size: 1.8rem;
+      font-weight: 800;
+    }
+
+    .stat-card .hint {
+      margin-top: 8px;
+      display: block;
+      color: #8be8ff;
+      font-size: 0.9rem;
+    }
+
+    .panel {
+      display: grid;
+      gap: 14px;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 1.05rem;
+    }
+
+    .panel-head span {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .list-item {
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: var(--panel-2);
+    }
+
+    .list-item strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+
+    .status.pending {
+      background: rgba(245, 158, 11, 0.18);
+      color: #ffd68f;
+    }
+
+    .status.delivered {
+      background: rgba(16, 185, 129, 0.18);
+      color: #8fffcf;
+    }
+
+    .empty {
+      color: var(--muted);
+      padding: 8px 2px;
+    }
+
+    @media (max-width: 980px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 14px; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .topbar { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <div class="brand">
+        <h1>Tucks Admin Dashboard</h1>
+        <p>Monitor uploaded products, supplier activity, users, and order delivery.</p>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <a href="home.html" class="pill" style="text-decoration:none"><i class='bx bx-home'></i> Back to home</a>
+        <div class="pill"><i class='bx bx-bar-chart-alt-2'></i> Live marketplace overview</div>
+      </div>
+    </header>
+
+    <section class="stats-grid">
+      <article class="stat-card">
+        <p class="label">Products uploaded</p>
+        <h3 id="productsCount">—</h3>
+        <span class="hint" id="productsHint">Loading…</span>
+      </article>
+      <article class="stat-card">
+        <p class="label">Pending orders</p>
+        <h3 id="pendingOrdersCount">—</h3>
+        <span class="hint" id="pendingOrdersHint">Loading…</span>
+      </article>
+      <article class="stat-card">
+        <p class="label">Delivered orders</p>
+        <h3 id="deliveredOrdersCount">—</h3>
+        <span class="hint" id="deliveredOrdersHint">Loading…</span>
+      </article>
+      <article class="stat-card">
+        <p class="label">Registered users</p>
+        <h3 id="usersCount">—</h3>
+        <span class="hint" id="usersHint">Loading…</span>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Suppliers</h2>
+        <span id="suppliersMeta">Loading suppliers…</span>
+      </div>
+      <div id="suppliersList" class="list"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Users with order activity</h2>
+        <span id="usersActivityMeta">Loading users…</span>
+      </div>
+      <div id="usersActivityList" class="list"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Recent orders</h2>
+        <span id="ordersMeta">Loading orders…</span>
+      </div>
+      <div id="ordersList" class="list"></div>
+    </section>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: 'AIzaSyDzwnmGgEcN63RcCHSNU6p_xXKxmeqzF6k',
+      authDomain: 'losixmarket.firebaseapp.com',
+      projectId: 'losixmarket',
+      storageBucket: 'losixmarket.firebasestorage.app',
+      messagingSenderId: '301860246689',
+      appId: '1:301860246689:web:aabf0ab9af41081a91cce0',
+      measurementId: 'G-ZPVVZ8GNP0'
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const productsCountEl = document.getElementById('productsCount');
+    const productsHintEl = document.getElementById('productsHint');
+    const pendingOrdersCountEl = document.getElementById('pendingOrdersCount');
+    const pendingOrdersHintEl = document.getElementById('pendingOrdersHint');
+    const deliveredOrdersCountEl = document.getElementById('deliveredOrdersCount');
+    const deliveredOrdersHintEl = document.getElementById('deliveredOrdersHint');
+    const usersCountEl = document.getElementById('usersCount');
+    const usersHintEl = document.getElementById('usersHint');
+    const suppliersMetaEl = document.getElementById('suppliersMeta');
+    const suppliersListEl = document.getElementById('suppliersList');
+    const usersActivityMetaEl = document.getElementById('usersActivityMeta');
+    const usersActivityListEl = document.getElementById('usersActivityList');
+    const ordersMetaEl = document.getElementById('ordersMeta');
+    const ordersListEl = document.getElementById('ordersList');
+
+    function moneyFmt(value) {
+      return '₦' + Number(value || 0).toLocaleString('en-US');
+    }
+
+    function normalizeText(value) {
+      return String(value || '').trim();
+    }
+
+    function getOrderStatus(order) {
+      const raw = String(order?.status || '').toLowerCase();
+      if (raw === 'delivered') return 'delivered';
+      if (raw === 'pending') return 'pending';
+      if (Array.isArray(order?.items)) {
+        const itemStatuses = order.items.map(item => String(item?.status || '').toLowerCase());
+        if (itemStatuses.length && itemStatuses.every(status => status === 'delivered')) return 'delivered';
+        if (itemStatuses.some(status => status === 'pending' || status === '')) return 'pending';
+      }
+      return 'pending';
+    }
+
+    function getSupplierKey(product) {
+      const name = normalizeText(product?.supplierName || product?.supplier?.name || '').toLowerCase();
+      const email = normalizeText(product?.supplierEmail || product?.supplier?.email || '').toLowerCase();
+      return email || name || 'unknown supplier';
+    }
+
+    function getOrderSupplierKey(order) {
+      const directEmail = normalizeText(order?.supplierEmail || '').toLowerCase();
+      const directName = normalizeText(order?.supplierName || '').toLowerCase();
+      if (directEmail || directName) return directEmail || directName;
+      if (Array.isArray(order?.items)) {
+        for (const item of order.items) {
+          const itemEmail = normalizeText(item?.supplierEmail || '').toLowerCase();
+          const itemName = normalizeText(item?.supplierName || '').toLowerCase();
+          if (itemEmail || itemName) return itemEmail || itemName;
+        }
+      }
+      return '';
+    }
+
+    function renderList(container, items) {
+      container.innerHTML = '';
+      if (!items.length) {
+        const empty = document.createElement('div');
+        empty.className = 'empty';
+        empty.textContent = 'No records yet.';
+        container.appendChild(empty);
+        return;
+      }
+
+      items.forEach(item => {
+        const node = document.createElement('div');
+        node.className = 'list-item';
+        node.innerHTML = item.html;
+        container.appendChild(node);
+      });
+    }
+
+    async function loadDashboard() {
+      try {
+        const [productsSnap, ordersSnap, usersSnap] = await Promise.all([
+          getDocs(collection(db, 'products')),
+          getDocs(collection(db, 'orders')),
+          getDocs(collection(db, 'users'))
+        ]);
+
+        const products = productsSnap.docs.map(doc => doc.data());
+        const orders = ordersSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const users = usersSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        productsCountEl.textContent = products.length.toString();
+        productsHintEl.textContent = `${products.filter(product => product?.instock !== false).length} currently active`;
+
+        const pendingOrders = orders.filter(order => getOrderStatus(order) === 'pending');
+        const deliveredOrders = orders.filter(order => getOrderStatus(order) === 'delivered');
+
+        pendingOrdersCountEl.textContent = pendingOrders.length.toString();
+        pendingOrdersHintEl.textContent = `${pendingOrders.reduce((sum, order) => sum + Number(order?.total || 0), 0).toLocaleString()} total value`;
+        deliveredOrdersCountEl.textContent = deliveredOrders.length.toString();
+        deliveredOrdersHintEl.textContent = `${deliveredOrders.reduce((sum, order) => sum + Number(order?.total || 0), 0).toLocaleString()} total value`;
+
+        usersCountEl.textContent = users.length.toString();
+        usersHintEl.textContent = `${orders.length} orders linked to marketplace accounts`;
+
+        const supplierMap = new Map();
+        products.forEach(product => {
+          const key = getSupplierKey(product);
+          if (!supplierMap.has(key)) {
+            supplierMap.set(key, { key, name: product?.supplierName || 'Unknown supplier', email: product?.supplierEmail || '', products: 0, orders: 0 });
+          }
+          supplierMap.get(key).products += 1;
+        });
+
+        orders.forEach(order => {
+          const key = getOrderSupplierKey(order);
+          if (!key) return;
+          if (!supplierMap.has(key)) {
+            supplierMap.set(key, { key, name: order?.supplierName || 'Unknown supplier', email: order?.supplierEmail || '', products: 0, orders: 0 });
+          }
+          supplierMap.get(key).orders += 1;
+        });
+
+        const supplierEntries = Array.from(supplierMap.values())
+          .sort((a, b) => (b.products + b.orders) - (a.products + a.orders))
+          .slice(0, 8);
+
+        suppliersMetaEl.textContent = `${supplierEntries.length} suppliers tracked`;
+        renderList(suppliersListEl, supplierEntries.map(supplier => ({
+          html: `
+            <strong>${supplier.name}</strong>
+            <div class="meta">${supplier.email || 'No email provided'}<br/>Products: ${supplier.products} · Orders: ${supplier.orders}</div>
+          `
+        })));
+
+        const userOrderCounts = new Map();
+        users.forEach(user => {
+          userOrderCounts.set(String(user.id || user.email || '').toLowerCase(), { name: user.fullName || user.name || user.email || user.id, email: user.email || '', count: 0 });
+        });
+
+        orders.forEach(order => {
+          const customer = order.customer || order.payer || {};
+          const uid = normalizeText(customer.uid || customer.id || customer.userId || '').toLowerCase();
+          const email = normalizeText(customer.email || '').toLowerCase();
+          const userKeys = [uid, email].filter(Boolean);
+          let matched = false;
+
+          userKeys.forEach(key => {
+            if (!matched && userOrderCounts.has(key)) {
+              userOrderCounts.get(key).count += 1;
+              matched = true;
+            }
+          });
+
+          if (!matched) {
+            const fallbackKey = email || uid || `order-${order.id}`;
+            if (!userOrderCounts.has(fallbackKey)) {
+              userOrderCounts.set(fallbackKey, { name: customer.name || 'Unknown user', email: customer.email || '', count: 0 });
+            }
+            userOrderCounts.get(fallbackKey).count += 1;
+          }
+        });
+
+        const userEntries = Array.from(userOrderCounts.values())
+          .filter(entry => entry.count > 0)
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 8);
+
+        usersActivityMetaEl.textContent = `${userEntries.length} active users`;
+        renderList(usersActivityListEl, userEntries.map(user => ({
+          html: `
+            <strong>${user.name || user.email || 'Unnamed user'}</strong>
+            <div class="meta">${user.email || 'No email provided'}<br/>Orders: ${user.count}</div>
+          `
+        })));
+
+        const recentOrders = [...orders]
+          .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+          .slice(0, 8);
+
+        ordersMetaEl.textContent = `${orders.length} total orders`;
+        renderList(ordersListEl, recentOrders.map(order => ({
+          html: `
+            <strong>${order.orderId || order.id}</strong>
+            <div class="meta">Customer: ${order?.customer?.name || order?.payer?.name || 'Unknown'} · ${order?.customer?.email || order?.payer?.email || 'No email'}<br/>Total: ${moneyFmt(order.total || 0)} · ${order?.createdAt ? new Date(order.createdAt).toLocaleString() : 'Date unavailable'}</div>
+            <span class="status ${getOrderStatus(order)}">${getOrderStatus(order)}</span>
+          `
+        })));
+      } catch (error) {
+        console.error(error);
+        productsCountEl.textContent = '0';
+        pendingOrdersCountEl.textContent = '0';
+        deliveredOrdersCountEl.textContent = '0';
+        usersCountEl.textContent = '0';
+        suppliersMetaEl.textContent = 'Unable to load data';
+        usersActivityMetaEl.textContent = 'Unable to load data';
+        ordersMetaEl.textContent = 'Unable to load data';
+        suppliersListEl.innerHTML = '<div class="empty">Unable to load supplier data right now.</div>';
+        usersActivityListEl.innerHTML = '<div class="empty">Unable to load user activity right now.</div>';
+        ordersListEl.innerHTML = '<div class="empty">Unable to load orders right now.</div>';
+      }
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>
