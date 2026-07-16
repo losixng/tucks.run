@@ -822,12 +822,27 @@
                   <div class='media-caption'>Upload any extra files you want shown with the event page.</div>
                   <div class='media-preview' id='extraMediaPreview'></div>
                 </div>
+                <div class='field full'>
+                  <label for='receiptFile'>Upload payment receipt (image or PDF) — required for paid events</label>
+                  <input id='receiptFile' type='file' accept='image/*,.pdf' />
+                  <div class='media-caption' style='margin-top:6px;'>Receipt will be reviewed by admin. Free events do not require a receipt.</div>
+                  <div style="background:#fff7ed;border-radius:8px;padding:10px;margin-top:8px;font-weight:700;">
+                    <div><strong>Account name:</strong> MIRACLE OLAREWAJU OJO</div>
+                    <div><strong>Account number:</strong> 8083510202</div>
+                    <div><strong>Bank:</strong> PALMPAY</div>
+                  </div>
+                  <div id='receiptPreview' style='font-size:0.95rem;color:var(--muted);margin-top:6px;'></div>
+                </div>
               </div>
             </div>
 
             <div class='inline-actions' style='margin-top:18px;'>
               <button class='action-btn primary' type='button' id='publishBtn'><i class='bx bx-badge-check'></i>Pay host fee and publish</button>
               <button class='action-btn' type='button' id='resetBtn'><i class='bx bx-refresh'></i>Reset form</button>
+            </div>
+            <div id='publishStatus' class='media-caption' style='margin-top:8px;min-height:1.2rem;'></div>
+            <div style="margin-top:8px;color:#64748b;font-size:0.9rem;">
+              Once submitted (paid), your event will be in pending review for 30 minutes while admin verifies your receipt. You can cancel within this time to request a refund.
             </div>
           </form>
         </div>
@@ -879,9 +894,11 @@
     const coverImageInput = document.getElementById('coverImageFile');
     const promoVideoInput = document.getElementById('promoVideoFile');
     const extraMediaInput = document.getElementById('extraMediaFiles');
+    const receiptInput = document.getElementById('receiptFile');
     const coverImagePreview = document.getElementById('coverImagePreview');
     const videoPreview = document.getElementById('videoPreview');
     const extraMediaPreview = document.getElementById('extraMediaPreview');
+    const publishStatus = document.getElementById('publishStatus');
 
     const CLOUD_NAME = 'dthxl4jcn';
     const UPLOAD_PRESET = 'losix_products';
@@ -897,6 +914,17 @@
       toast.classList.add('show');
       clearTimeout(window.toastTimer);
       window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+
+    function setPublishButtonState(isBusy, message = '') {
+      if (!publishBtn) return;
+      publishBtn.disabled = isBusy;
+      publishBtn.innerHTML = isBusy
+        ? `<i class='bx bx-loader-alt'></i>${message || 'Processing…'}`
+        : `<i class='bx bx-badge-check'></i>Pay host fee and publish`;
+      if (publishStatus) {
+        publishStatus.textContent = isBusy ? (message || 'Processing your event…') : '';
+      }
     }
 
     function clearMediaPreviews() {
@@ -1239,67 +1267,13 @@
         return;
       }
 
-      const data = await apiFetch('/api/getMyEvents');
-      hostedEvents = Array.isArray(data.hostedEvents) ? data.hostedEvents : [];
-      renderHostedEvents();
-    }
-
-    async function publishEvent() {
-      if (!currentUser) {
-        showToast('Sign in first.');
-        return;
-      }
-
-      if (!window.PAYSTACK_PUBLIC_KEY) {
-        showToast('Set PAYSTACK_PUBLIC_KEY before publishing.');
-        return;
-      }
-
       try {
-        await uploadSelectedMedia();
-        const payload = collectPayload(true);
-        const publishPayload = {
-          ...payload,
-          startsAt: localDateTimeToIso(payload.startsAt),
-          endsAt: localDateTimeToIso(payload.endsAt)
-        };
-        const hostCharge = Number(eventConfig?.hostRegistrationFee || 500) + Number(eventConfig?.hostGatewayFee || 0);
-        const amountKobo = Math.round(hostCharge * 100);
-        const email = currentUser.email;
-
-        const handler = window.PaystackPop.setup({
-          key: window.PAYSTACK_PUBLIC_KEY,
-          email,
-          amount: amountKobo,
-          metadata: {
-            purpose: 'host-event-registration',
-            title: payload.title
-          },
-          callback: async (response) => {
-            try {
-              const result = await apiFetch('/api/publishEvent', {
-                method: 'POST',
-                body: JSON.stringify({
-                  reference: response.reference,
-                  amount: amountKobo,
-                  email,
-                  eventData: publishPayload
-                })
-              });
-              showToast(`Event published: ${result.eventId}`);
-              localStorage.removeItem('hostEventDraft');
-              await loadHostedEvents();
-              resetForm();
-            } catch (error) {
-              showToast(error.message);
-            }
-          },
-          onClose: () => showToast('Host payment closed.')
-        });
-
-        handler.openIframe();
+        const data = await apiFetch('/api/getMyEvents');
+        hostedEvents = Array.isArray(data.hostedEvents) ? data.hostedEvents : [];
       } catch (error) {
-        showToast(error.message);
+        hostedEvents = [];
+      } finally {
+        renderHostedEvents();
       }
     }
 
@@ -1316,7 +1290,75 @@
       coverImageInput.value = '';
       promoVideoInput.value = '';
       extraMediaInput.value = '';
+      receiptInput.value = '';
       clearMediaPreviews();
+      const isFreeCheckbox = document.getElementById('isFree');
+      if (isFreeCheckbox) {
+        isFreeCheckbox.checked = true;
+      }
+      const ticketPrice = document.getElementById('ticketPrice');
+      if (ticketPrice) {
+        ticketPrice.disabled = true;
+      }
+    }
+
+    async function publishEvent() {
+      if (!currentUser) {
+        showToast('Sign in first.');
+        return;
+      }
+
+      if (publishBtn?.disabled) return;
+
+      try {
+        const payload = collectPayload(true);
+        const publishPayload = {
+          ...payload,
+          startsAt: localDateTimeToIso(payload.startsAt),
+          endsAt: localDateTimeToIso(payload.endsAt)
+        };
+        const isFreeEvent = Boolean(publishPayload.isFree);
+
+        setPublishButtonState(true, isFreeEvent ? 'Creating event…' : 'Uploading receipt and submitting…');
+        await uploadSelectedMedia();
+
+        if (isFreeEvent) {
+          const result = await apiFetch('/api/publishEvent', {
+            method: 'POST',
+            body: JSON.stringify({ amount: 0, email: currentUser.email, eventData: publishPayload })
+          });
+          showToast(`Event published: ${result.eventId}`);
+          localStorage.removeItem('hostEventDraft');
+          await loadHostedEvents();
+          resetForm();
+          return;
+        }
+
+        const receiptFile = receiptInput?.files?.[0];
+        if (!receiptFile) {
+          throw new Error('Please upload a receipt image or PDF before publishing.');
+        }
+        if (!/^(image\/(png|jpe?g|webp)|application\/pdf)$/i.test(receiptFile.type)) {
+          throw new Error('Receipt must be an image or PDF file.');
+        }
+
+        const uploadRes = await uploadCloudinaryFile(receiptFile);
+        const receiptUrl = uploadRes.url;
+
+        const result = await apiFetch('/api/publishEvent', {
+          method: 'POST',
+          body: JSON.stringify({ amount: 0, email: currentUser.email, eventData: publishPayload, receiptUrl })
+        });
+        showToast(`Event submitted for review: ${result.eventId}`);
+        localStorage.removeItem('hostEventDraft');
+        await loadHostedEvents();
+        resetForm();
+      } catch (error) {
+        showToast(error.message || 'Unable to create event right now.');
+      } finally {
+        setPublishButtonState(false);
+        clearMediaPreviews();
+      }
     }
 
         onAuthStateChanged(auth, async (user) => {

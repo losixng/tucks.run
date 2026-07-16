@@ -16,6 +16,189 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 let firebaseCurrentUser = null;
+let authReady = false;
+let userProfile = null;
+const USER_PROFILE_KEY = "tucksUserProfile";
+
+function getLocalUserProfile() {
+  try {
+    return JSON.parse(localStorage.getItem(USER_PROFILE_KEY) || "null") || null;
+  } catch {
+    return null;
+  }
+}
+
+function saveLocalUserProfile(profile) {
+  try {
+    localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(profile || {}));
+  } catch (e) {
+    console.warn("Could not save local user profile", e);
+  }
+}
+
+async function saveUserProfileToFirestore(profile) {
+  if (!db || !firebaseCurrentUser || !profile) return;
+  try {
+    await setDoc(doc(db, "userProfiles", firebaseCurrentUser.uid), {
+      profile: { ...profile, updatedAt: serverTimestamp() },
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+  } catch (e) {
+    console.warn("Could not save user profile to Firestore", e);
+  }
+}
+
+async function loadUserProfileFromFirestore() {
+  if (!db || !firebaseCurrentUser) return null;
+  try {
+    const snap = await getDoc(doc(db, "userProfiles", firebaseCurrentUser.uid));
+    if (!snap.exists()) return null;
+    const data = snap.data();
+    return data?.profile || null;
+  } catch (e) {
+    console.warn("Could not load user profile from Firestore", e);
+    return null;
+  }
+}
+
+function mergeUserProfile(localProfile, remoteProfile) {
+  return {
+    ...(localProfile || {}),
+    ...(remoteProfile || {})
+  };
+}
+
+async function syncUserProfile() {
+  const localProfile = getLocalUserProfile() || {};
+  if (!firebaseCurrentUser) {
+    userProfile = localProfile;
+    return;
+  }
+
+  const remoteProfile = await loadUserProfileFromFirestore();
+  userProfile = mergeUserProfile(localProfile, remoteProfile);
+  saveLocalUserProfile(userProfile);
+
+  if (!remoteProfile && Object.keys(localProfile).length) {
+    await saveUserProfileToFirestore(userProfile);
+  }
+}
+
+function applyUserProfileToInputs() {
+  const profile = userProfile || getLocalUserProfile() || {};
+  const fieldMap = {
+    buyerName: profile.name,
+    payerName: profile.name,
+    buyerPhone: profile.phone,
+    payerPhone: profile.phone,
+    buyerEmail: profile.email,
+    payerEmail: profile.email,
+    buyerAddress: profile.address,
+    payerAddress: profile.address
+  };
+
+  Object.entries(fieldMap).forEach(([id, value]) => {
+    const el = document.getElementById(id);
+    if (!el || !value || el.value.trim()) return;
+    el.value = value;
+  });
+}
+
+function updateProfileField(id, value) {
+  const fieldMap = {
+    buyerName: "name",
+    payerName: "name",
+    buyerPhone: "phone",
+    payerPhone: "phone",
+    buyerEmail: "email",
+    payerEmail: "email",
+    buyerAddress: "address",
+    payerAddress: "address"
+  };
+  const profileKey = fieldMap[id];
+  if (!profileKey) return;
+  if (!userProfile) userProfile = getLocalUserProfile() || {};
+  if (value) {
+    userProfile[profileKey] = value;
+  } else {
+    delete userProfile[profileKey];
+  }
+  saveLocalUserProfile(userProfile);
+  saveUserProfileToFirestore(userProfile);
+}
+
+function redirectToLogin() {
+  if (window.location.pathname.endsWith("/login.html")) return;
+  window.location.href = "/login.html";
+}
+
+async function onProductTap(event) {
+  if (firebaseCurrentUser) return;
+  const cardElem = event.target.closest('.card, .product-card, .dept-card');
+  if (cardElem && cardElem.closest('.product-grid, .dept-grid')) {
+    event.preventDefault();
+    event.stopPropagation();
+    redirectToLogin();
+    return;
+  }
+  const a = event.target.closest && event.target.closest('a');
+  if (a && anchorLooksLikeProduct(a.getAttribute('href') || a.href)) {
+    event.preventDefault();
+    event.stopPropagation();
+    redirectToLogin();
+    return;
+  }
+  if (event.target.closest('#lbBuy') || event.target.closest('#payNow')) {
+    event.preventDefault();
+    event.stopPropagation();
+    redirectToLogin();
+  }
+}
+
+// Also catch direct product links/anchors that navigate to product detail pages
+function anchorLooksLikeProduct(href) {
+  if (!href) return false;
+  try {
+    const u = href;
+    if (typeof u === 'string' && (u.includes('product=') || u.includes('#product-'))) return true;
+    for (const p of Object.values(PRODUCT_PAGES)) {
+      if (String(href).includes(p)) return true;
+    }
+  } catch (e) { /* ignore */ }
+  return false;
+}
+
+// when user focuses any checkout/profile input, autofill known values
+function onProfileFieldFocus(event) {
+  const watched = ["buyerName","buyerPhone","buyerEmail","buyerAddress","payerName","payerPhone","payerEmail","payerAddress"];
+  const id = event.target?.id;
+  if (!id || !watched.includes(id)) return;
+  applyUserProfileToInputs();
+}
+
+async function handleProfileInputEvent(event) {
+  const id = event.target?.id;
+  const watched = ["buyerName","buyerPhone","buyerEmail","buyerAddress","payerName","payerPhone","payerEmail","payerAddress"];
+  if (!watched.includes(id)) return;
+  updateProfileField(id, event.target.value?.trim() || "");
+}
+
+async function ensureProfileReady() {
+  if (!authReady) return;
+  applyUserProfileToInputs();
+}
+
+async function initProfileWatch() {
+  document.addEventListener("input", handleProfileInputEvent, true);
+  document.addEventListener("click", onProductTap, true);
+  document.addEventListener('focusin', onProfileFieldFocus, true);
+}
+
+async function bootstrapProfileSupport() {
+  await initProfileWatch();
+}
+
+bootstrapProfileSupport();
 
 async function saveCartToUserCart(cartItems) {
   if (!db || !firebaseCurrentUser) return;
@@ -76,9 +259,12 @@ Storage.prototype.setItem = function (key, value) {
 
 onAuthStateChanged(auth, async (user) => {
   firebaseCurrentUser = user;
+  authReady = true;
   if (user) {
     await loadRemoteCartForUser(user.uid);
   }
+  await syncUserProfile();
+  applyUserProfileToInputs();
 });
 
 // === Tips Rotator ===

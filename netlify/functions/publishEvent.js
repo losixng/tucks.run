@@ -16,18 +16,9 @@ exports.handler = async (event) => {
 
   try {
     const user = await requireAuth(event);
-    const { reference, amount, email, eventData } = parseJsonBody(event);
-
-    if (!reference) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ status: "failed", message: "Missing payment reference" })
-      };
-    }
-
-    if (!amount || Number.isNaN(Number(amount)) || Number(amount) <= 0) {
-      return { statusCode: 400, body: JSON.stringify({ status: "failed", message: "Invalid amount" }) };
-    }
+    const { reference, amount, email, eventData, receiptUrl } = parseJsonBody(event);
+    const isFreeEvent = Boolean(eventData?.isFree);
+    const hasReceipt = Boolean(String(receiptUrl || '').trim());
 
     if (!email || !eventData) {
       return {
@@ -44,7 +35,10 @@ exports.handler = async (event) => {
     }
 
     const expectedHostCharge = calculateHostCharge();
-    const verified = await verifyPaystackReference(reference);
+    let verified = null;
+    if (!isFreeEvent && reference) {
+      verified = await verifyPaystackReference(reference);
+    }
 
     // Validation limits
     const MAX_TIERS = 10;
@@ -53,28 +47,10 @@ exports.handler = async (event) => {
     const MAX_TITLE_LEN = 200;
     const MAX_DESC_LEN = 5000;
 
-    if (verified.amount !== Number(amount)) {
+    if (!isFreeEvent && !hasReceipt) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ status: "failed", message: "Payment amount mismatch" })
-      };
-    }
-
-    if (Number(verified.amount) !== toKobo(expectedHostCharge.total)) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
-          status: "failed",
-          message: "Host registration amount mismatch",
-          expected: toKobo(expectedHostCharge.total)
-        })
-      };
-    }
-
-    if (String(verified.customer?.email || "").toLowerCase() !== normalizeEmail(email)) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ status: "failed", message: "Payment email mismatch" })
+        body: JSON.stringify({ status: "failed", message: "Paid events require a receipt upload" })
       };
     }
 
@@ -96,7 +72,6 @@ exports.handler = async (event) => {
           .filter((tier) => tier.name)
       : [];
     // Enforce reasonable limits to avoid abuse
-    const MAX_TIERS = 10;
     if (tiers.length > MAX_TIERS) {
       return { statusCode: 400, body: JSON.stringify({ status: 'failed', message: 'Too many ticket tiers' }) };
     }
@@ -149,10 +124,15 @@ exports.handler = async (event) => {
       endsAt: endsAt ? admin.firestore.Timestamp.fromDate(endsAt) : null,
       imageUrl: normalizeText(eventData.imageUrl || ""),
       videoUrl: normalizeText(eventData.videoUrl || ""),
-      status: "published",
+      // default to pending for paid events so admin can verify receipt
+      status: isFreeEvent ? "published" : "pending",
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      hostFeePaid: Number(amount),
-      paystackReference: String(reference),
+      hostFeePaid: Number(amount) || 0,
+      paystackReference: reference ? String(reference) : '',
+      receiptUrl: normalizeText(receiptUrl || ''),
+      pendingExpiresAt: isFreeEvent
+        ? null
+        : admin.firestore.Timestamp.fromMillis(Date.now() + 30 * 60 * 1000),
       sold: 0,
       attendees: 0
     };
@@ -166,13 +146,16 @@ exports.handler = async (event) => {
       if (paySnap.exists) {
         throw new Error('This payment reference has already been used');
       }
-      tx.set(paymentsRef, {
-        reference: String(reference),
-        hostUid: user.uid,
-        amount: Number(amount),
-        email: normalizeEmail(email),
-        createdAt: admin.firestore.FieldValue.serverTimestamp()
-      });
+      // record payment reference if provided
+      if (reference) {
+        tx.set(paymentsRef, {
+          reference: String(reference),
+          hostUid: user.uid,
+          amount: Number(amount),
+          email: normalizeEmail(email),
+          createdAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+      }
       tx.set(newEventRef, eventPayload);
     });
 

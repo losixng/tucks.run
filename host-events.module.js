@@ -26,6 +26,7 @@
     const coverImageInput = document.getElementById('coverImageFile');
     const promoVideoInput = document.getElementById('promoVideoFile');
     const extraMediaInput = document.getElementById('extraMediaFiles');
+    const receiptInput = document.getElementById('receiptFile');
     const coverImagePreview = document.getElementById('coverImagePreview');
     const videoPreview = document.getElementById('videoPreview');
     const extraMediaPreview = document.getElementById('extraMediaPreview');
@@ -97,6 +98,18 @@
     bindMediaPreview(coverImageInput, coverImagePreview);
     bindMediaPreview(promoVideoInput, videoPreview);
     bindMediaPreview(extraMediaInput, extraMediaPreview, true);
+    if (receiptInput) {
+      // show simple filename preview for receipts (pdf or image)
+      receiptInput.addEventListener('change', () => {
+        const file = receiptInput.files?.[0];
+        const preview = document.getElementById('receiptPreview');
+        if (!file) {
+          if (preview) preview.textContent = '';
+          return;
+        }
+        if (preview) preview.textContent = file.name;
+      });
+    }
 
     async function uploadCloudinaryFile(file) {
       const isVideo = file.type.startsWith('video/');
@@ -141,11 +154,24 @@
         uploadedUrls.push(uploaded.url);
       }
 
+      // upload receipt if present (expect pdf or images)
+      const receiptFile = receiptInput?.files?.[0];
+      let receiptUrl = '';
+      if (receiptFile) {
+        // only allow pdf or image
+        if (!/^(image\/(png|jpe?g|webp)|application\/pdf)$/i.test(receiptFile.type)) {
+          throw new Error('Receipt must be an image or PDF file');
+        }
+        const uploaded = await uploadCloudinaryFile(receiptFile);
+        receiptUrl = uploaded.url;
+      }
+
       mediaInput.value = uploadedUrls.join('\n');
       return {
         imageUrl: imageInput.value.trim(),
         videoUrl: videoInput.value.trim(),
-        mediaUrls: uploadedUrls
+        mediaUrls: uploadedUrls,
+        receiptUrl
       };
     }
     function addTier(data = {}) {
@@ -288,6 +314,7 @@
       }
       hostedList.innerHTML = hostedEvents.map((event) => {
         const tierCount = safeArray(event.tiers).length;
+        const pendingUntil = event.pendingExpiresAt ? (event.pendingExpiresAt.toDate ? event.pendingExpiresAt.toDate().toISOString() : event.pendingExpiresAt) : null;
         return `
           <div class="hosted-item">
             <h4>${event.title || 'Untitled event'}</h4>
@@ -300,6 +327,12 @@
             <div style="margin-top:10px;color:var(--muted);line-height:1.6;">
               ${event.location || 'No location set'} ${event.capacity ? `- Capacity ${event.capacity}` : ''}
             </div>
+            ${event.status === 'pending' ? `
+              <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+                <div id="pending-${event.id}" class="chip">Pending approval</div>
+                <button data-cancel="${event.id}" class="secondary-btn">Cancel (refund)</button>
+              </div>
+            ` : ''}
           </div>
         `;
       }).join('');
@@ -397,9 +430,38 @@
         return;
       }
 
-      const data = await apiFetch('/api/getMyEvents');
-      hostedEvents = Array.isArray(data.hostedEvents) ? data.hostedEvents : [];
-      renderHostedEvents();
+      try {
+        const data = await apiFetch('/api/getMyEvents');
+        hostedEvents = Array.isArray(data.hostedEvents) ? data.hostedEvents : [];
+      } catch (error) {
+        hostedEvents = [];
+      } finally {
+        renderHostedEvents();
+      }
+    }
+
+    function resetForm() {
+      form.reset();
+      clearBuilders();
+      localStorage.removeItem('hostEventDraft');
+      document.getElementById('minTicketsPerOrder').value = 1;
+      document.getElementById('maxTicketsPerOrder').value = 10;
+      document.getElementById('ticketPrice').value = 0;
+      document.getElementById('imageUrl').value = '';
+      document.getElementById('videoUrl').value = '';
+      document.getElementById('mediaUrls').value = '';
+      coverImageInput.value = '';
+      promoVideoInput.value = '';
+      extraMediaInput.value = '';
+      clearMediaPreviews();
+      const isFreeCheckbox = document.getElementById('isFree');
+      if (isFreeCheckbox) {
+        isFreeCheckbox.checked = true;
+      }
+      const ticketPrice = document.getElementById('ticketPrice');
+      if (ticketPrice) {
+        ticketPrice.disabled = true;
+      }
     }
 
     async function publishEvent() {
@@ -505,6 +567,35 @@
       if (!target) return;
       target.closest('.builder-item')?.remove();
     });
+
+    hostedList.addEventListener('click', async (ev) => {
+      const cancelBtn = ev.target.closest('[data-cancel]');
+      if (!cancelBtn) return;
+      const id = cancelBtn.getAttribute('data-cancel');
+      if (!confirm('Cancel this event within pending window? This requests a refund.')) return;
+      try {
+        await apiFetch('/api/cancelEvent', { method: 'POST', body: JSON.stringify({ eventId: id }) });
+        showToast('Cancellation requested. Admin will process refund.');
+        await loadHostedEvents();
+      } catch (err) {
+        showToast(err.message);
+      }
+    });
+
+    // Update pending countdowns every 10 seconds
+    setInterval(() => {
+      hostedEvents.forEach((ev) => {
+        if (ev.status === 'pending' && ev.pendingExpiresAt) {
+          const el = document.getElementById(`pending-${ev.id}`);
+          if (!el) return;
+          const until = new Date(ev.pendingExpiresAt).getTime();
+          const diff = Math.max(0, until - Date.now());
+          const minutes = Math.floor(diff / 60000);
+          const seconds = Math.floor((diff % 60000) / 1000);
+          el.textContent = diff > 0 ? `Pending — ${minutes}m ${seconds}s left` : 'Pending expired';
+        }
+      });
+    }, 10000);
 
     fieldList.addEventListener('click', (event) => {
       const target = event.target.closest('[data-remove-field]');

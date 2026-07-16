@@ -67,6 +67,10 @@
       modalBackdrop.setAttribute('aria-hidden', 'true');
       modalContent.innerHTML = '';
       activeEventId = null;
+      if (window.eventCountdownTimer) {
+        clearInterval(window.eventCountdownTimer);
+        window.eventCountdownTimer = null;
+      }
     }
 
     function eventPriceLabel(event) {
@@ -176,6 +180,9 @@
             <div class="detail"><span>Price</span><strong>${event.isFree ? 'Free' : money(event.ticketPrice || 0)}</strong></div>
             <div class="detail"><span>Tickets</span><strong>${event.minTicketsPerOrder || 1} - ${event.maxTicketsPerOrder || 10} per purchase</strong></div>
           </div>
+          <div style="margin-top:10px;">
+            <strong>Starts in:</strong> <span id="eventCountdown">${buildCountdownLabel(event.startsAt)}</span>
+          </div>
 
           <div class="section-box">
             <h5>Important Details</h5>
@@ -244,6 +251,13 @@
         </div>
       `;
       openModal();
+      // update countdown every second
+      if (window.eventCountdownTimer) clearInterval(window.eventCountdownTimer);
+      window.eventCountdownTimer = setInterval(() => {
+        const el = document.getElementById('eventCountdown');
+        if (!el) return;
+        el.textContent = buildCountdownLabel(event.startsAt);
+      }, 1000);
     }
 
     async function loadEvents() {

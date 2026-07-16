@@ -25,11 +25,14 @@ const FIREBASE_CONFIG = {
 
 const PAYSTACK_PUBLIC_KEY = "pk_test_f84b249cadf2b30de87df5a566b34ec1e17d9c12";
 const CART_KEY = "cart";
+const USER_PROFILE_KEY = "tucksUserProfile";
 const APP_NAME = "Tucks";
 
 let db = null;
 let auth = null;
 let currentUser = null;
+let checkoutProfile = null;
+let checkoutProfileSaveTimer = null;
 let cartItems = [];
 let sharedCartMeta = null;
 let sharedCartId = null;
@@ -63,9 +66,11 @@ try {
   console.warn("Firebase unavailable", e);
 }
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   currentUser = user;
+  await syncCheckoutProfile();
   prefillPayerFromUser();
+  applyCheckoutProfile();
 });
 
 function moneyFmt(n) {
@@ -656,6 +661,122 @@ function prefillPayerFromUser() {
   if (currentUser?.email && payerEmail && !payerEmail.value) payerEmail.value = currentUser.email;
 }
 
+function getLocalCheckoutProfile() {
+  try {
+    return JSON.parse(localStorage.getItem(USER_PROFILE_KEY) || "null") || null;
+  } catch {
+    return null;
+  }
+}
+
+function saveLocalCheckoutProfile(profile) {
+  try {
+    localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(profile || {}));
+  } catch (e) {
+    console.warn("Could not save local checkout profile", e);
+  }
+}
+
+async function saveCheckoutProfileToFirestore(profile) {
+  if (!db || !currentUser || !profile) return;
+  try {
+    await setDoc(doc(db, "userProfiles", currentUser.uid), {
+      profile: { ...profile, updatedAt: serverTimestamp() },
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+  } catch (error) {
+    console.warn("Could not save checkout profile to Firestore", error);
+  }
+}
+
+async function loadCheckoutProfileFromFirestore() {
+  if (!db || !currentUser) return null;
+  try {
+    const snap = await getDoc(doc(db, "userProfiles", currentUser.uid));
+    if (!snap.exists()) return null;
+    const data = snap.data();
+    return data?.profile || null;
+  } catch (error) {
+    console.warn("Could not load checkout profile from Firestore", error);
+    return null;
+  }
+}
+
+function mergeProfiles(localProfile, remoteProfile) {
+  return {
+    ...(localProfile || {}),
+    ...(remoteProfile || {})
+  };
+}
+
+async function syncCheckoutProfile() {
+  const localProfile = getLocalCheckoutProfile() || {};
+  if (!currentUser) {
+    checkoutProfile = localProfile;
+    return;
+  }
+
+  const remoteProfile = await loadCheckoutProfileFromFirestore();
+  checkoutProfile = mergeProfiles(localProfile, remoteProfile);
+  saveLocalCheckoutProfile(checkoutProfile);
+
+  if (!remoteProfile && Object.keys(localProfile).length) {
+    await saveCheckoutProfileToFirestore(checkoutProfile);
+  }
+}
+
+function applyCheckoutProfile() {
+  const profile = checkoutProfile || getLocalCheckoutProfile() || {};
+  const fields = [
+    ["payerName", profile.name],
+    ["payerEmail", profile.email],
+    ["payerPhone", profile.phone],
+    ["payerAddress", profile.address],
+    ["buyerName", profile.name],
+    ["buyerEmail", profile.email],
+    ["buyerPhone", profile.phone],
+    ["buyerAddress", profile.address]
+  ];
+
+  fields.forEach(([id, value]) => {
+    const el = document.getElementById(id);
+    if (!el || !value || el.value.trim()) return;
+    el.value = value;
+  });
+}
+
+function updateCheckoutProfileField(id, value) {
+  const fieldMap = {
+    payerName: "name",
+    buyerName: "name",
+    payerEmail: "email",
+    buyerEmail: "email",
+    payerPhone: "phone",
+    buyerPhone: "phone",
+    payerAddress: "address",
+    buyerAddress: "address"
+  };
+  const profileKey = fieldMap[id];
+  if (!profileKey) return;
+  if (!checkoutProfile) checkoutProfile = getLocalCheckoutProfile() || {};
+  if (value) {
+    checkoutProfile[profileKey] = value;
+  } else {
+    delete checkoutProfile[profileKey];
+  }
+  saveLocalCheckoutProfile(checkoutProfile);
+  if (!currentUser) return;
+  if (checkoutProfileSaveTimer) clearTimeout(checkoutProfileSaveTimer);
+  checkoutProfileSaveTimer = setTimeout(() => saveCheckoutProfileToFirestore(checkoutProfile), 250);
+}
+
+function handleCheckoutProfileInput(event) {
+  const id = event.target?.id;
+  const watched = ["payerName","payerEmail","payerPhone","payerAddress","buyerName","buyerEmail","buyerPhone","buyerAddress"];
+  if (!watched.includes(id)) return;
+  updateCheckoutProfileField(id, event.target.value?.trim() || "");
+}
+
 function prefillRecipientFromShared() {
   const r = sharedCartMeta?.recipient || {};
   const fields = [
@@ -771,6 +892,7 @@ checkoutBtn?.addEventListener("click", async () => {
   await fetchProductDetailsForCart();
   renderCart();
   prefillPayerFromUser();
+  applyCheckoutProfile();
   prefillRecipientFromShared();
   const recipientFields = document.getElementById("recipientFields");
   const hasSharedRecipient = Boolean(sharedCartMeta?.recipient?.name || sharedCartMeta?.recipient?.address);
@@ -798,6 +920,18 @@ document.querySelectorAll('input[name="deliveryTarget"]').forEach((radio) => {
     if (recipientFields) recipientFields.hidden = !useRecipient;
   });
 });
+
+["payerName","payerEmail","payerPhone","payerAddress","buyerName","buyerEmail","buyerPhone","buyerAddress"].forEach((id) => {
+  document.getElementById(id)?.addEventListener('input', handleCheckoutProfileInput);
+});
+
+// Autofill when user focuses on checkout/profile inputs
+document.addEventListener('focusin', (e) => {
+  const watched = ["payerName","payerEmail","payerPhone","payerAddress","buyerName","buyerEmail","buyerPhone","buyerAddress"];
+  const id = e.target?.id;
+  if (!id || !watched.includes(id)) return;
+  applyCheckoutProfile();
+}, true);
 
 // live update when user edits item-specific options in checkout
 itemOptionListEl?.addEventListener('input', (e) => {

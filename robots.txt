@@ -1,3 +1,5 @@
 User-agent: *
 Allow: /
-Sitemap: https://tucks.com.ng/sitemap.xml
+Disallow: /admin-dashboard.html
+Disallow: /vendor-view.html
+Sitemap: https://www.tucksmarket.wep.app/sitemap.xml

@@ -739,16 +739,27 @@
 
   <div id="tips">✨ Welcome to Tucks Market — explore our departments below!</div>
 
-  <section class="hero">
+  <section class="hero" aria-labelledby="home-hero-title">
     <div class="hero-badge"><i class='bx bx-store'></i> Shop by category</div>
-    <h1>Discover <span>Everything</span> You Love</h1>
-    <p>From fashion to tech — browse curated departments and find your next favorite item.</p>
+    <h1 id="home-hero-title">Discover <span>Everything</span> You Love</h1>
+    <p>From fashion to tech — browse curated departments and find your next favorite item. Shop with confidence in comfort, discover trusted campus vendors, and make student life easier with TUCKS.</p>
+    <p><a href="/marketplace.html" style="color:#2563eb;font-weight:700;">Explore the TUCKS marketplace</a></p>
   </section>
 
   <div class="section-head">
     <h2>Explore Departments</h2>
     <span>8 categories</span>
   </div>
+
+  <section class="departments-section" aria-labelledby="campus-benefits-title" style="padding:0 16px 10px;">
+    <h2 id="campus-benefits-title" style="font-size:1.2rem; margin-bottom:10px;">Built for students, powered by students</h2>
+    <p style="margin:0 0 10px; color:#475569;">Your campus. Your marketplace. Fast, simple, secure campus shopping for food, fashion, gadgets, deals and student essentials.</p>
+    <ul style="margin:0 0 18px 18px; color:#334155;">
+      <li>Order food on campus from trusted vendors</li>
+      <li>Buy and sell within your university</li>
+      <li>Discover student discounts and campus deals</li>
+    </ul>
+  </section>
 
   <section class="departments">
 
@@ -865,6 +876,7 @@
   </nav>
   <div class="bottom-nav-shadow" aria-hidden="true"></div>
 
+  <script src="/seo-enhancer.js"></script>
   <script>
     (function() {
       const nav = document.querySelector('.bottom-nav');

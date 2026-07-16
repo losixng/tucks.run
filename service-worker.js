@@ -1,4 +1,4 @@
-const CACHE_NAME = "Tucks_v2.1";
+const CACHE_NAME = "Tucks_v2.2";
 const urlsToCache = [
   "/",
   "/index.html",

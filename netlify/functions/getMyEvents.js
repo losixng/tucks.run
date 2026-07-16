@@ -7,7 +7,8 @@ function serializeEvent(data, id) {
     ...data,
     startsAt: data.startsAt?.toDate ? data.startsAt.toDate().toISOString() : data.startsAt || null,
     endsAt: data.endsAt?.toDate ? data.endsAt.toDate().toISOString() : data.endsAt || null,
-    createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : data.createdAt || null
+    createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : data.createdAt || null,
+    pendingExpiresAt: data.pendingExpiresAt?.toDate ? data.pendingExpiresAt.toDate().toISOString() : data.pendingExpiresAt || null
   };
 }
 
