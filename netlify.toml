@@ -44,3 +44,23 @@
   from = "/api/eventConfig"
   to = "/.netlify/functions/eventConfig"
   status = 200
+
+[[redirects]]
+  from = "/api/getMyDeliveryPass"
+  to = "/.netlify/functions/getMyDeliveryPass"
+  status = 200
+
+[[redirects]]
+  from = "/api/checkDeliveryAccess"
+  to = "/.netlify/functions/checkDeliveryAccess"
+  status = 200
+
+[[redirects]]
+  from = "/api/verifyDeliveryPass"
+  to = "/.netlify/functions/verifyDeliveryPass"
+  status = 200
+
+[[redirects]]
+  from = "/api/markDeliveryComplete"
+  to = "/.netlify/functions/markDeliveryComplete"
+  status = 200

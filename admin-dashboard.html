@@ -253,6 +253,22 @@
       </div>
       <div id="ordersList" class="list"></div>
     </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Send Notification</h2>
+        <span class="hint">Send push/email to user or all</span>
+      </div>
+      <div style="display:grid;gap:10px">
+        <input id="notifTarget" placeholder="email or 'all'" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:var(--text)">
+        <input id="notifTitle" placeholder="Title" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:var(--text)">
+        <textarea id="notifMessage" placeholder="Message" rows="3" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:var(--text)"></textarea>
+        <div style="display:flex;gap:8px">
+          <button id="sendNotifBtn" style="padding:10px 14px;border-radius:8px;border:none;background:var(--accent-2);color:#fff;font-weight:700">Send</button>
+          <span id="sendStatus" style="align-self:center;color:var(--muted)"></span>
+        </div>
+      </div>
+    </section>
   </div>
 
   <script type="module">
@@ -470,6 +486,40 @@
     }
 
     loadDashboard();
+
+    // Notification form handling
+    const sendBtn = document.getElementById('sendNotifBtn');
+    const targetInput = document.getElementById('notifTarget');
+    const titleInput = document.getElementById('notifTitle');
+    const messageInput = document.getElementById('notifMessage');
+    const statusEl = document.getElementById('sendStatus');
+
+    sendBtn.addEventListener('click', async () => {
+      const target = (targetInput.value || 'all').trim();
+      const title = (titleInput.value || 'Tucks').trim();
+      const message = (messageInput.value || '').trim();
+      if (!message) {
+        statusEl.textContent = 'Message required';
+        return;
+      }
+      statusEl.textContent = 'Sending…';
+      try {
+        const resp = await fetch('/.netlify/functions/sendNotification', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ target, title, message })
+        });
+        const json = await resp.json();
+        if (json.ok) {
+          statusEl.textContent = 'Sent';
+        } else {
+          statusEl.textContent = 'Error: ' + (json.error || 'unknown');
+        }
+      } catch (e) {
+        statusEl.textContent = 'Network error';
+      }
+      setTimeout(() => (statusEl.textContent = ''), 4000);
+    });
   </script>
 </body>
 </html>

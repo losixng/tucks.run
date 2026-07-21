@@ -20,13 +20,13 @@
     "@type": "ItemList",
     "name": "Tucks Departments",
     "itemListElement": [
-      {"@type": "ListItem", "position": 1, "name": "Clothes", "url": "https://tucks.com.ng/department/clothes.html"},
-      {"@type": "ListItem", "position": 2, "name": "Footwear", "url": "https://tucks.com.ng/department/footwear.html"},
-      {"@type": "ListItem", "position": 3, "name": "Gadgets", "url": "https://tucks.com.ng/department/gadgets.html"},
-      {"@type": "ListItem", "position": 4, "name": "Jewelry", "url": "https://tucks.com.ng/department/jewelry.html"},
-      {"@type": "ListItem", "position": 5, "name": "Skincare", "url": "https://tucks.com.ng/department/skinCare.html"},
-      {"@type": "ListItem", "position": 6, "name": "Hair Essentials", "url": "https://tucks.com.ng/department/hairessentials.html"},
-      {"@type": "ListItem", "position": 7, "name": "Thrift", "url": "https://tucks.com.ng/department/thrift.html"}
+      {"@type": "ListItem", "position": 1, "name": "Clothes", "url": "https://tucks.netlify.app/department/clothes.html"},
+      {"@type": "ListItem", "position": 2, "name": "Footwear", "url": "https://tucks.netlify.app/department/footwear.html"},
+      {"@type": "ListItem", "position": 3, "name": "Gadgets", "url": "https://tucks.netlify.app/department/gadgets.html"},
+      {"@type": "ListItem", "position": 4, "name": "Jewelry", "url": "https://tucks.netlify.app/department/jewelry.html"},
+      {"@type": "ListItem", "position": 5, "name": "Skincare", "url": "https://tucks.netlify.app/department/skinCare.html"},
+      {"@type": "ListItem", "position": 6, "name": "Hair Essentials", "url": "https://tucks.netlify.app/department/hairessentials.html"},
+      {"@type": "ListItem", "position": 7, "name": "Thrift", "url": "https://tucks.netlify.app/department/thrift.html"}
     ]
   }
   </script>
@@ -40,6 +40,15 @@
         .then(() => console.log('Service Worker Registered'));
     });
   }
+
+  window.addEventListener('load', async () => {
+    try {
+      const module = await import('/firebase-messaging.js');
+      await module.initializePushNotifications();
+    } catch (error) {
+      console.warn('push init failed', error.message || error);
+    }
+  });
 </script>
 
   <title>Tucks — Shop Departments for RUN, Ede & Nigeria</title>
@@ -755,7 +764,7 @@
     <h2 id="campus-benefits-title" style="font-size:1.2rem; margin-bottom:10px;">Built for students, powered by students</h2>
     <p style="margin:0 0 10px; color:#475569;">Your campus. Your marketplace. Fast, simple, secure campus shopping for food, fashion, gadgets, deals and student essentials.</p>
     <ul style="margin:0 0 18px 18px; color:#334155;">
-      <li>Order food on campus from trusted vendors</li>
+      <li>Keep up with events happening around the campus.</li>
       <li>Buy and sell within your university</li>
       <li>Discover student discounts and campus deals</li>
     </ul>

@@ -470,8 +470,16 @@ payNow?.addEventListener('click', async ()=>{
       callback: function(response){
       (async () => {
         order.paystackRef = response.reference;
-        const verifiedAmount = Number(verifyData?.data?.amount ?? verifyData?.amount ?? 0);
-        const isVerified = verifyData?.status === "success" && verifiedAmount === Math.round(order.total * 100);
+        const verifyRes = await fetch("/api/verifyPayment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ reference: response.reference, amount: Math.round(Number(order.total) * 100), email: email })
+        });
+        let verifyData = null;
+        try { verifyData = await verifyRes.json(); } catch (e) { console.warn('Invalid verify response', e); }
+        const expectedKobo = Math.round(Number(order.total) * 100);
+        const verifiedAmount = Number(verifyData?.data?.requested_amount ?? verifyData?.data?.amount ?? verifyData?.amount ?? 0);
+        const isVerified = verifyData?.status === "success" && verifiedAmount === expectedKobo;
         if (!isVerified) {
           alert("Payment verification failed! Amount mismatch or invalid reference. Please contact support.");
           console.error("Verification failed:", verifyData);

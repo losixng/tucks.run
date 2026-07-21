@@ -14,11 +14,20 @@ exports.handler = async (event) => {
     if (!eventId) return { statusCode: 400, body: JSON.stringify({ status: 'failed', message: 'Missing eventId' }) };
 
     const ref = db.collection('events').doc(eventId);
+    const snap = await ref.get();
+    const current = snap.data() || {};
+
+    if (current.status === 'rejected') {
+      return { statusCode: 409, body: JSON.stringify({ status: 'failed', message: 'This event has already been rejected' }) };
+    }
+
     await ref.update({
       status: 'published',
       approvedBy: user.uid,
       approvedAt: admin.firestore.FieldValue.serverTimestamp(),
-      pendingExpiresAt: null
+      pendingExpiresAt: null,
+      reviewRequired: false,
+      adminReviewNote: String(body.reason || '').trim() || 'Approved after review'
     });
 
     return { statusCode: 200, body: JSON.stringify({ status: 'success' }) };

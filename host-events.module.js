@@ -7,6 +7,7 @@
       onAuthStateChanged,
       safeArray
     } from './events-app.js';
+    import { addNotification } from './notifications.js';
 
     const form = document.getElementById('eventForm');
     const authStatus = document.getElementById('authStatus');
@@ -508,6 +509,25 @@
                 })
               });
               showToast(`Event published: ${result.eventId}`);
+              const hostUserKey = currentUser?.uid || currentUser?.email || 'guest';
+              addNotification({
+                userId: hostUserKey,
+                role: 'host',
+                category: 'event',
+                priority: 2,
+                title: 'Event published',
+                message: `${payload.title} is live. Share it now to get attendees excited and ready.`,
+                groupKey: `host-event:${result.eventId || payload.title}`
+              });
+              addNotification({
+                userId: 'admin',
+                role: 'admin',
+                category: 'event',
+                priority: 3,
+                title: 'New event created',
+                message: `${payload.title} was created and is ready for review and promotion.`,
+                groupKey: `admin-event:${result.eventId || payload.title}`
+              });
               localStorage.removeItem('hostEventDraft');
               await loadHostedEvents();
               resetForm();

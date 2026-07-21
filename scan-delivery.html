@@ -1,0 +1,765 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a">
+  <title>Tucks - Delivery Scanner</title>
+  <link rel="icon" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --panel: rgba(255, 255, 255, 0.92);
+      --line: rgba(15, 23, 42, 0.08);
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #2563eb;
+      --accent-2: #0f766e;
+      --danger: #b91c1c;
+      --ok: #047857;
+      --shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Outfit', system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 30%),
+        radial-gradient(circle at top right, rgba(16, 185, 129, 0.12), transparent 25%),
+        linear-gradient(180deg, #f8fbff 0%, #eef3ff 100%);
+      min-height: 100vh;
+    }
+
+    .orb {
+      position: fixed;
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.2;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb.one { top: -100px; left: -80px; background: #93c5fd; }
+    .orb.two { top: 20%; right: -80px; background: #6ee7b7; }
+
+    .shell {
+      position: relative;
+      z-index: 1;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 18px 18px 40px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 18px;
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 14px;
+      z-index: 20;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+    .badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #2563eb, #0f766e);
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .brand h1 { margin: 0; font-size: 1.1rem; }
+    .brand p { margin: 2px 0 0; color: var(--muted); font-size: 0.86rem; }
+
+    .top-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      border-radius: 14px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08); }
+    .btn.primary {
+      background: linear-gradient(135deg, var(--accent), #1d4ed8);
+      color: #fff;
+      border-color: transparent;
+    }
+    .btn.success {
+      background: linear-gradient(135deg, #059669, #047857);
+      color: #fff;
+      border-color: transparent;
+    }
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .hero {
+      margin: 22px 0 16px;
+    }
+    .hero h2 {
+      margin: 0 0 8px;
+      font-size: clamp(1.55rem, 4vw, 2.1rem);
+      letter-spacing: -0.04em;
+    }
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      max-width: 640px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+    .card h3 {
+      margin: 0 0 6px;
+      font-size: 1.05rem;
+    }
+    .sub {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .status-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .status-pill {
+      padding: 12px;
+      border-radius: 16px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+    }
+    .status-pill strong {
+      display: block;
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+    }
+    .status-pill span {
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .scanner-box {
+      display: grid;
+      gap: 12px;
+    }
+    .scanner-view {
+      min-height: 260px;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #0f172a;
+      border: 1px solid rgba(15, 23, 42, 0.18);
+    }
+    .scanner-view video,
+    .scanner-view canvas {
+      width: 100% !important;
+      max-width: 100%;
+    }
+    .empty {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.5;
+      padding: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--muted);
+    }
+    textarea {
+      width: 100%;
+      min-height: 96px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      padding: 12px;
+      font: inherit;
+      resize: vertical;
+      background: #fff;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .result {
+      display: none;
+      margin-top: 8px;
+    }
+    .result.show { display: block; }
+
+    .customer-banner {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(15, 118, 110, 0.1));
+      border: 1px solid rgba(37, 99, 235, 0.16);
+      margin-bottom: 14px;
+    }
+    .customer-banner h4 {
+      margin: 0 0 4px;
+      font-size: 1.15rem;
+    }
+    .customer-banner p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .order-list {
+      display: grid;
+      gap: 12px;
+    }
+    .order-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      background: #fff;
+    }
+    .order-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+    .order-head strong { font-size: 1rem; }
+    .order-head span {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: capitalize;
+    }
+    .order-meta {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.45;
+      margin-bottom: 12px;
+    }
+    .item-list {
+      margin: 0 0 12px;
+      padding-left: 18px;
+      color: var(--text);
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+    .gate {
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(185, 28, 28, 0.06);
+      border: 1px solid rgba(185, 28, 28, 0.16);
+      color: var(--danger);
+      font-weight: 600;
+      line-height: 1.5;
+    }
+    .gate.ok {
+      background: rgba(4, 120, 87, 0.08);
+      border-color: rgba(4, 120, 87, 0.18);
+      color: var(--ok);
+    }
+
+    #toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%) translateY(20px);
+      background: #0f172a;
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.25s ease;
+      z-index: 50;
+      font-weight: 600;
+      max-width: min(90vw, 420px);
+      text-align: center;
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .locked-away {
+      display: none !important;
+    }
+
+    @media (max-width: 720px) {
+      .status-row { grid-template-columns: 1fr; }
+      .topbar { flex-direction: column; align-items: stretch; }
+      .top-actions { width: 100%; }
+      .btn { flex: 1; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="orb one" aria-hidden="true"></div>
+  <div class="orb two" aria-hidden="true"></div>
+
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div>
+          <h1>Delivery Scanner</h1>
+          <p>Authorized agents only</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <a class="btn" href="/profile.html"><i class='bx bx-user'></i>Profile</a>
+        <a class="btn" href="/login.html" id="authLink"><i class='bx bx-log-in'></i>Sign in</a>
+        <button class="btn locked-away" id="signOutBtn" type="button"><i class='bx bx-log-out'></i>Sign out</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <h2>Scan a TUCKS ID card</h2>
+      <p>Scan the users id to confirm <strong>delivery details.</strong> Ensure you are logged in using your official delivery mail given by losix.</p>
+    </section>
+
+    <div class="grid">
+      <section class="card">
+        <div class="status-row">
+          <div class="status-pill">
+            <strong id="agentStatus">Checking access...</strong>
+            <span>Agent access</span>
+          </div>
+          <div class="status-pill">
+            <strong id="scanMode">Idle</strong>
+            <span>Scanner state</span>
+          </div>
+          <div class="status-pill">
+            <strong id="agentEmail">-</strong>
+            <span>Signed-in email</span>
+          </div>
+        </div>
+
+        <div id="accessGate" class="gate">Sign in with a delivery.losix Firebase account to use this scanner.</div>
+      </section>
+
+      <section class="card locked-away" id="scannerCard">
+        <h3>Camera / token scan</h3>
+        <p class="sub">Point the camera at the customer&apos;s TUCKS ID card QR, or paste the encrypted token if needed.</p>
+
+        <div class="scanner-box">
+          <div class="actions">
+            <button class="btn primary" id="startScanBtn" type="button" disabled><i class='bx bx-camera'></i>Start camera scan</button>
+            <button class="btn" id="stopScanBtn" type="button" disabled><i class='bx bx-stop-circle'></i>Stop</button>
+            <button class="btn" id="verifyBtn" type="button" disabled><i class='bx bx-check-shield'></i>Verify token</button>
+          </div>
+
+          <div class="scanner-view" id="scannerView">
+            <div class="empty">Camera scanner will appear here after you start it.</div>
+          </div>
+
+          <div>
+            <label for="manualToken">Manual QR token</label>
+            <textarea id="manualToken" placeholder="Paste an encrypted delivery QR token here if the camera cannot read it."></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section class="card result locked-away" id="resultCard">
+        <h3>Delivery details</h3>
+        <p class="sub" id="resultMessage">Verified customer details will show here.</p>
+
+        <div class="customer-banner">
+          <div>
+            <h4 id="customerName">-</h4>
+            <p id="customerMeta">-</p>
+          </div>
+          <div>
+            <p id="customerMember">Member ID -</p>
+          </div>
+        </div>
+
+        <div class="order-list" id="orderList"></div>
+      </section>
+    </div>
+  </div>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <script type="module">
+    import { signOut } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js';
+    import {
+      apiFetch,
+      auth,
+      onAuthStateChanged
+    } from './events-app.js';
+
+    const DELIVERY_EMAIL_MARKER = 'delivery.losix';
+
+    const agentStatus = document.getElementById('agentStatus');
+    const scanMode = document.getElementById('scanMode');
+    const agentEmail = document.getElementById('agentEmail');
+    const accessGate = document.getElementById('accessGate');
+    const authLink = document.getElementById('authLink');
+    const signOutBtn = document.getElementById('signOutBtn');
+    const scannerCard = document.getElementById('scannerCard');
+    const startScanBtn = document.getElementById('startScanBtn');
+    const stopScanBtn = document.getElementById('stopScanBtn');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const scannerView = document.getElementById('scannerView');
+    const manualToken = document.getElementById('manualToken');
+    const resultCard = document.getElementById('resultCard');
+    const resultMessage = document.getElementById('resultMessage');
+    const customerName = document.getElementById('customerName');
+    const customerMeta = document.getElementById('customerMeta');
+    const customerMember = document.getElementById('customerMember');
+    const orderList = document.getElementById('orderList');
+    const toast = document.getElementById('toast');
+
+    let currentUser = null;
+    let agentAllowed = false;
+    let scanner = null;
+    let scanSessionId = 0;
+    let lastToken = '';
+    let verifying = false;
+
+    function emailLooksLikeDeliveryAgent(email) {
+      return String(email || '').trim().toLowerCase().includes(DELIVERY_EMAIL_MARKER);
+    }
+
+    function setWorkspaceVisible(visible) {
+      scannerCard.classList.toggle('locked-away', !visible);
+      if (!visible) {
+        resultCard.classList.remove('show');
+        resultCard.classList.add('locked-away');
+      } else {
+        resultCard.classList.remove('locked-away');
+      }
+    }
+
+    const money = new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN',
+      maximumFractionDigits: 0
+    });
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
+    }
+
+    function setControlsEnabled(enabled) {
+      startScanBtn.disabled = !enabled;
+      stopScanBtn.disabled = !enabled || !scanner;
+      verifyBtn.disabled = !enabled;
+      manualToken.disabled = !enabled;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    async function probeAgentAccess() {
+      if (!currentUser) {
+        agentAllowed = false;
+        agentStatus.textContent = 'Sign in required';
+        agentEmail.textContent = '-';
+        accessGate.className = 'gate';
+        accessGate.textContent = 'Sign in with a delivery.losix Firebase account to use this scanner.';
+        authLink.classList.remove('locked-away');
+        authLink.innerHTML = "<i class='bx bx-log-in'></i>Sign in";
+        authLink.href = `/login.html?redirect=${encodeURIComponent('/scan-delivery.html')}`;
+        signOutBtn.classList.add('locked-away');
+        setControlsEnabled(false);
+        setWorkspaceVisible(false);
+        return;
+      }
+
+      agentEmail.textContent = currentUser.email || currentUser.uid;
+      authLink.classList.add('locked-away');
+      signOutBtn.classList.remove('locked-away');
+      agentStatus.textContent = 'Checking role...';
+
+      try {
+        await apiFetch('/api/checkDeliveryAccess');
+        agentAllowed = true;
+        agentStatus.textContent = 'Authorized agent';
+        accessGate.className = 'gate ok';
+        accessGate.textContent = 'Access granted. Scan a customer TUCKS ID card to load open deliveries.';
+        setWorkspaceVisible(true);
+        setControlsEnabled(true);
+      } catch (error) {
+        agentAllowed = false;
+        setControlsEnabled(false);
+        setWorkspaceVisible(false);
+        await stopScanner();
+        const message = String(error.message || '');
+        if (/only authorized delivery agents|forbidden|delivery agent access/i.test(message)) {
+          accessGate.className = 'gate';
+          accessGate.textContent = emailLooksLikeDeliveryAgent(currentUser.email)
+            ? 'This delivery.losix account could not be authorized. Try signing out and back in.'
+            : 'This account is signed in, but only emails containing delivery.losix can open the scanner. Sign out and use a delivery agent account.';
+          agentStatus.textContent = 'Access denied';
+          return;
+        }
+        if (/authorization|sign in|no authorization/i.test(message)) {
+          accessGate.className = 'gate';
+          accessGate.textContent = 'Sign in again with a delivery.losix account to continue.';
+          agentStatus.textContent = 'Auth required';
+          return;
+        }
+        accessGate.className = 'gate';
+        accessGate.textContent = message || 'Could not verify delivery access.';
+        agentStatus.textContent = 'Unavailable';
+      }
+    }
+
+    async function stopScanner() {
+      scanSessionId += 1;
+      if (scanner) {
+        try {
+          await scanner.stop();
+        } catch (_) {}
+        try {
+          await scanner.clear();
+        } catch (_) {}
+        scanner = null;
+      }
+      scannerView.innerHTML = '<div class="empty">Camera scanner stopped.</div>';
+      scanMode.textContent = 'Idle';
+      stopScanBtn.disabled = true;
+    }
+
+    async function startScanner() {
+      if (!agentAllowed) {
+        showToast('Delivery agent access required');
+        return;
+      }
+      if (!window.Html5Qrcode) {
+        showToast('Camera scanner library failed to load');
+        return;
+      }
+
+      await stopScanner();
+      const session = ++scanSessionId;
+      scannerView.innerHTML = '<div id="qrReader" style="width:100%"></div>';
+      scanner = new window.Html5Qrcode('qrReader');
+      scanMode.textContent = 'Starting...';
+      stopScanBtn.disabled = false;
+
+      try {
+        await scanner.start(
+          { facingMode: 'environment' },
+          { fps: 10, qrbox: { width: 240, height: 240 } },
+          async (decodedText) => {
+            if (session !== scanSessionId || verifying) return;
+            const token = String(decodedText || '').trim();
+            if (!token || token === lastToken) return;
+            lastToken = token;
+            manualToken.value = token;
+            await verifyToken(token);
+          },
+          () => {}
+        );
+        scanMode.textContent = 'Scanning';
+      } catch (error) {
+        console.warn(error);
+        scanMode.textContent = 'Camera error';
+        scannerView.innerHTML = `<div class="empty">${escapeHtml(error.message || 'Could not start camera')}</div>`;
+        showToast('Could not start camera');
+      }
+    }
+
+    function renderOrders(orders, qrToken) {
+      if (!orders.length) {
+        orderList.innerHTML = '<div class="empty">No open delivery orders for this customer.</div>';
+        return;
+      }
+
+      orderList.innerHTML = orders.map((order) => {
+        const items = Array.isArray(order.items) ? order.items : [];
+        const address = order.deliveryCustomer?.address || 'No address on file';
+        const phone = order.deliveryCustomer?.phone || 'No phone';
+        const itemHtml = items.length
+          ? `<ul class="item-list">${items.map((item) => `<li>${escapeHtml(item.qty)}× ${escapeHtml(item.name)}${item.size ? ` · ${escapeHtml(item.size)}` : ''}${item.color ? ` · ${escapeHtml(item.color)}` : ''}</li>`).join('')}</ul>`
+          : '<p class="empty" style="padding:0;margin:0 0 12px">No line items listed.</p>';
+
+        return `
+          <article class="order-card" data-doc-id="${escapeHtml(order.docId)}">
+            <div class="order-head">
+              <strong>${escapeHtml(order.orderId)}</strong>
+              <span>${escapeHtml(order.status || 'pending')}</span>
+            </div>
+            <div class="order-meta">
+              <div><strong>Total:</strong> ${escapeHtml(money.format(order.total || 0))}</div>
+              <div><strong>Phone:</strong> ${escapeHtml(phone)}</div>
+              <div><strong>Address:</strong> ${escapeHtml(address)}</div>
+              ${order.note ? `<div><strong>Note:</strong> ${escapeHtml(order.note)}</div>` : ''}
+            </div>
+            ${itemHtml}
+            <button class="btn success deliver-btn" type="button" data-doc-id="${escapeHtml(order.docId)}">
+              <i class='bx bx-package'></i> Delivered
+            </button>
+          </article>
+        `;
+      }).join('');
+
+      orderList.querySelectorAll('.deliver-btn').forEach((button) => {
+        button.addEventListener('click', async () => {
+          const orderDocId = button.getAttribute('data-doc-id');
+          button.disabled = true;
+          try {
+            await markDelivered(orderDocId, qrToken);
+            button.textContent = 'Delivered';
+            showToast('Order marked as delivered');
+            await verifyToken(qrToken, { silent: true });
+          } catch (error) {
+            button.disabled = false;
+            showToast(error.message || 'Could not mark delivered');
+          }
+        });
+      });
+    }
+
+    async function markDelivered(orderDocId, qrToken) {
+      return apiFetch('/api/markDeliveryComplete', {
+        method: 'POST',
+        body: JSON.stringify({ orderDocId, qrToken })
+      });
+    }
+
+    async function verifyToken(rawToken, options = {}) {
+      const qrToken = String(rawToken || manualToken.value || '').trim();
+      if (!qrToken) {
+        showToast('No QR token to verify');
+        return;
+      }
+      if (!agentAllowed) {
+        showToast('Delivery agent access required');
+        return;
+      }
+
+      verifying = true;
+      scanMode.textContent = 'Verifying';
+      try {
+        const data = await apiFetch('/api/verifyDeliveryPass', {
+          method: 'POST',
+          body: JSON.stringify({ qrToken })
+        });
+
+        lastToken = qrToken;
+        resultCard.classList.add('show');
+        resultMessage.textContent = data.message || 'Customer verified.';
+        customerName.textContent = data.customer?.displayName || 'TUCKS member';
+        customerMeta.textContent = data.customer?.email || 'Email hidden';
+        customerMember.textContent = `Member ID ${data.customer?.memberId || '--------'}`;
+        renderOrders(Array.isArray(data.orders) ? data.orders : [], qrToken);
+        if (!options.silent) showToast('Customer QR verified');
+        scanMode.textContent = scanner ? 'Scanning' : 'Verified';
+      } catch (error) {
+        resultCard.classList.remove('show');
+        scanMode.textContent = scanner ? 'Scanning' : 'Failed';
+        showToast(error.message || 'Verification failed');
+      } finally {
+        verifying = false;
+      }
+    }
+
+    startScanBtn.addEventListener('click', () => {
+      startScanner().catch((error) => showToast(error.message || 'Scanner failed'));
+    });
+    stopScanBtn.addEventListener('click', () => {
+      stopScanner().catch(() => {});
+    });
+    verifyBtn.addEventListener('click', () => {
+      verifyToken(manualToken.value).catch((error) => showToast(error.message || 'Verification failed'));
+    });
+    signOutBtn.addEventListener('click', async () => {
+      try {
+        await stopScanner();
+        await signOut(auth);
+        showToast('Signed out');
+      } catch (error) {
+        showToast(error.message || 'Could not sign out');
+      }
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      currentUser = user || null;
+      lastToken = '';
+      resultCard.classList.remove('show');
+      await stopScanner();
+      await probeAgentAccess();
+    });
+  </script>
+</body>
+</html>

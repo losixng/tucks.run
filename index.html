@@ -19,9 +19,9 @@
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "Tucks",
-  "url": "https://tucks.com.ng/",
+  "url": "https://tucks.netlify.app/",
   "description": "Tucks is a Nigerian shopping platform for clothes, footwear, gadgets, jewelry, skincare, hair essentials, thrift and vendor services, with strong visibility for students and shoppers around Redeemers University, RUN and Ede.",
-  "logo": "https://tucks.com.ng/logo.png",
+  "logo": "https://tucks.netlify.app/logo.png",
   "areaServed": "Nigeria",
   "keywords": ["shopping in Nigeria", "vendor in RUN", "Redeemers University shopping", "Ede shopping"]
 }
@@ -31,10 +31,10 @@
   "@context": "https://schema.org",
   "@type": "WebSite",
   "name": "Tucks",
-  "url": "https://tucks.com.ng/",
+  "url": "https://tucks.netlify.app/",
   "potentialAction": {
     "@type": "SearchAction",
-    "target": "https://tucks.com.ng/home.html?q={search_term_string}",
+    "target": "https://tucks.netlify.app/home.html?q={search_term_string}",
     "query-input": "required name=search_term_string"
   }
 }
@@ -190,8 +190,22 @@ setTimeout(()=>location.href='home.html',800);
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const analytics = getAnalytics(app);
+  // Register service worker for push notifications
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+  }
+
+  // Attempt to auto-register FCM token in background (non-blocking)
+  (async function(){
+    try {
+      const module = await import('/firebase-messaging.js');
+      await module.initializePushNotifications();
+    } catch (e) {
+      console.warn('push init failed', e.message || e);
+    }
+  })();
 </script>
 
 <script src="/seo-enhancer.js"></script>
 </body>
-</html>
+</html>34r

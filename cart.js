@@ -12,6 +12,7 @@ import {
   getAuth,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+import { addNotification } from "./notifications.js";
 
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyDzwnmGgEcN63RcCHSNU6p_xXKxmeqzF6k",
@@ -1084,7 +1085,7 @@ async function verifyPaystackPayment(reference, amountKobo, email) {
 
     const data = await res.json();
     const paystackStatus = String(data?.data?.status || data?.status || "").toLowerCase();
-    const verifiedAmount = Number(data?.data?.amount ?? data?.amount ?? 0);
+    const verifiedAmount = Number(data?.data?.requested_amount ?? data?.data?.amount ?? data?.amount ?? 0);
     const isVerified = paystackStatus === "success" && verifiedAmount === amountKobo;
     if (!isVerified) {
       console.warn("Verification response:", data);
@@ -1274,6 +1275,37 @@ document.getElementById("payNow")?.addEventListener("click", async () => {
           verifiedAt: new Date().toISOString()
         };
         persistOrderLocally(order);
+
+        const previousOrders = JSON.parse(localStorage.getItem("orders") || "[]");
+        const isFirstOrder = previousOrders.length === 0;
+        const buyerUserKey = currentUser?.uid || payer.email || "guest";
+        addNotification({
+          userId: buyerUserKey,
+          role: "buyer",
+          category: "order",
+          priority: 2,
+          title: isFirstOrder ? "Your first order is confirmed" : "Order confirmed",
+          message: `Your ${APP_NAME} order ${order.orderId} is confirmed and your items are being prepared.`,
+          groupKey: `order:${order.orderId}`
+        });
+        addNotification({
+          userId: deliveryCustomer?.email || payer.email || buyerUserKey,
+          role: "recipient",
+          category: "delivery",
+          priority: 2,
+          title: "Delivery update",
+          message: `Your delivery for order ${order.orderId} is on the way. Expect a quick update from ${APP_NAME}.`,
+          groupKey: `delivery:${order.orderId}`
+        });
+        addNotification({
+          userId: "admin",
+          role: "admin",
+          category: "order",
+          priority: 3,
+          title: "New order received",
+          message: `${payer.name || payer.email} placed order ${order.orderId} for ${order.items.length} item(s).`,
+          groupKey: `admin-order:${order.orderId}`
+        });
 
         try {
           if (db) {

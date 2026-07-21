@@ -72,3 +72,32 @@ self.addEventListener("fetch", event => {
 
 });
 
+/* Firebase Messaging background handler - show notifications when message arrives */
+self.addEventListener('push', function(event) {
+  try {
+    const payload = event.data ? event.data.json() : null;
+    const title = payload && payload.notification && payload.notification.title ? payload.notification.title : 'Tucks';
+    const body = payload && payload.notification && payload.notification.body ? payload.notification.body : (payload && payload.body) || '';
+    const options = {
+      body,
+      icon: '/icons/icon-192.png',
+      badge: '/icons/icon-192.png',
+      data: payload && payload.data ? payload.data : {}
+    };
+    event.waitUntil(self.registration.showNotification(title, options));
+  } catch (e) {
+    console.warn('push handler error', e);
+  }
+});
+
+self.addEventListener('notificationclick', function(event) {
+  event.notification.close();
+  const url = event.notification.data && event.notification.data.url ? event.notification.data.url : '/home.html';
+  event.waitUntil(clients.matchAll({ type: 'window' }).then(windowClients => {
+    for (let client of windowClients) {
+      if (client.url === url && 'focus' in client) return client.focus();
+    }
+    if (clients.openWindow) return clients.openWindow(url);
+  }));
+});
+

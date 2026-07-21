@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /admin-dashboard.html
 Disallow: /vendor-view.html
-Sitemap: https://www.tucksmarket.wep.app/sitemap.xml
+Sitemap: https://tucks.netlify.app/sitemap.xml

@@ -481,7 +481,9 @@ payNow?.addEventListener('click', async ()=>{
     
         const verifyData = await verifyRes.json();
     
-        if (!verifyData.status || verifyData.status !== "success" || !verifyData.data || verifyData.data.amount !== Math.round(order.total * 100)) {
+        const expectedKobo = Math.round(Number(order.total) * 100);
+        const verifiedAmount = Number(verifyData?.data?.requested_amount ?? verifyData?.data?.amount ?? 0);
+        if (verifyData?.status !== "success" || verifiedAmount !== expectedKobo) {
           alert("Payment verification failed! Amount mismatch or invalid reference. Please contact support.");
           console.error("Verification failed:", verifyData);
           return;

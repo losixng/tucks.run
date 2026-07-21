@@ -531,19 +531,19 @@ document.querySelectorAll(".faq-question").forEach(btn => {
 
 // Sharing functions
 function shareWhatsApp() {
-  const msg = encodeURIComponent("🔥 Check out Tucks — your one-stop marketplace for amazing deals! https://tucks.run");
+  const msg = encodeURIComponent("🔥 Check out Tucks — your one-stop marketplace for amazing deals! https://tucks.netlify.app/");
   window.open(`https://wa.me/?text=${msg}`, "_blank");
 }
 function shareFacebook() {
-  const url = encodeURIComponent("https://tucks.run");
+  const url = encodeURIComponent("https://tucks.netlify.app/");
   window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, "_blank");
 }
 function shareTwitter() {
-  const msg = encodeURIComponent("🚀 Discover amazing products and discounts on Tucks! https://tucks.run");
+  const msg = encodeURIComponent("🚀 Discover amazing products and discounts on Tucks! https://tucks.netlify.app/");
   window.open(`https://twitter.com/intent/tweet?text=${msg}`, "_blank");
 }
 function copyLink() {
-  navigator.clipboard.writeText("https://tucks.run");
+  navigator.clipboard.writeText("https://tucks.netlify.app/");
   alert("✅ Link copied! Share it with your friends 🚀");
 }
 </script>

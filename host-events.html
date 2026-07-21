@@ -771,6 +771,18 @@
                 <label for='ticketLabel'>Base ticket label</label>
                 <input id='ticketLabel' placeholder='General admission' />
               </div>
+              <div class='field'>
+                <label for='paymentAccountName'>Account name</label>
+                <input id='paymentAccountName' placeholder='Name on bank account' />
+              </div>
+              <div class='field'>
+                <label for='paymentAccountNumber'>Account number</label>
+                <input id='paymentAccountNumber' inputmode='numeric' placeholder='10-digit account number' />
+              </div>
+              <div class='field'>
+                <label for='paymentBankName'>Bank name</label>
+                <input id='paymentBankName' placeholder='GTBank, Access Bank...' />
+              </div>
               <div class='field full'>
                 <label>Event pricing</label>
                 <div class='toggle-row'>
@@ -1175,6 +1187,16 @@
       }).join('');
     }
 
+    function syncPaymentFieldState() {
+      const isFree = document.getElementById('isFree').checked;
+      ['paymentAccountName', 'paymentAccountNumber', 'paymentBankName'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.required = !isFree;
+        }
+      });
+    }
+
     function collectPayload(validate = true) {
       const tiers = Array.from(tierList.querySelectorAll('.builder-item')).map((item) => {
         const name = item.querySelector('[data-tier-name]').value.trim();
@@ -1224,6 +1246,9 @@
         ticketPrice: Number(document.getElementById('ticketPrice').value || 0),
         ticketLabel: document.getElementById('ticketLabel').value.trim(),
         isFree: document.getElementById('isFree').checked,
+        paymentAccountName: document.getElementById('paymentAccountName').value.trim(),
+        paymentAccountNumber: document.getElementById('paymentAccountNumber').value.trim(),
+        paymentBankName: document.getElementById('paymentBankName').value.trim(),
         requirements: parseLines(document.getElementById('requirements').value),
         thingsToBring: parseLines(document.getElementById('thingsToBring').value),
         mediaUrls: parseLines(document.getElementById('mediaUrls').value),
@@ -1235,11 +1260,18 @@
         if (!payload.title || !payload.description || !payload.location || !payload.startsAt) {
           throw new Error('Fill the required event fields.');
         }
+        if (!payload.category) {
+          throw new Error('Add an event category so the event stays discoverable.');
+        }
         if (!tiers.length) {
           throw new Error('Add at least one ticket tier, even if it is a general tier.');
         }
         if (!attendeeFields.length) {
           throw new Error('Add at least one attendee field.');
+        }
+        const paymentRequired = !payload.isFree || Number(payload.ticketPrice || 0) > 0 || safeArray(tiers).some((tier) => Number(tier.price || 0) > 0);
+        if (paymentRequired && (!payload.paymentAccountName || !payload.paymentAccountNumber || !payload.paymentBankName)) {
+          throw new Error('Paid events require an account name, account number, and bank name.');
         }
       }
 
@@ -1292,6 +1324,7 @@
       extraMediaInput.value = '';
       receiptInput.value = '';
       clearMediaPreviews();
+      syncPaymentFieldState();
       const isFreeCheckbox = document.getElementById('isFree');
       if (isFreeCheckbox) {
         isFreeCheckbox.checked = true;
@@ -1410,11 +1443,13 @@
       } else {
         price.disabled = false;
       }
+      syncPaymentFieldState();
     });
 
     try {
       clearBuilders();
       fillFormFromDraft(loadDraft());
+      syncPaymentFieldState();
       await loadEventConfig();
       await loadHostedEvents();
     } catch (error) {

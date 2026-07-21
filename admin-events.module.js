@@ -19,7 +19,15 @@ function render(events) {
           <div class="chip">Status: ${e.status}</div>
         </div>
         <div style="margin-top:8px;color:#334155">${e.description || ''}</div>
+        <div style="margin-top:8px">Category: ${e.category || 'General'}</div>
+        <div style="margin-top:8px">Location: ${e.location || 'TBD'} • Venue: ${e.venue || 'Not set'}</div>
         <div style="margin-top:8px">Starts: ${formatDateTime(e.startsAt)}</div>
+        <div style="margin-top:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px;line-height:1.6;">
+          <strong>Host payment details</strong><br/>
+          Account name: ${e.paymentAccountName || 'Not provided'}<br/>
+          Account number: ${e.paymentAccountNumber || 'Not provided'}<br/>
+          Bank name: ${e.paymentBankName || 'Not provided'}
+        </div>
         ${e.receiptUrl ? `<div style="margin-top:8px"><a href="${e.receiptUrl}" target="_blank">Open receipt</a><br/><img src="${e.receiptUrl}" class="receipt" alt="receipt"/></div>` : ''}
         <div style="margin-top:10px" class="actions">
           <button data-approve class="btn">Approve</button>

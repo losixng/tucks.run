@@ -1,5 +1,5 @@
 (function () {
-  const siteUrl = 'https://www.tucksmarket.wep.app';
+  const siteUrl = 'https://tucks.netlify.app';
   const pagePath = window.location.pathname.replace(/\\/+$|index.html$/i, '') || '/';
   const normalizedPath = pagePath === '' ? '/' : pagePath;
 

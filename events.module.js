@@ -13,6 +13,7 @@
       shareEvent,
       toggleFavorite
     } from './events-app.js';
+    import { addNotification, scheduleEventReminders } from './notifications.js';
 
     const grid = document.getElementById('eventGrid');
     const searchInput = document.getElementById('searchInput');
@@ -359,6 +360,26 @@
                 answers
               })
             });
+            const attendeeUserKey = currentUser?.uid || buyerEmail || 'guest';
+            addNotification({
+              userId: attendeeUserKey,
+              role: 'attendee',
+              category: 'event',
+              priority: 2,
+              title: 'Registration confirmed',
+              message: `You are set for ${eventData.title}. We will remind you before the event starts.`,
+              groupKey: `event-registration:${eventData.id}`
+            });
+            addNotification({
+              userId: 'admin',
+              role: 'admin',
+              category: 'event',
+              priority: 3,
+              title: 'New event registration',
+              message: `${buyerName} registered for ${eventData.title}.`,
+              groupKey: `admin-event-registration:${eventData.id}`
+            });
+            scheduleEventReminders(eventData, attendeeUserKey);
             showToast(`Ticket confirmed. Reference: ${result.ticketId}`);
             closeModal();
             await loadEvents();

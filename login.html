@@ -213,9 +213,19 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
+function getSafeRedirectTarget() {
+  const params = new URLSearchParams(window.location.search);
+  const redirect = String(params.get("redirect") || "").trim();
+  // Only allow same-origin relative paths (block open redirects).
+  if (redirect.startsWith("/") && !redirect.startsWith("//") && !redirect.includes("://")) {
+    return redirect;
+  }
+  return "index.html";
+}
+
 function finalizeAuthRedirect() {
   localStorage.setItem("isLoggedIn", "true");
-  window.location.href = "index.html";
+  window.location.href = getSafeRedirectTarget();
 }
 
 window.loginWithGoogle = async function () {

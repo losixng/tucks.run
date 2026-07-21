@@ -8,6 +8,7 @@ import {
   orderBy,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+import { addNotification } from "./notifications.js";
 
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyDzwnmGgEcN63RcCHSNU6p_xXKxmeqzF6k",
@@ -70,6 +71,15 @@ async function saveVendorApplication(application) {
       await addDoc(collection(db, COLLECTION_NAME), {
         ...application,
         createdAt: serverTimestamp()
+      });
+      addNotification({
+        userId: "admin",
+        role: "admin",
+        category: "vendor",
+        priority: 3,
+        title: "New vendor registration",
+        message: `${application.fullName || "A new vendor"} submitted a vendor application.`,
+        groupKey: `admin-vendor-registration:${Date.now()}`
       });
       return payload;
     } catch (error) {

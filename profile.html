@@ -596,6 +596,96 @@
       line-height: 1.45;
     }
 
+    .notification-card {
+      margin-top: 16px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 14px;
+      box-shadow: 0 10px 32px rgba(15, 23, 42, 0.06);
+    }
+    .notification-card__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .notification-card__head h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+    .notification-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent-2);
+      font-size: 0.74rem;
+      font-weight: 700;
+    }
+    .notification-list {
+      display: grid;
+      gap: 8px;
+    }
+    .notification-item {
+      border-radius: 14px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+    }
+    .notification-item.is-read {
+      opacity: 0.78;
+    }
+    .notification-item__top {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .notification-item__title {
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+    .notification-item__time {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+    .notification-item__message {
+      margin: 0;
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .notification-empty {
+      border-radius: 12px;
+      padding: 12px;
+      background: var(--surface-2);
+      color: var(--text-muted);
+      text-align: center;
+      font-size: 0.9rem;
+    }
+    .notification-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .notification-actions button {
+      border: none;
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: var(--accent-soft);
+      color: var(--accent-2);
+      cursor: pointer;
+    }
+
     .logout-wrap {
       margin-top: 18px;
       display: flex;
@@ -611,6 +701,190 @@
       color: var(--text-muted);
       line-height: 1.6;
       font-size: 0.95rem;
+    }
+
+    .id-card-wrap {
+      margin-top: 18px;
+    }
+    .id-card {
+      position: relative;
+      border-radius: 22px;
+      overflow: hidden;
+      color: #f8fafc;
+      background:
+        linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(30, 64, 175, 0.92) 55%, rgba(15, 118, 110, 0.88)),
+        radial-gradient(circle at top right, rgba(147, 197, 253, 0.35), transparent 42%);
+      border: 1px solid rgba(191, 219, 254, 0.28);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.22);
+      padding: 18px;
+      animation: fadeInUp 0.8s var(--ease-out) 0.12s both;
+    }
+    .id-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.08) 38%, transparent 62%),
+        repeating-linear-gradient(
+          -18deg,
+          rgba(255,255,255,0.035) 0 2px,
+          transparent 2px 10px
+        );
+      pointer-events: none;
+    }
+    .id-card-inner {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(140px, 0.85fr);
+      gap: 16px;
+      align-items: stretch;
+    }
+    .id-brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .id-brand-mark {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .id-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      background: linear-gradient(135deg, #60a5fa, #34d399);
+      color: #0f172a;
+      box-shadow: 0 10px 22px rgba(15, 23, 42, 0.28);
+      flex-shrink: 0;
+    }
+    .id-brand h3 {
+      margin: 0;
+      font-size: 1.05rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .id-brand p {
+      margin: 2px 0 0;
+      color: rgba(226, 232, 240, 0.78);
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .id-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.28);
+      border: 1px solid rgba(226, 232, 240, 0.18);
+      color: #dbeafe;
+      font-size: 0.72rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .id-name {
+      margin: 0 0 4px;
+      font-size: 1.28rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+    }
+    .id-meta {
+      margin: 0;
+      color: rgba(226, 232, 240, 0.82);
+      font-size: 0.88rem;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+    .id-fields {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .id-field {
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(15, 23, 42, 0.22);
+      border: 1px solid rgba(226, 232, 240, 0.12);
+    }
+    .id-field span {
+      display: block;
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(191, 219, 254, 0.78);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .id-field strong {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 700;
+      line-height: 1.3;
+      word-break: break-word;
+    }
+    .id-qr-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.96);
+      color: #0f172a;
+      border: 1px solid rgba(226, 232, 240, 0.7);
+      min-height: 100%;
+    }
+    .id-qr-panel canvas {
+      width: min(100%, 168px);
+      height: auto;
+      border-radius: 12px;
+      background: #fff;
+    }
+    .id-qr-panel .qr-note {
+      margin: 0;
+      text-align: center;
+      color: #64748b;
+      font-size: 0.74rem;
+      line-height: 1.35;
+      font-weight: 600;
+    }
+    .id-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .id-actions .button {
+      padding: 10px 14px;
+      font-size: 0.88rem;
+      border-radius: 12px;
+    }
+    .id-card-guest {
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px dashed rgba(37, 99, 235, 0.28);
+      background: rgba(239, 246, 255, 0.72);
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+    #idPassStatus {
+      margin-top: 10px;
+      color: rgba(226, 232, 240, 0.86);
+      font-size: 0.8rem;
+      font-weight: 600;
     }
 
     .bottom-nav {
@@ -747,6 +1021,16 @@
       .info-card .value { font-size: 0.86rem; line-height: 1.25; }
       .info-card .sub { display: none; }
       .cta-row, .logout-wrap { flex-direction: column; margin-top: 14px; }
+      .id-card { padding: 14px; border-radius: 18px; }
+      .id-card-inner { grid-template-columns: 1fr; gap: 12px; }
+      .id-brand { align-items: flex-start; flex-direction: column; }
+      .id-name { font-size: 1.12rem; }
+      .id-fields { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .id-field { padding: 9px 10px; }
+      .id-field strong { font-size: 0.82rem; }
+      .id-qr-panel { padding: 12px; }
+      .id-qr-panel canvas { width: min(100%, 150px); }
+      .id-actions { flex-direction: column; }
       .button { width: 100%; padding: 11px 14px; font-size: 0.9rem; }
       .account-note { margin-top: 12px; padding: 10px 12px; font-size: 0.8rem; }
     }
@@ -810,20 +1094,6 @@
         <a class="icon-button" href="/order.html" aria-label="View orders">
           <i class='bx bx-history'></i>
         </a>
-        <input type="checkbox" id="profileMenuToggle">
-        <label for="profileMenuToggle" class="menu-icon" aria-label="Open menu">
-          <span></span>
-          <span></span>
-          <span></span>
-        </label>
-      </div>
-
-      <div class="menu-dropdown">
-        <a href="/profile/help.html"><i class='bx bx-help-circle'></i> Help</a>
-        <a href="/profile/install.html"><i class='bx bx-download'></i> Install</a>
-        <a href="/profile/refund.html"><i class='bx bx-revision'></i> Refunds</a>
-        <a href="/profile/reviews.html"><i class='bx bx-star'></i> Reviews</a>
-        <a href="/profile/terms.html"><i class='bx bx-file'></i> Terms</a>
       </div>
     </header>
 
@@ -888,6 +1158,70 @@
         <div class="account-note" id="accountNote">
           Sign in to unlock a more personal experience, including your stored account details and a faster path back to your cart and orders.
         </div>
+
+        <section class="notification-card" aria-labelledby="notificationsHeading">
+          <div class="notification-card__head">
+            <h3 id="notificationsHeading">Notifications</h3>
+            <span class="notification-pill" id="notificationCount">0 new</span>
+          </div>
+          <div class="notification-list" id="notificationList"></div>
+          <div class="notification-actions">
+            <button type="button" id="markAllNotificationsBtn">Mark all read</button>
+            <button type="button" id="clearNotificationsBtn">Clear all</button>
+          </div>
+        </section>
+
+        <div class="id-card-wrap" id="idCardSection">
+          <div class="id-card-guest" id="idCardGuest">
+            Sign in to generate your secure TUCKS ID card. Delivery agents can scan it to confirm your order without exposing your account data.
+          </div>
+          <div class="id-card hidden" id="idCard">
+            <div class="id-card-inner">
+              <div>
+                <div class="id-brand">
+                  <div class="id-brand-mark">
+                    <div class="id-logo">TK</div>
+                    <div>
+                      <h3>TUCKS ID</h3>
+                      <p>Campus delivery pass</p>
+                    </div>
+                  </div>
+                  <span class="id-chip"><i class='bx bx-shield-quarter'></i> Encrypted</span>
+                </div>
+                <h4 class="id-name" id="idCardName">Member</h4>
+                <p class="id-meta" id="idCardEmail">-</p>
+                <div class="id-fields">
+                  <div class="id-field">
+                    <span>Member ID</span>
+                    <strong id="idCardMemberId">--------</strong>
+                  </div>
+                  <div class="id-field">
+                    <span>Member since</span>
+                    <strong id="idCardSince">-</strong>
+                  </div>
+                  <div class="id-field">
+                    <span>Status</span>
+                    <strong id="idCardStatus">Active</strong>
+                  </div>
+                  <div class="id-field">
+                    <span>Pass expires</span>
+                    <strong id="idCardExpires">-</strong>
+                  </div>
+                </div>
+                <div class="id-actions">
+                  <button class="button button-secondary" type="button" id="refreshIdQrBtn">
+                    <i class='bx bx-refresh'></i> Refresh QR
+                  </button>
+                </div>
+                <p id="idPassStatus">Loading secure pass...</p>
+              </div>
+              <div class="id-qr-panel">
+                <canvas id="idQrCanvas" width="180" height="180" aria-label="TUCKS delivery QR code"></canvas>
+                <p class="qr-note">Show this QR only to a TUCKS delivery agent at handover.</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       <section>
@@ -913,6 +1247,16 @@
                 <div>
                   <strong>Orders</strong>
                   <small>Check your recent purchases and status.</small>
+                </div>
+              </div>
+              <i class='bx bx-chevron-right'></i>
+            </a>
+            <a class="link-item" href="/scan-delivery.html">
+              <div class="left">
+                <i class='bx bx-qr-scan'></i>
+                <div>
+                  <strong>Delivery Scanner</strong>
+                  <small>For delivery agents verifying customer ID cards.</small>
                 </div>
               </div>
               <i class='bx bx-chevron-right'></i>
@@ -1010,10 +1354,12 @@
   </nav>
   <div class="bottom-nav-shadow" aria-hidden="true"></div>
 
+  <script src="https://unpkg.com/qrcode/build/qrcode.min.js"></script>
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { addNotification, getNotifications, getUnreadCount, markAllNotificationsRead, markNotificationRead, clearNotifications, seedWelcomeNotification } from './notifications.js';
 
     const firebaseConfig = {
       apiKey: "AIzaSyDzwnmGgEcN63RcCHSNU6p_xXKxmeqzF6k",
@@ -1043,8 +1389,78 @@
       loggedInActions: document.getElementById('loggedInActions'),
       guestCard: document.getElementById('guestCard'),
       accountNote: document.getElementById('accountNote'),
-      logoutBtn: document.getElementById('logoutBtn')
+      logoutBtn: document.getElementById('logoutBtn'),
+      idCardGuest: document.getElementById('idCardGuest'),
+      idCard: document.getElementById('idCard'),
+      idCardName: document.getElementById('idCardName'),
+      idCardEmail: document.getElementById('idCardEmail'),
+      idCardMemberId: document.getElementById('idCardMemberId'),
+      idCardSince: document.getElementById('idCardSince'),
+      idCardStatus: document.getElementById('idCardStatus'),
+      idCardExpires: document.getElementById('idCardExpires'),
+      idPassStatus: document.getElementById('idPassStatus'),
+      idQrCanvas: document.getElementById('idQrCanvas'),
+      refreshIdQrBtn: document.getElementById('refreshIdQrBtn'),
+      notificationList: document.getElementById('notificationList'),
+      notificationCount: document.getElementById('notificationCount'),
+      markAllNotificationsBtn: document.getElementById('markAllNotificationsBtn'),
+      clearNotificationsBtn: document.getElementById('clearNotificationsBtn')
     };
+
+    let currentUser = null;
+    let refreshTimer = null;
+
+    function formatRelativeTime(value) {
+      if (!value) return 'Just now';
+      const date = value?.toDate ? value.toDate() : new Date(value);
+      const diffMs = Date.now() - date.getTime();
+      const diffMins = Math.round(diffMs / 60000);
+      if (diffMins < 1) return 'Just now';
+      if (diffMins < 60) return `${diffMins}m ago`;
+      const diffHours = Math.round(diffMins / 60);
+      if (diffHours < 24) return `${diffHours}h ago`;
+      const diffDays = Math.round(diffHours / 24);
+      return `${diffDays}d ago`;
+    }
+
+    function renderNotifications(userId) {
+      const notifications = getNotifications(userId || currentUser?.uid || 'guest');
+      const unread = notifications.filter((item) => !item.read).length;
+      els.notificationCount.textContent = `${unread} new`;
+      if (!notifications.length) {
+        els.notificationList.innerHTML = '<div class="notification-empty">You are all caught up. We will only surface important updates here.</div>';
+        return;
+      }
+      els.notificationList.innerHTML = notifications.map((notification) => `
+        <div class="notification-item ${notification.read ? 'is-read' : ''}" data-notification-id="${notification.id}">
+          <div class="notification-item__top">
+            <div class="notification-item__title">${notification.title}</div>
+            <div class="notification-item__time">${formatRelativeTime(notification.createdAt)}</div>
+          </div>
+          <p class="notification-item__message">${notification.message}</p>
+          ${notification.count > 1 ? `<div class="notification-item__message">${notification.count} related updates bundled together.</div>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function refreshNotifications(userId) {
+      renderNotifications(userId);
+    }
+
+    window.addEventListener('tucks:notifications-updated', () => {
+      refreshNotifications(currentUser?.uid || 'guest');
+    });
+
+    els.notificationList?.addEventListener('click', (event) => {
+      const item = event.target.closest('[data-notification-id]');
+      if (!item) return;
+      const id = item.getAttribute('data-notification-id');
+      const userId = currentUser?.uid || 'guest';
+      if (id) {
+        markNotificationRead(id, userId);
+        refreshNotifications(userId);
+      }
+    });
 
     function formatDate(input) {
       if (!input) return '-';
@@ -1089,6 +1505,73 @@
         .join('') || 'T';
     }
 
+    function clearQrCanvas() {
+      const canvas = els.idQrCanvas;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    async function drawIdQr(value) {
+      if (!value || !window.QRCode || !els.idQrCanvas) return;
+      clearQrCanvas();
+      await window.QRCode.toCanvas(els.idQrCanvas, value, {
+        width: 180,
+        margin: 1,
+        errorCorrectionLevel: 'M',
+        color: {
+          dark: '#0f172a',
+          light: '#ffffff'
+        }
+      });
+    }
+
+    function schedulePassRefresh(expiresAt) {
+      window.clearTimeout(refreshTimer);
+      if (!expiresAt) return;
+      const msUntilRefresh = Math.max(30_000, Number(expiresAt) - Date.now() - 60_000);
+      refreshTimer = window.setTimeout(() => {
+        loadDeliveryPass().catch((error) => {
+          console.warn('Auto refresh failed', error);
+        });
+      }, msUntilRefresh);
+    }
+
+    async function loadDeliveryPass() {
+      if (!currentUser) return;
+      els.idPassStatus.textContent = 'Refreshing secure pass...';
+      try {
+        const token = await currentUser.getIdToken();
+        const response = await fetch('/api/getMyDeliveryPass', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json'
+          }
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(data.message || 'Could not load delivery pass');
+        }
+        const qrToken = String(data.qrToken || '').trim();
+        if (qrToken.length < 20) {
+          throw new Error('Invalid delivery pass returned by server');
+        }
+        els.idCardMemberId.textContent = data.user?.memberId || String(currentUser.uid).slice(-8).toUpperCase();
+        els.idCardExpires.textContent = formatDateTime(data.user?.expiresAt);
+        els.idPassStatus.textContent = 'Pass ready. Valid for delivery scan only.';
+        await drawIdQr(qrToken);
+        schedulePassRefresh(data.user?.expiresAt);
+      } catch (error) {
+        console.warn('Delivery pass load failed', error);
+        clearQrCanvas();
+        els.idCardExpires.textContent = '-';
+        els.idPassStatus.textContent = error.message || 'Could not load your secure QR pass.';
+      }
+    }
+
     function setGuestState() {
       const name = 'Guest';
       els.avatar.textContent = 'G';
@@ -1104,6 +1587,10 @@
       els.loggedInActions.classList.add('hidden');
       els.guestCard.classList.remove('hidden');
       els.accountNote.textContent = 'Sign in to unlock a more personal experience, including your stored account details and a faster path back to your cart and orders.';
+      els.idCardGuest.classList.remove('hidden');
+      els.idCard.classList.add('hidden');
+      window.clearTimeout(refreshTimer);
+      clearQrCanvas();
     }
 
     async function loadUserProfile(user) {
@@ -1122,12 +1609,13 @@
       const name = deriveName(user, profile);
       const initials = initialsFromName(name);
       const email = user?.email || profile?.email || 'No email on file';
+      const memberSince = formatDate(profile?.createdAt || user?.metadata?.creationTime);
 
       els.avatar.textContent = initials;
       els.displayName.textContent = name;
       els.displaySubtitle.textContent = user?.email ? `Welcome back, ${name}. Your account is live and ready.` : 'Welcome back. Your profile is connected.';
       els.authStatus.innerHTML = "<i class='bx bx-user-check'></i> Signed in";
-      els.memberSince.innerHTML = `<i class='bx bx-time-five'></i> Member since ${formatDate(profile?.createdAt || user?.metadata?.creationTime)}`;
+      els.memberSince.innerHTML = `<i class='bx bx-time-five'></i> Member since ${memberSince}`;
       els.accountMode.innerHTML = `<i class='bx bx-shield-quarter'></i> ${user?.emailVerified ? 'Verified account' : 'Unverified account'}`;
       els.emailValue.textContent = email;
       els.uidValue.textContent = user?.uid || 'Unavailable';
@@ -1136,15 +1624,29 @@
       els.loggedInActions.classList.remove('hidden');
       els.guestCard.classList.add('hidden');
       els.accountNote.textContent = 'Your profile now shows account-specific details. Keep your login active for a smoother shopping experience.';
+
+      els.idCardGuest.classList.add('hidden');
+      els.idCard.classList.remove('hidden');
+      els.idCardName.textContent = name;
+      els.idCardEmail.textContent = email;
+      els.idCardMemberId.textContent = String(user.uid || '').slice(-8).toUpperCase() || '--------';
+      els.idCardSince.textContent = memberSince;
+      els.idCardStatus.textContent = user?.emailVerified ? 'Verified' : 'Active';
+      els.idPassStatus.textContent = 'Loading secure pass...';
+      seedWelcomeNotification(user.uid, profile?.role || 'buyer');
+      refreshNotifications(user.uid);
+      await loadDeliveryPass();
     }
 
     async function handleAuthChange(user) {
+      currentUser = user || null;
       if (user) {
         localStorage.setItem('isLoggedIn', 'true');
         await setLoggedInState(user);
       } else {
         localStorage.removeItem('isLoggedIn');
         setGuestState();
+        refreshNotifications('guest');
       }
     }
 
@@ -1159,8 +1661,33 @@
       }
     });
 
+    els.markAllNotificationsBtn?.addEventListener('click', () => {
+      const userId = currentUser?.uid || 'guest';
+      markAllNotificationsRead(userId);
+      refreshNotifications(userId);
+    });
+
+    els.clearNotificationsBtn?.addEventListener('click', () => {
+      const userId = currentUser?.uid || 'guest';
+      clearNotifications(userId);
+      refreshNotifications(userId);
+    });
+
+    els.refreshIdQrBtn?.addEventListener('click', async () => {
+      if (!currentUser) return;
+      els.refreshIdQrBtn.disabled = true;
+      try {
+        await loadDeliveryPass();
+      } finally {
+        els.refreshIdQrBtn.disabled = false;
+      }
+    });
+
     const fallbackLogged = localStorage.getItem('isLoggedIn') === 'true';
-    if (!fallbackLogged) setGuestState();
+    if (!fallbackLogged) {
+      setGuestState();
+      refreshNotifications('guest');
+    }
 
     onAuthStateChanged(auth, (user) => {
       handleAuthChange(user);

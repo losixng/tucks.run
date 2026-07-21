@@ -27,6 +27,13 @@ exports.handler = async (event) => {
       };
     }
 
+    if (!String(eventData.category || '').trim()) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ status: "failed", message: "Please choose a category for the event" })
+      };
+    }
+
     if (normalizeEmail(user.email || email) !== normalizeEmail(email)) {
       return {
         statusCode: 403,
@@ -51,6 +58,16 @@ exports.handler = async (event) => {
       return {
         statusCode: 400,
         body: JSON.stringify({ status: "failed", message: "Paid events require a receipt upload" })
+      };
+    }
+
+    const paymentAccountName = normalizeText(eventData.paymentAccountName || "");
+    const paymentAccountNumber = normalizeText(eventData.paymentAccountNumber || "");
+    const paymentBankName = normalizeText(eventData.paymentBankName || "");
+    if (!isFreeEvent && (!paymentAccountName || !paymentAccountNumber || !paymentBankName)) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ status: "failed", message: "Paid events require account name, account number, and bank name" })
       };
     }
 
@@ -114,6 +131,9 @@ exports.handler = async (event) => {
       ticketPrice: Math.max(0, toNumber(eventData.ticketPrice, 0)),
       ticketLabel: normalizeText(eventData.ticketLabel || "General admission"),
       isFree: Boolean(eventData.isFree),
+      paymentAccountName,
+      paymentAccountNumber,
+      paymentBankName,
       ticketMode: normalizeText(eventData.ticketMode || "single"),
       minTicketsPerOrder: Math.max(1, Math.floor(toNumber(eventData.minTicketsPerOrder, 1))),
       maxTicketsPerOrder: Math.max(1, Math.floor(toNumber(eventData.maxTicketsPerOrder, 10))),
@@ -130,6 +150,8 @@ exports.handler = async (event) => {
       hostFeePaid: Number(amount) || 0,
       paystackReference: reference ? String(reference) : '',
       receiptUrl: normalizeText(receiptUrl || ''),
+      reviewRequired: !isFreeEvent,
+      submittedForReviewAt: admin.firestore.FieldValue.serverTimestamp(),
       pendingExpiresAt: isFreeEvent
         ? null
         : admin.firestore.Timestamp.fromMillis(Date.now() + 30 * 60 * 1000),

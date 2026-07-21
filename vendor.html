@@ -137,6 +137,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { getFirestore, collection, addDoc, getDocs, query, where, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { addNotification } from "./notifications.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDzwnmGgEcN63RcCHSNU6p_xXKxmeqzF6k",
@@ -816,6 +817,9 @@
     document.getElementById("uploadBtn").disabled = true;
 
     try {
+      const firstUploadKey = `vendor-first-upload:${currentSellerEmail || supplierName}`;
+      const isFirstUpload = !localStorage.getItem(firstUploadKey);
+
       for (const b of blocks) {
         const name = b.querySelector(".pname").value.trim();
         const desc = b.querySelector(".pdesc").value.trim();
@@ -886,6 +890,38 @@
           createdAt: new Date()
         });
       }
+
+      if (isFirstUpload) {
+        addNotification({
+          userId: currentSellerEmail || supplierName || "vendor",
+          role: "vendor",
+          category: "product",
+          priority: 2,
+          title: "Your first products are live",
+          message: `Your first upload is now live on ${APP_NAME}. Share it and watch buyers discover your catalog.`,
+          groupKey: `vendor-first-upload:${currentSellerEmail || supplierName}`
+        });
+        localStorage.setItem(firstUploadKey, "1");
+      }
+
+      addNotification({
+        userId: currentSellerEmail || supplierName || "vendor",
+        role: "vendor",
+        category: "product",
+        priority: 1,
+        title: "Products uploaded",
+        message: `${blocks.length} product(s) were uploaded successfully. New orders will appear here as they come in.`,
+        groupKey: `vendor-upload:${currentSellerEmail || supplierName}`
+      });
+      addNotification({
+        userId: "admin",
+        role: "admin",
+        category: "vendor",
+        priority: 3,
+        title: "New vendor product upload",
+        message: `${supplierName} uploaded new products for review and visibility.`,
+        groupKey: `admin-vendor-upload:${currentSellerEmail || supplierName}`
+      });
 
       hideToast();
       document.getElementById("successMsg").style.display = "block";
